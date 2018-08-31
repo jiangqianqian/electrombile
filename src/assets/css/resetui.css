@@ -1,0 +1,9 @@
+.van-button--primary {
+  height: 0.88rem;
+  line-height: 0.88rem;
+  border-radius: 0.08rem;
+  border: none;
+  background-color: #47bafe;
+  color: #fff;
+  font-size: 0.3rem;
+}
