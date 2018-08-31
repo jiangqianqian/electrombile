@@ -6,17 +6,6 @@ const register = {
     timer: null,
   },
   mutations: {
-    changeLoading(state) {
-      state.loading = false;
-    },
-    changeFinish(state) {
-      state.finished = true;
-    },
-    addList(state) {
-      for (let i = 0; i < 10; i += 1) {
-        state.list.push(state.list.length + 1);
-      }
-    },
   },
   actions: {
     setEndTime({

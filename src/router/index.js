@@ -9,11 +9,19 @@ Vue.use(Router);
 export default new Router({
   routes: [
     {
-      path: '/',
-      name: 'index',
+      path: '/register',
+      name: 'register',
       component: viewImport('Register/index'),
       meta: {
         title: '注册手机号',
+      },
+    },
+    {
+      path: '/',
+      name: 'home',
+      component: viewImport('Home/index'),
+      meta: {
+        title: '酷行智动',
       },
     },
     {

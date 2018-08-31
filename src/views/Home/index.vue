@@ -55,7 +55,6 @@ export default {
       //   message: '加载中...',
       //   duration: 0
       // });
-      console.log(1232);
       await this.$store.dispatch('getList');
       // Toast.clear();
     },

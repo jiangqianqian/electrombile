@@ -21,7 +21,22 @@ router.beforeEach((to, from, next) => {
     document.title = to.meta.title;
   }
 
-  next();
+  // 请求接口判断是否绑定了设备
+  if (to.fullPath === '/') {
+    const isRegister = false;
+    if (!isRegister) {
+      if (to.path !== '/register') {
+        return next({
+          path: '/register',
+        });
+      }
+    } else if (to.path === '/register') {
+      return next({
+        path: '/',
+      });
+    }
+  }
+  return next();
 });
 
 Vue.config.productionTip = false;

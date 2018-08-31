@@ -19,7 +19,7 @@ export default {
     [Field.name]: Field,
     [Button.name]: Button,
     [Toast.name]: Toast,
-    navBar
+    navBar,
   },
   data() {
     return {

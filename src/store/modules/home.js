@@ -2,7 +2,7 @@ const home = {
   state: {
     loading: false,
     finished: false,
-    list: [],
+    list: [1],
   },
   mutations: {
     changeLoading(state) {

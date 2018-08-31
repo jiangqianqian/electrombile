@@ -135,7 +135,7 @@ export default {
 }
 
 .register-page .van-icon-duanxin {
-  top: 0.14rem;
+  /* top: 0.14rem; */
   margin-right: 0.24rem;
   font-size: 0.4rem;
 }
