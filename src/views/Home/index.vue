@@ -1,63 +1,62 @@
 <template>
   <div>
-    <router-link to='/swiper'>进入第二页</router-link>
-    <van-row>
-      <van-col span="8">span: 8</van-col>
-      <van-col span="8">span: 8</van-col>
-      <van-col span="8">span: 8</van-col>
-    </van-row>
-    <van-icon name="success" class="success"/>
-    <van-icon name="clippy" color="#f91" />
-    <van-list
-      v-model="loading.loading"
-      :finished="finished"
-      @load="onLoad"
-      loading-text="在加载"
-    >
-      <van-cell v-for="item in list" :key="item" :title="item + ''" />
-    </van-list>
+    <van-tabbar class="bottom-bar" v-model="active">
+      <van-tabbar-item to="/home">
+        <van-icon slot="icon" slot-scope="props" name="shouye" />
+        <span>首页</span>
+      </van-tabbar-item>
+      <van-tabbar-item to="/home/footPrint">
+        <van-icon slot="icon" slot-scope="props" name="guiji" />
+        <span>轨迹</span>
+      </van-tabbar-item>
+      <van-tabbar-item>
+        <van-icon slot="icon" slot-scope="props" name="dingwei" />
+        <span>围栏</span>
+      </van-tabbar-item>
+      <van-tabbar-item>
+        <van-icon slot="icon" slot-scope="props" name="duanxin" />
+        <span>消息</span>
+      </van-tabbar-item>
+      <van-tabbar-item>
+        <van-icon slot="icon" slot-scope="props" name="wode" />
+        <span>我的</span>
+      </van-tabbar-item>
+    </van-tabbar>
+    <keep-alive>
+      <router-view/>
+    </keep-alive>
   </div>
 </template>
 
 <script>
-import { Row, Col, Icon, List, Cell, Toast } from 'vant';
+import { Icon, Tabbar, TabbarItem, Toast } from 'vant';
 import { mapGetters } from 'vuex';
 
 export default {
-  name: 'HelloWorld',
+  name: 'home',
   components: {
-    [Row.name]: Row,
-    [Col.name]: Col,
     [Icon.name]: Icon,
-    [List.name]: List,
-    [Cell.name]: Cell,
+    [Tabbar.name]: Tabbar,
+    [TabbarItem.name]: TabbarItem,
+    [Toast.name]: Toast
   },
-  // data() {
-  //   return {
-  //     list: [],
-  //     loading: false,
-  //     finished: false
-  //   };
-  // },
+  data() {
+    return {
+      active: 0
+    };
+  },
   computed: {
-    ...mapGetters(['loading', 'finished', 'list']),
+    ...mapGetters(['loading', 'finished', 'list'])
     // ...mapState({
     //   loading: state => state.home,
     //   finished: state => state.home.finished,
     //   list: state => state.home.list,
     // }),
   },
-  mounted() {},
+  created() {
+    this.active = this.$route.meta.active || 0;
+  },
   methods: {
-    async onLoad() {
-      // Toast.loading({
-      //   mask: true,
-      //   message: '加载中...',
-      //   duration: 0
-      // });
-      await this.$store.dispatch('getList');
-      // Toast.clear();
-    },
     // onLoad() {
     //   setTimeout(() => {
     //     for (let i = 0; i < 10; i++) {
@@ -70,13 +69,28 @@ export default {
     //     }
     //   }, 500);
     // }
-  },
+  }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.success {
-  font-size: 20px;
+</style>
+<style>
+[class*='van-hairline']::after {
+  border-color: #d0d0d0;
+}
+
+.van-tabbar-item--active {
+  color: #47bafe;
+}
+
+.van-tabbar-item__icon {
+  margin-bottom: 6px;
+}
+
+.content {
+  width: 100%;
+  height: 300px;
+  position: relative;
 }
 </style>

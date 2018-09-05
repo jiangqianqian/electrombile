@@ -4,6 +4,9 @@ import Router from 'vue-router';
 const viewImport = file => () =>
   import(`@/views/${file}.vue`);
 
+const Home = Vue.extend(require('@/views/Home/home.vue').default);
+const FootPrint = Vue.extend(require('@/views/Home/footPrint.vue').default);
+
 Vue.use(Router);
 
 export default new Router({
@@ -17,12 +20,28 @@ export default new Router({
       },
     },
     {
-      path: '/',
+      path: '/home',
       name: 'home',
       component: viewImport('Home/index'),
       meta: {
         title: '酷行智动',
       },
+      children: [
+        {
+          path: '',
+          component: Home,
+          meta: {
+            active: 0,
+          },
+        },
+        {
+          path: 'footPrint',
+          component: FootPrint,
+          meta: {
+            active: 1,
+          },
+        },
+      ],
     },
     {
       path: '/swiper',
