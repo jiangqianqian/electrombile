@@ -1,24 +1,35 @@
 <template>
   <div>
-    <van-tabbar class="bottom-bar" v-model="active">
+    <van-tabbar class="bottom-bar"
+                v-model="active">
       <van-tabbar-item to="/home">
-        <van-icon slot="icon" slot-scope="props" name="shouye" />
+        <van-icon slot="icon"
+                  slot-scope="props"
+                  name="shouye" />
         <span>首页</span>
       </van-tabbar-item>
       <van-tabbar-item to="/home/footPrint">
-        <van-icon slot="icon" slot-scope="props" name="guiji" />
+        <van-icon slot="icon"
+                  slot-scope="props"
+                  name="guiji" />
         <span>轨迹</span>
       </van-tabbar-item>
       <van-tabbar-item>
-        <van-icon slot="icon" slot-scope="props" name="dingwei" />
+        <van-icon slot="icon"
+                  slot-scope="props"
+                  name="dingwei" />
         <span>围栏</span>
       </van-tabbar-item>
       <van-tabbar-item>
-        <van-icon slot="icon" slot-scope="props" name="duanxin" />
+        <van-icon slot="icon"
+                  slot-scope="props"
+                  name="duanxin" />
         <span>消息</span>
       </van-tabbar-item>
       <van-tabbar-item>
-        <van-icon slot="icon" slot-scope="props" name="wode" />
+        <van-icon slot="icon"
+                  slot-scope="props"
+                  name="wode" />
         <span>我的</span>
       </van-tabbar-item>
     </van-tabbar>
@@ -63,7 +74,6 @@ export default {
     //       this.list.push(this.list.length + 1);
     //     }
     //     this.loading = false;
-
     //     if (this.list.length >= 40) {
     //       this.finished = true;
     //     }
