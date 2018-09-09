@@ -6,6 +6,8 @@ const viewImport = file => () =>
 
 const Home = Vue.extend(require('@/views/Home/home.vue').default);
 const FootPrint = Vue.extend(require('@/views/Home/footPrint.vue').default);
+const Fence = Vue.extend(require('@/views/Home/fence.vue').default);
+const Message = Vue.extend(require('@/views/Home/message.vue').default);
 
 Vue.use(Router);
 
@@ -39,6 +41,20 @@ export default new Router({
           component: FootPrint,
           meta: {
             active: 1,
+          },
+        },
+        {
+          path: 'fence',
+          component: Fence,
+          meta: {
+            active: 2,
+          },
+        },
+        {
+          path: 'message',
+          component: Message,
+          meta: {
+            active: 3,
           },
         },
       ],

@@ -14,13 +14,13 @@
                   name="guiji" />
         <span>轨迹</span>
       </van-tabbar-item>
-      <van-tabbar-item>
+      <van-tabbar-item to="/home/fence">
         <van-icon slot="icon"
                   slot-scope="props"
                   name="dingwei" />
         <span>围栏</span>
       </van-tabbar-item>
-      <van-tabbar-item>
+      <van-tabbar-item to="/home/message">
         <van-icon slot="icon"
                   slot-scope="props"
                   name="duanxin" />
