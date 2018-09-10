@@ -1,6 +1,6 @@
 <template>
   <div>
-     <navBar title="消息" leftText="返回" rightText="设置"  @clickLeft="back()"  @clickRightt="goSetMsg" />
+     <navBar title="消息" leftText="返回" rightText="设置"  @clickLeft="back()"  @clickRight="goSetMsg" />
      <ul class="msg-list">
        <li class="msg-item" v-for="(item, index) in msgList" :key="index">
          <div class="header">
@@ -49,7 +49,8 @@ export default {
   },
   methods: {
     goSetMsg() {
-      //  this.$router.push('/goSetMsg');
+      console.log(1)
+       this.$router.push('/messageSet');
     }
   }
 };

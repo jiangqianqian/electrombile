@@ -60,6 +60,14 @@ export default new Router({
       ],
     },
     {
+      path: '/messageSet',
+      name: 'messageSet',
+      component: viewImport('MessageSet/index'),
+      meta: {
+        title: '酷行智动',
+      },
+    },
+    {
       path: '/swiper',
       name: 'swiper',
       component: viewImport('Swiper/index'),
