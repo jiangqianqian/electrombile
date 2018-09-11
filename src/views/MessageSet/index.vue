@@ -4,7 +4,7 @@
             leftText="返回"
             rightText="保存"
             @clickLeft="back()"
-            @clickRightt="save" />
+            @clickRight="save" />
     <ul class="msg-list">
       <li class="msg-item">
         <div class="title">振动警报</div>
@@ -75,7 +75,6 @@
                 @change="levelPickerChange"
                 @cancel="levelPickerCancel"
                 @confirm="levelPickerConfirm"
-                :value-key='valueKey'
                 v-if="showLevelPicker" />
 
     <van-datetime-picker v-model="startTime"
@@ -97,6 +96,8 @@ import { Icon, Toast, Field, Switch, Picker, DatetimePicker } from 'vant';
 import navBar from '@/components/nav';
 import { mapGetters } from 'vuex';
 
+const levels = ['初级', '中级', '高级'];
+
 export default {
   name: 'home',
   components: {
@@ -112,14 +113,14 @@ export default {
     return {
       vibration: false,
       prevLevel: null,
-      level: '初级',
+      level: '高级',
       cut: true,
       fence: false,
       noDisturb: true,
       startTime: '00:00',
       endTime: '23:59',
-      columns: ['初级', '中级', '高级'],
-      valueKey: ['a','b','c'],
+      columns: [],
+      valueKey: ['a', 'b', 'c'],
       showLevelPicker: false,
       showStartTime: false,
       showEndTime: false
@@ -128,17 +129,38 @@ export default {
   computed: {
     ...mapGetters(['loading', 'finished', 'list'])
   },
+  mounted() {
+    this.columns = [
+      {
+        values: levels,
+        defaultIndex: levels.indexOf(this.level)
+      }
+    ];
+  },
+  watch: {
+    // 为了每次打开能保留上次选择的值
+    level(newLevel, oldLevel) {
+      this.columns = [
+        {
+          values: levels,
+          defaultIndex: levels.indexOf(newLevel)
+        }
+      ];
+    }
+  },
   created() {},
   methods: {
     save() {
-      //  this.$router.push('/goSetMsg');
+      Toast.success('保存成功');
     },
+
+    // 等级改变
     levelPickerChange() {
       if (!this.prevLevel) {
         this.prevLevel = this.level;
       }
       this.level = this.$refs.levelPicker.getValues()[0];
-       this.$refs.levelPicker.setValues = this.level;
+      this.$refs.levelPicker.setValues = this.level;
     },
     levelPickerCancel() {
       this.level = this.prevLevel;
@@ -147,11 +169,14 @@ export default {
     levelPickerConfirm() {
       this.showLevelPicker = false;
     },
+
+    // 点击等级弹出 picker
     clickLevelPicker() {
       this.showLevelPicker = true;
       this.showStartTime = this.showEndTime = false;
     },
     clickStartTime() {
+      // 显示开始日期 picker，隐藏等级和结束 picker
       this.showStartTime = true;
       this.showLevelPicker = this.showEndTime = false;
     },
@@ -159,10 +184,18 @@ export default {
       this.showEndTime = true;
       this.showStartTime = this.showLevelPicker = false;
     },
-    startTimeCancel() {},
-    startTimeConfirm() {},
-    endTimeCancel() {},
-    endTimeConfirm() {}
+    startTimeCancel() {
+      this.showStartTime = false;
+    },
+    startTimeConfirm() {
+      this.showStartTime = false;
+    },
+    endTimeCancel() {
+      this.showEndTime = false;
+    },
+    endTimeConfirm() {
+      this.showEndTime = false;
+    }
   }
 };
 </script>
@@ -214,6 +247,7 @@ export default {
   align-items: center;
   margin-top: 0.64rem;
 }
+
 .time-item {
   width: 30%;
   height: 0.76rem;
@@ -223,6 +257,7 @@ export default {
   border: 1px solid #ddd;
   border-radius: 3px;
 }
+
 .split-text {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
