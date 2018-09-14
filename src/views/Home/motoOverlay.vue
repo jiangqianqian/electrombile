@@ -8,7 +8,7 @@
       <div class="drop"></div>
       <div class="circle-inner">
         <van-icon class="marker-icon-motuo"
-          name="motuo" />
+          name="diandongche" />
       </div>
     </div>
   </bm-overlay>
@@ -88,9 +88,10 @@ export default {
 }
 
 .marker-icon-motuo {
-  font-size: 0.45rem;
+  position: relative;
+  top: -1px;
+  font-size: 0.44rem;
   color: #47bafe;
-  font-weight: bold;
 }
 
 .marker-moto.cur .circle,

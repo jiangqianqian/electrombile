@@ -2,7 +2,7 @@
   <div class="register-page">
     <div>
       <van-field v-model.trim="phone" type="tel" left-icon="shouji" placeholder="请输入手机号" />
-      <van-field v-model.trim="sms" type="tel" left-icon="duanxin" placeholder="请输入验证码">
+      <van-field v-model.trim="sms" type="tel" left-icon="xiaoxi-moren" placeholder="请输入验证码">
         <van-button class="sms-btn" slot="button" size="small" :disabled="!show" @click.stop="getSms(phone)">
           <span v-show="show">获取验证码</span>
           <span v-show="!show" class="count">{{count}} s</span>
@@ -129,15 +129,17 @@ export default {
 </style>
 <style>
 .register-page .van-cell__left-icon {
-  margin-right: 0.18rem;
-  font-size: 0.46rem;
+  margin-right: 0.12rem;
+  font-size: 0.48rem;
   color: #47bafe;
 }
 
-.register-page .van-icon-duanxin {
+.register-page .van-icon-xiaoxi-moren {
+  position: relative;
+  left: 2px;
   /* top: 0.14rem; */
   margin-right: 0.24rem;
-  font-size: 0.4rem;
+  font-size: 0.36rem;
 }
 
 .register-page .van-cell {

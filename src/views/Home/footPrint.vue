@@ -3,44 +3,74 @@
     <navBar leftText="返回"
             @clickLeft="back()">
       <template slot="titleBox">
-        <div class="titleBox">
-          小牛
+        <div class="titleBox"
+             @click.stop="selectFlag = true">
+          {{currentSelectItem.name}}
           <van-icon class="title-arrow"
                     name="xiasanjiao" />
         </div>
-        <ul class="title-list">
-          <li class="title-list-item cur">小牛</li>
-          <li class="title-list-item">新日</li>
-          <li class="title-list-item">小米</li>
+        <ul class="title-list"
+            v-if="selectFlag">
+          <li :class="{'title-list-item': true, 'cur': item.id === currentSelectItem.id}"
+              v-for="(item,index) in vehicleList"
+              :key="index"
+              @click.stop="selectItem(item)">{{item.name}}</li>
         </ul>
       </template>
     </navBar>
-    <div class="bm-view-wrap">
+    <div class="bm-view-wrap"
+         @touchend="selectFlag = false">
       <baidu-map ref="baiduMap"
                  class="bm-view"
                  :center="center"
-                 :zoom="17"
+                 :zoom="15"
                  @ready="mapReady">
-        <!-- 覆盖物 -->
-
-        <!-- <bm-overlay pane="markerPane" v-for="(item, index) in markerList" :key="index" :class="{'marker-moto': true, active: index === activeIndex}" @draw="draw" @touchend.native.stop="active(index)">
-        <div class="circle">
-          <div class="drop"></div>
-          <div class="circle-inner">
-            <van-icon class="marker-icon-motuo" name="motuo" />
-          </div>
-        </div>
-      </bm-overlay> -->
 
         <!-- 中心点 -->
-        <bm-overlay ref="mapCenter"
+        <!-- <bm-overlay ref="mapCenter"
                     pane="markerPane"
                     class="map-center"
                     @draw="drawCenter">
           <van-icon class="icon-map-center"
                     name="zuobiao1" />
+        </bm-overlay> -->
+
+        <bml-lushu @stop="resetPlay"
+                   :path="path"
+                   :icon="icon"
+                   :play="play"
+                   :speed="3000"
+                   :autoView="true">
+        </bml-lushu>
+
+        <!-- 起点 -->
+        <bm-overlay pane="markerPane"
+                    class="map-lushu"
+                    v-show="isHasRoute"
+                    @draw="drawStartPoint">
+          <div class="route-circle startPoint">
+            <div class="drop"></div>
+            <div class="route-circle-inner">起</div>
+          </div>
         </bm-overlay>
 
+        <!-- 终点 -->
+        <bm-overlay pane="markerPane"
+                    class="map-lushu"
+                    v-if="isHasRoute"
+                    @draw="drawEndPoint">
+          <div class="route-circle endPoint">
+            <div class="drop"></div>
+            <div class="route-circle-inner">终</div>
+          </div>
+        </bm-overlay>
+        <!-- 折线 -->
+        <bm-polyline :path="path"
+                     stroke-color="#47bafe"
+                     :stroke-opacity="1"
+                     :stroke-weight="6"
+                     v-if="isHasRoute">
+        </bm-polyline>
       </baidu-map>
       <div class="message"
            v-if="showMessage">
@@ -49,30 +79,36 @@
                   name="guangbi"
                   @click="showMessage = false;" />
       </div>
-      <div class="map-expand">
+      <div class="map-expand"
+           @click="isShrink = !isShrink">
         <div class="icon-control-wrap">
           <van-icon class="icon-control"
-                    name="fangda" />
+                    :name="isShrink ? 'fangda' : 'suoxiao'" />
         </div>
       </div>
 
-      <div class="play-box">
+      <div :class="{'play-box': true, 'expand': !isShrink}"
+           @click="changeText"
+           v-show="isHasRoute">
         <van-icon class="play-box-icon"
-                  name="bofang" /> 播放
+                  :name="play ? 'tingzhi': 'bofang'" /> {{text}}
       </div>
 
-      <div class="info">
+      <div class="info"
+           v-show="isShrink">
         <div class="time-box">
-          <div class="time-item">
+          <div class="time-item"
+               @click="showDatePicker({ flag: 'start'})">
             <span class="time-item-tile">开始时间</span>
-            <div class="time-item-value">2018-09-10 10:20
+            <div class="time-item-value">{{startDate}}
               <van-icon class="right-arrow"
                         name="arrow" />
             </div>
           </div>
-          <div class="time-item">
+          <div class="time-item"
+               @click="showDatePicker({ flag: 'end'})">
             <span class="time-item-tile">结束时间</span>
-            <div class="time-item-value">2018-09-11 10:20
+            <div class="time-item-value">{{endDate}}
               <van-icon class="right-arrow"
                         name="arrow" />
             </div>
@@ -81,19 +117,25 @@
         <div class="time-btn-box">
           <van-button size="large"
                       type="primary"
-                      @click.native="register">搜索</van-button>
+                      @click.native="search">搜索</van-button>
         </div>
       </div>
-
+      <van-datetime-picker v-model="currentDate.date"
+                           class="route-datetime-picker"
+                           type="datetime"
+                           :title="pickerTitle"
+                           @cancel="datePickerCancel"
+                           @confirm="datePickerConfirm"
+                           v-show="isShowDate" />
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-import { Button, Icon, Toast } from 'vant';
-import MotoOverlay from './motoOverlay.vue';
+import { Button, Icon, Toast, DatetimePicker } from 'vant';
 import navBar from '@/components/nav';
+import { BmlLushu } from 'vue-baidu-map';
 
 export default {
   name: 'map12',
@@ -101,207 +143,263 @@ export default {
     [Button.name]: Button,
     [Icon.name]: Icon,
     [Toast.name]: Toast,
-    MotoOverlay,
+    [DatetimePicker.name]: DatetimePicker,
+    BmlLushu,
     navBar
   },
   data() {
     return {
+      selectFlag: false, // 为 true 显示电动车下拉框
+      isShrink: true, // 为 true 为地图未展开状态
+      currentSelectItem: null, // 电动车下拉框在首页选中的某个值
+      vehicleList: [
+        { id: 1, name: '小牛' },
+        { id: 2, name: '新日' },
+        { id: 3, name: '小米' }
+      ],
       center: {
         // 中心点
         lng: 0,
         lat: 0
       },
-      reverse: false,
-      showMessage: true,
-      message: '电话来了', // 实时信息
-      activeVehicleIndex: 0, // 用于展示切换卡面时保留的电动车索引
-      activeIndex: null, // 电动车和当前用户位置切换的 index
-      // TODO: 通过接口拿到姓名及头像，通过地图逆址解析拿到地址
-      userInfo: {
-        title: '用户名',
-        src: 'https://www.baidu.com/img/baidu_jgylogo3.gif',
-        address: ''
-      },
-      markerList: [
-        {
-          lat: 22.546,
-          lng: 114.025,
-          title: '名字1',
-          state: 'YES',
-          address: '广东省深圳市大冲商务中心',
-          src: '@/assets/images/2.jpg'
-        },
-        {
-          lat: 22.545,
-          lng: 114.025,
-          title: '名字2',
-          state: 'NO',
-          time: '2018-09-20 14：20：20',
-          address: '广东省深圳市大冲商务中心2',
-          src: '@/assets/images/3.jpg'
-        }
-      ]
+      showMessage: true, // 为 true 显示实时消息
+      message: '电话来了', // 实时消息
+      isShowDate: false, // 显示日期选择器
+      pickerTitle: '', // 日期选择器 title
+      currentDate: { date: null, flag: '' }, // 当前打开的日期选择器属于开始时间还是结束时间
+      startDate: '2018-09-10 10:20',
+      endDate: '2018-09-11 10:20',
+      isHasRoute: false // 是否点击搜索并查到了路线
     };
   },
-  watch: {
-    // center: {
-    //   handler() {
-    //     this.$refs.mapCenter.reload();
-    //   },
-    //   deep: true
-    // }
-  },
+  watch: {},
   computed: {
-    // ...mapGetters(['play', 'path', 'icon', 'text'])
+    ...mapGetters(['play', 'path', 'icon', 'text', 'playBoxIcon'])
   },
   created() {
-    // 获取中心点完成前显示加载中
-    Toast.loading({
-      mask: true,
-      duration: 0,
-      message: '加载中...'
-    });
+    // TODO: 请求接口获取电动车列表并赋值当前选中的电动车的位置为地图中心点
+    // 获取开始结束时间
+
+    let curIndex = window.activeVehicleIndex || 0;
+    this.currentSelectItem = this.vehicleList[curIndex];
   },
+  mounted() {},
 
   methods: {
-    mapReady({ BMap, map }) {
-      this.setCenter();
+    dateFormat: function(timestamp, fmt, humanized) {
+      // 格式化日期
+      if (timestamp instanceof Date) {
+        timestamp = timestamp.getTime();
+      } else if (typeof timestamp == 'string') {
+        timestamp = new Date(timestamp);
+      }
+
+      if (timestamp != null) {
+        let localTime = new Date(
+          timestamp +
+            (new Date(timestamp).getTimezoneOffset() - -480) * 60 * 1000
+        );
+
+        let today = new Date();
+        if (humanized) {
+          if (
+            new Date(
+              localTime.getFullYear() +
+                '/' +
+                (localTime.getMonth() + 1) +
+                '/' +
+                localTime.getDate()
+            ).getTime() ==
+            new Date(
+              today.getFullYear() +
+                '/' +
+                (today.getMonth() + 1) +
+                '/' +
+                today.getDate()
+            ).getTime()
+          ) {
+            fmt = fmt.replace(/(y+-)?M+-d+/, '今天');
+          } else if (
+            new Date(
+              localTime.getFullYear() +
+                '/' +
+                (localTime.getMonth() + 1) +
+                '/' +
+                localTime.getDate()
+            ).getTime() ==
+            new Date(
+              today.getFullYear() +
+                '/' +
+                (today.getMonth() + 1) +
+                '/' +
+                today.getDate() -
+                1
+            ).getTime()
+          ) {
+            fmt = fmt.replace(/(y+-)?M+-d+/, '昨天');
+          }
+        }
+
+        let o = {
+          'M+': localTime.getMonth() + 1,
+          'd+': localTime.getDate(),
+          'h+': localTime.getHours(),
+          'm+': localTime.getMinutes(),
+          's+': localTime.getSeconds()
+        };
+        if (/(y+)/.test(fmt)) {
+          fmt = fmt.replace(
+            RegExp.$1,
+            (localTime.getFullYear() + '').substr(4 - RegExp.$1.length)
+          );
+        }
+
+        for (let k in o) {
+          if (new RegExp('(' + k + ')').test(fmt)) {
+            fmt = fmt.replace(
+              RegExp.$1,
+              RegExp.$1.length == 1
+                ? o[k]
+                : ('00' + o[k]).substr(('' + o[k]).length)
+            );
+          }
+        }
+
+        return fmt;
+      } else {
+        return '';
+      }
     },
 
-    change(index) {
-      // 切换卡版为用户或电动车信息
-      let prevIndex = this.activeIndex;
-      this.activeIndex = index;
-      if (index < this.markerList.length) {
-        // 表示是点击的电动车
-        const curItem = this.markerList[index];
-        this.activeVehicleIndex = index;
-        this.$refs.baiduMap.map.panTo(new BMap.Point(curItem.lng, curItem.lat));
-        if (!prevIndex || prevIndex >= this.markerList.length) {
-          this.reverse = true;
-        }
-      } else {
-        // 表示点击的是中心点
-        this.$refs.baiduMap.map.panTo(
-          new BMap.Point(this.center.lng, this.center.lat)
-        );
-        if (prevIndex < this.markerList.length) {
-          this.reverse = false;
-        }
-      }
+    mapReady({ BMap, map }) {
+      // TODO: 测试用
+      this.setCenter();
     },
 
     setCenter() {
-      // 当前用户所在位置
-      let _this = this;
-      let geolocation = new BMap.Geolocation();
-      geolocation.getCurrentPosition(
-        function(r) {
-          // 画当前位置
-          if (this.getStatus() == BMAP_STATUS_SUCCESS) {
-            Toast.clear();
-            _this.center = {
-              lng: r.point.lng,
-              lat: r.point.lat
-            };
-            _this.getAddress();
-          } else {
-            Toast.fail('获取定位失败!');
-          }
-        },
-        {
-          enableHighAccuracy: true
-        }
-      );
-      Toast.clear();
+      // TODO: 测试用
+      this.center = {
+        lng: this.path[0].lng,
+        lat: this.path[0].lat
+      };
     },
 
-    getAddress() {
-      var _this = this;
-
-      // 创建地址解析器实例
-      let myGeo = new BMap.Geocoder();
-      // 将地址解析结果显示在地图上，并调整地图视野
-
-      let point = new BMap.Point(this.center.lng, this.center.lat);
-
-      myGeo.getLocation(point, function(rs) {
-        let address = rs.addressComponents;
-        _this.userInfo.address =
-          address.province +
-          address.city +
-          address.district +
-          address.street +
-          address.streetNumber;
-      });
+    resetPlay() {
+      // 当路书停止时重置状态为开始
+      this.$store.commit('resetPlay');
     },
 
-    drawCenter({ el, BMap, map, overlay }) {
+    changeText() {
+      // 切换开始停止
+      this.$store.commit('changeText');
+    },
+
+    drawStartPoint({ el, BMap, map, overlay }) {
+      // 绘制起点
       const pixel = map.pointToOverlayPixel(
-        new BMap.Point(this.center.lng, this.center.lat)
+        new BMap.Point(this.path[0].lng, this.path[0].lat)
       );
 
-      // TODO:
-      el.style.left = pixel.x - 10 + 'px';
-      el.style.top = pixel.y - 10 + 'px';
+      el.style.left = pixel.x - 13 + 'px';
+      el.style.top = pixel.y - 26 + 'px';
     },
 
-    backUser() {
-      // 返回中心点
-      this.setCenter();
-
-      this.$refs.baiduMap.map.panTo(
-        new BMap.Point(this.center.lng, this.center.lat)
+    drawEndPoint({ el, BMap, map, overlay }) {
+      // 绘制终点
+      const pixel = map.pointToOverlayPixel(
+        new BMap.Point(
+          this.path[this.path.length - 1].lng,
+          this.path[this.path.length - 1].lat
+        )
       );
 
-      // 卡片信息为用户信息
-      this.change(this.markerList.length + 1);
+      el.style.left = pixel.x - 13 + 'px';
+      el.style.top = pixel.y - 26 + 'px';
     },
 
-    adjustOS() {
-      // 判断是否属于 ios
-      var ua = window.navigator.userAgent.toLowerCase();
-      return ua.indexOf('os') > 0;
+    selectItem(item) {
+      this.resetState();
+
+      // 隐藏下拉框
+      this.selectFlag = false;
+      this.currentSelectItem = item;
     },
 
-    wakeBaidu() {
-      let timeout = 600;
-      var activeVehicle = this.markerList[this.activeIndex];
-      let scheme = ''; // 唤起百度地图的配置信息
-
-      if (this.adjustOS) {
-        // 手机系统 ios
-        scheme = `baidumap://map/marker?location=${activeVehicle.lat},${
-          activeVehicle.lng
-        }&title=${activeVehicle.title}&content=${
-          activeVehicle.address
-        }&output=html&src=webapp.baidu.openAPIdemo`;
+    showDatePicker(state) {
+      // 显示日期选择器
+      this.isShowDate = true;
+      if (state.flag === 'start') {
+        this.currentDate = {
+          date: new Date(this.startDate),
+          flag: 'start'
+        };
+        this.pickerTitle = '开始时间';
       } else {
-        // 手机系统 android
-        scheme = `bdapp://map/marker?location=${activeVehicle.lat},${
-          activeVehicle.lng
-        }&title=${activeVehicle.title}&content=${
-          activeVehicle.address
-        }&output=html&src=webapp.baidu.openAPIdemo`;
+        this.currentDate = {
+          date: new Date(this.endDate),
+          flag: 'end'
+        };
+        this.pickerTitle = '结束时间';
+      }
+    },
+
+    datePickerCancel() {
+      // 日期选择器点击取消
+      this.isShowDate = false;
+    },
+
+    datePickerConfirm() {
+      // 日期选择器点击确定
+      this.isShowDate = false;
+      if (this.currentDate.flag === 'start') {
+        this.startDate = this.dateFormat(
+          this.currentDate.date,
+          'yyyy-MM-dd hh:mm'
+        );
+      } else {
+        this.endDate = this.dateFormat(
+          this.currentDate.date,
+          'yyyy-MM-dd hh:mm'
+        );
+      }
+    },
+
+    clearOverlays() {
+      this.$refs.baiduMap.map.clearOverlays();
+    },
+
+    resetState() {
+      // 切换了电动车后重置状态
+      // 清除覆盖物
+      // this.clearOverlays();
+      this.resetPlay();
+
+      this.isHasRoute = false;
+
+    },
+
+    search() {
+      // 重置播放状态为起始
+      this.resetPlay();
+
+      // 点击搜索
+      // 判断开始结束时间是否有效
+      let startTime = new Date(this.startDate).getTime();
+      let endTime = new Date(this.endDate).getTime();
+      if (startTime > endTime) {
+        Toast('开始时间须小于结束时间');
       }
 
-      // 如果手机没装百度地图，打开网页版地图
-      let startTime = Date.now();
-      window.location.href = scheme;
-      let t = setTimeout(function() {
-        let endTime = Date.now();
-        if (!startTime || endTime - startTime < timeout + 200) {
-          window.location.href = `http://api.map.baidu.com/marker?location=${
-            activeVehicle.lat
-          },${activeVehicle.lng}&title=${activeVehicle.title}&content=${
-            activeVehicle.address
-          }&output=html`;
-        }
-      }, timeout);
+      // TODO: 请求接口
+      // 如果没有数据，实时消息打开并显示暂无数据
+      // 获取 path, 设置起终点，画线， 根据获取到的点设置最佳视野
+      // Toast.loading({
+      //   mask: true,
+      //   message: '加载中...'
+      // });
 
-      window.onblur = function() {
-        clearTimeout(t);
-      };
+      // 请求结束后
+      this.isHasRoute = true;
     }
   }
 };
@@ -317,17 +415,6 @@ export default {
   overflow: hidden;
 }
 
-.map-control {
-  position: absolute;
-  bottom: 2.14rem;
-  left: 50%;
-  margin-left: -45.5%;
-  width: 92%;
-  display: -webkit-flex;
-  display: flex;
-  justify-content: space-between;
-}
-
 .icon-control-wrap {
   width: 0.74rem;
   height: 0.74rem;
@@ -341,25 +428,6 @@ export default {
   line-height: 0.6rem;
   font-size: 0.5rem;
   color: #000;
-}
-
-.control-vehicle-wrap {
-  flex: 1;
-  text-align: right;
-  font-size: 0;
-}
-
-.control-vehicle {
-  display: inline-block;
-  margin-left: 2px;
-}
-
-.control-vehicle .icon-control {
-  color: #47bafe;
-}
-
-.control-vehicle.cur .icon-control {
-  color: #81c048;
 }
 
 .info {
@@ -422,19 +490,17 @@ export default {
   font-size: 0.26rem;
   color: #fff;
   border-radius: 0.35rem;
-  background-color:#47bafe;
+  background-color: #47bafe;
   box-shadow: 0 2px 8px 2px rgba(0, 0, 0, 0.1);
+}
+
+.play-box.expand {
+  bottom: 0.32rem;
 }
 
 .play-box-icon {
   /* padding-right: 0.1rem; */
 }
-
-
-
-
-
-
 
 .message {
   position: absolute;
@@ -514,5 +580,61 @@ export default {
   position: absolute;
   top: 0.48rem;
   right: 0.28rem;
+}
+
+.map-lushu {
+  position: absolute;
+}
+
+.route-circle {
+  position: relative;
+  display: -webkit-flex;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 23px;
+  height: 23px;
+  border-radius: 100%;
+  border: 1px solid #fff;
+  box-sizing: border-box;
+}
+
+.drop {
+  position: absolute;
+  top: 8px;
+  transform: rotate(45deg);
+  width: 15px;
+  height: 15px;
+  left: 50%;
+  margin-left: -8px;
+  border: 1px solid #fff;
+  border-width: 0 1px 1px 0;
+  box-sizing: border-box;
+}
+
+.route-circle-inner {
+  position: relative;
+  z-index: 999;
+  font-size: 0.22rem;
+  color: #fff;
+}
+
+.route-circle.startPoint,
+.route-circle.startPoint .drop,
+.route-circle.startPoint .route-circle-inner {
+  background-color: #81c048;
+}
+
+.route-circle.endPoint,
+.route-circle.endPoint .drop,
+.route-circle.endPoint .route-circle-inner {
+  background-color: #e5805c;
+}
+
+.route-datetime-picker {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
 }
 </style>

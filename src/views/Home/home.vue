@@ -28,7 +28,7 @@
                   class="map-center"
                   @draw="drawCenter">
         <van-icon class="icon-map-center"
-                  name="zuobiao1" />
+                  name="weizhifangxiang" />
       </bm-overlay>
 
     </baidu-map>
@@ -52,7 +52,7 @@
              :key="index"
              @click="change(index)">
           <van-icon class="icon-control"
-                    name="motuo" />
+                    name="diandongche" />
         </div>
       </div>
     </div>
@@ -189,6 +189,7 @@ export default {
         // 表示是点击的电动车
         const curItem = this.markerList[index];
         this.activeVehicleIndex = index;
+        window.activeVehicleIndex = index;
         this.$refs.baiduMap.map.panTo(new BMap.Point(curItem.lng, curItem.lat));
         if (!prevIndex || prevIndex >= this.markerList.length) {
           this.reverse = true;
@@ -352,7 +353,7 @@ export default {
 
 .icon-control {
   line-height: 0.6rem;
-  font-size: 0.5rem;
+  font-size: 0.54rem;
   color: #000;
 }
 
@@ -527,7 +528,7 @@ export default {
 }
 
 .icon-map-center {
-  font-size: 0.5rem;
+  font-size: 0.54rem;
   color: #47bafe;
 }
 </style>

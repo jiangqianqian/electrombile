@@ -21,22 +21,22 @@
         <div class="map-center-circle"></div>
       </bm-overlay>
 
-      <!-- <bm-circle :center="circlePath.center"
-                 :radius="circlePath.radius"
-                 fillColor="#47bafe"
-                 :fillOpacity="0.18"
-                 :strokeOpacity="0.18"
-                 :strokeWeight="0"
-                 stroke-color="#47bafe"
-                 @lineupdate="updateCirclePath"></bm-circle> -->
+      <bm-polyline :path="polylinePath"
+                   stroke-color="#47bafe"
+                   :stroke-opacity="1"
+                   :stroke-weight="2"
+                   stroke-style="dashed">
+      </bm-polyline>
 
-      <bm-circle :center="circlePath.center"
+      <bm-circle ref="mapCircle"
+                 :center="circlePath.center"
                  :radius="circlePath.radius"
-                 stroke-color="transparent"
+                 stroke-color="#47bafe"
                  :stroke-weight="1"
                  fill-color="#47bafe"
                  :fill-opacity="0.18"
-                 @lineupdate="updateCirclePath"></bm-circle>
+                 @lineupdate="updateCirclePath">
+      </bm-circle>
 
     </baidu-map>
 
@@ -81,7 +81,8 @@ export default {
         title: '电子围栏(200米)',
         address: ''
       },
-      switchChecked: true
+      switchChecked: true,
+      polylinePath: []
     };
   },
   computed: {
@@ -99,6 +100,38 @@ export default {
   methods: {
     mapReady({ BMap, map }) {
       this.setCenter();
+      // this.drawDashLine();
+    },
+    drawDashLine() {
+      this.polylinePath = [
+        {
+          lng: this.center.lng,
+          lat: this.center.lat
+        },
+        {
+          lng: this.circleBoundLng,
+          lat: this.center.lat
+        }
+      ];
+      // console.log(this.polylinePath, '123');
+      // var labelPoint = new BMap.Point(newRightLng, point.latitude);
+      // var opts = {
+      //   position: labelPoint,
+      //   offset: new BMap.Size(-50, -35)
+      // };
+
+      // var label = new BMap.Label(mileArrayInfo[i], opts);
+      // label.setStyle({
+      //   color: '#fff',
+      //   fontSize: '12px',
+      //   height: '20px',
+      //   lineHeight: '20px',
+      //   fontFamily: 'Arial',
+      //   border: 0,
+      //   borderRadius: '10px',
+      //   backgroundColor: '#666',
+      //   padding: '0 5px'
+      // });
     },
 
     setCenter() {
@@ -109,11 +142,21 @@ export default {
         function(r) {
           // 画当前位置
           if (this.getStatus() == BMAP_STATUS_SUCCESS) {
-            console.log('success', r.point.lng)
+            console.log('success', r.point.lng);
             Toast.clear();
-            _this.circlePath.center.lng =  r.point.lng,
-            _this.circlePath.center.lat =  r.point.lat,
-            _this.getAddress();
+            _this.circlePath.center.lng = r.point.lng,
+              _this.circlePath.center.lat = r.point.lat,
+              _this.polylinePath = [
+        {
+          lng: _this.circlePath.center.lng,
+          lat: _this.circlePath.center.lat
+        },
+        {
+          lng: 114.02791876501952,
+          lat: _this.circlePath.center.lat
+        }
+      ];
+              _this.getAddress();
           } else {
             Toast.fail('获取定位失败!');
           }
@@ -147,6 +190,7 @@ export default {
           address.streetNumber;
       });
     },
+
     drawCenter({ el, BMap, map, overlay }) {
       const pixel = map.pointToOverlayPixel(
         new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat)
@@ -156,9 +200,13 @@ export default {
       el.style.left = pixel.x - 10 + 'px';
       el.style.top = pixel.y - 10 + 'px';
     },
+
     updateCirclePath(e) {
-      this.circlePath.center = e.target.getCenter();
-      this.circlePath.radius = e.target.getRadius();
+      let circleBoundLng = e.target.getBounds().getNorthEast().lng;
+      // this.circlePath.center = e.target.getCenter();
+      // this.circlePath.radius = e.target.getRadius();
+
+      console.log(this.polylinePath);
     }
   }
 };

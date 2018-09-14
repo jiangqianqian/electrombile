@@ -1,33 +1,36 @@
+import path from '@/../static/path.js';
+import lushuIcon from '@/assets/images/lushu-icon.png';
 
 const home = {
   state: {
     play: false,
-    path: [],
+    path,
     text: '开始',
     icon: {
-      url: 'http://api.map.baidu.com/library/LuShu/1.2/examples/car.png',
+      url: lushuIcon,
       size: {
-        width: 52,
-        height: 26,
+        width: 30,
+        height: 38,
       },
       opts: {
         anchor: {
-          width: 27,
-          height: 13,
+          width: 15,
+          height: 38,
         },
       },
     },
   },
   mutations: {
-    reset(state) {
+    resetPlay(state) {
       state.play = false;
       state.text = '开始';
     },
     handleSearchComplete(state, res) {
-      state.path = res
-        .getPlan(0)
-        .getRoute(0)
-        .getPath();
+      // state.path = res
+      //   .getPlan(0)
+      //   .getRoute(0)
+      //   .getPath();
+      // console.log(state.path);
     },
     changeText(state) {
       state.play = !state.play;
