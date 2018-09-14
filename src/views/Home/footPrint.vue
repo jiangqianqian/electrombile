@@ -35,18 +35,20 @@
                     name="zuobiao1" />
         </bm-overlay> -->
 
-        <bml-lushu @stop="resetPlay"
+        <bml-lushu ref="lushu"
+                   @stop="resetPlay"
                    :path="path"
                    :icon="icon"
                    :play="play"
                    :speed="3000"
-                   :autoView="true">
+                   :autoView="true"
+                   v-if="isHasRoute">
         </bml-lushu>
 
         <!-- 起点 -->
         <bm-overlay pane="markerPane"
                     class="map-lushu"
-                    v-show="isHasRoute"
+                    v-if="isHasRoute"
                     @draw="drawStartPoint">
           <div class="route-circle startPoint">
             <div class="drop"></div>
@@ -65,12 +67,12 @@
           </div>
         </bm-overlay>
         <!-- 折线 -->
-        <bm-polyline :path="path"
+        <!-- <bm-polyline :path="path"
                      stroke-color="#47bafe"
                      :stroke-opacity="1"
                      :stroke-weight="6"
                      v-if="isHasRoute">
-        </bm-polyline>
+        </bm-polyline> -->
       </baidu-map>
       <div class="message"
            v-if="showMessage">
@@ -317,6 +319,18 @@ export default {
       el.style.top = pixel.y - 26 + 'px';
     },
 
+    resetState() {
+      // 切换了电动车后重置状态
+      // 清除覆盖物
+      // if (this.polyline) {
+      this.polyline && this.$refs.baiduMap.map.removeOverlay(this.polyline);
+
+      // }
+      this.resetPlay();
+
+      this.isHasRoute = false;
+    },
+
     selectItem(item) {
       this.resetState();
 
@@ -368,19 +382,13 @@ export default {
       this.$refs.baiduMap.map.clearOverlays();
     },
 
-    resetState() {
-      // 切换了电动车后重置状态
-      // 清除覆盖物
-      // this.clearOverlays();
+    search() {
+      // 重置播放状态为起始
       this.resetPlay();
 
       this.isHasRoute = false;
 
-    },
-
-    search() {
-      // 重置播放状态为起始
-      this.resetPlay();
+      this.polyline && this.$refs.baiduMap.map.removeOverlay(this.polyline);
 
       // 点击搜索
       // 判断开始结束时间是否有效
@@ -399,7 +407,20 @@ export default {
       // });
 
       // 请求结束后
+      this.drawPolyline();
+
       this.isHasRoute = true;
+    },
+    drawPolyline() {
+      let polylinePoints = this.path.map(item => {
+        return new BMap.Point(item.lng, item.lat);
+      });
+
+      this.polyline = new BMap.Polyline(polylinePoints, {
+        strokeColor: '#47bafe',
+        strokeWeight: 6
+      });
+      this.$refs.baiduMap.map.addOverlay(this.polyline);
     }
   }
 };

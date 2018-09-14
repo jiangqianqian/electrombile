@@ -5,13 +5,6 @@
                :center="circlePath.center"
                :zoom="17"
                @ready="mapReady">
-      <!-- 覆盖物 -->
-      <!--<MotoOverlay v-for="(item, index) in markerList"
-                   :cur="index === activeIndex"
-                   :key="index"
-                   :item="item"
-                   :index="index"
-                   @change="change"></MotoOverlay>-->
 
       <!-- 中心点 -->
       <bm-overlay ref="mapCenter"
@@ -20,24 +13,6 @@
                   @draw="drawCenter">
         <div class="map-center-circle"></div>
       </bm-overlay>
-
-      <bm-polyline :path="polylinePath"
-                   stroke-color="#47bafe"
-                   :stroke-opacity="1"
-                   :stroke-weight="2"
-                   stroke-style="dashed">
-      </bm-polyline>
-
-      <bm-circle ref="mapCircle"
-                 :center="circlePath.center"
-                 :radius="circlePath.radius"
-                 stroke-color="#47bafe"
-                 :stroke-weight="1"
-                 fill-color="#47bafe"
-                 :fill-opacity="0.18"
-                 @lineupdate="updateCirclePath">
-      </bm-circle>
-
     </baidu-map>
 
     <div class="card">
@@ -49,7 +24,8 @@
         </div>
       </div>
       <van-switch class="switch-btn"
-                  v-model="switchChecked" />
+                  v-model="switchChecked"
+                  @change="setFenceSwitch" />
     </div>
   </div>
 </template>
@@ -59,7 +35,7 @@ import { mapGetters } from 'vuex';
 import { Button, Icon, Toast, Switch } from 'vant';
 
 export default {
-  name: 'map12',
+  name: 'fence',
   components: {
     [Button.name]: Button,
     [Icon.name]: Icon,
@@ -82,7 +58,8 @@ export default {
         address: ''
       },
       switchChecked: true,
-      polylinePath: []
+      circle: null,
+      polylineLastPoint: {}
     };
   },
   computed: {
@@ -99,42 +76,11 @@ export default {
 
   methods: {
     mapReady({ BMap, map }) {
-      this.setCenter();
-      // this.drawDashLine();
-    },
-    drawDashLine() {
-      this.polylinePath = [
-        {
-          lng: this.center.lng,
-          lat: this.center.lat
-        },
-        {
-          lng: this.circleBoundLng,
-          lat: this.center.lat
-        }
-      ];
-      // console.log(this.polylinePath, '123');
-      // var labelPoint = new BMap.Point(newRightLng, point.latitude);
-      // var opts = {
-      //   position: labelPoint,
-      //   offset: new BMap.Size(-50, -35)
-      // };
-
-      // var label = new BMap.Label(mileArrayInfo[i], opts);
-      // label.setStyle({
-      //   color: '#fff',
-      //   fontSize: '12px',
-      //   height: '20px',
-      //   lineHeight: '20px',
-      //   fontFamily: 'Arial',
-      //   border: 0,
-      //   borderRadius: '10px',
-      //   backgroundColor: '#666',
-      //   padding: '0 5px'
-      // });
+      // 地图准备好后设置并绘制中心点
+      this.setAndDrawCenter();
     },
 
-    setCenter() {
+    setAndDrawCenter() {
       // 当前用户所在位置
       let _this = this;
       let geolocation = new BMap.Geolocation();
@@ -144,20 +90,16 @@ export default {
           if (this.getStatus() == BMAP_STATUS_SUCCESS) {
             console.log('success', r.point.lng);
             Toast.clear();
-            _this.circlePath.center.lng = r.point.lng,
-              _this.circlePath.center.lat = r.point.lat,
-              _this.polylinePath = [
-        {
-          lng: _this.circlePath.center.lng,
-          lat: _this.circlePath.center.lat
-        },
-        {
-          lng: 114.02791876501952,
-          lat: _this.circlePath.center.lat
-        }
-      ];
-              _this.getAddress();
+            _this.circlePath.center.lng = r.point.lng;
+            _this.circlePath.center.lat = r.point.lat;
+
+            _this.getAddress();
+            _this.drawCircle();
+            _this.drawPolyline();
+            _this.drawLabel();
+
           } else {
+            Toast.clear();
             Toast.fail('获取定位失败!');
           }
         },
@@ -165,11 +107,10 @@ export default {
           enableHighAccuracy: true
         }
       );
-      Toast.clear();
     },
 
     getAddress() {
-      var _this = this;
+      let _this = this;
 
       // 创建地址解析器实例
       let myGeo = new BMap.Geocoder();
@@ -192,22 +133,76 @@ export default {
     },
 
     drawCenter({ el, BMap, map, overlay }) {
-      const pixel = map.pointToOverlayPixel(
+      let pixel = map.pointToOverlayPixel(
         new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat)
       );
 
-      // TODO:
-      el.style.left = pixel.x - 10 + 'px';
-      el.style.top = pixel.y - 10 + 'px';
+      el.style.left = pixel.x - 4 + 'px';
+      el.style.top = pixel.y - 4 + 'px';
     },
 
-    updateCirclePath(e) {
-      let circleBoundLng = e.target.getBounds().getNorthEast().lng;
-      // this.circlePath.center = e.target.getCenter();
-      // this.circlePath.radius = e.target.getRadius();
+    drawCircle() {
+      let circle = new BMap.Circle(
+        new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat),
+        this.circlePath.radius,
+        {
+          strokeColor: '#47bafe',
+          strokeWeight: 1,
+          fillColor: '#47bafe',
+          fillOpacity: 0.18
+        }
+      );
+      this.$refs.baiduMap.map.addOverlay(circle);
 
-      console.log(this.polylinePath);
-    }
+      // 获取圆右边界的坐标
+      this.polylineLastPoint = {
+        lng: circle.getBounds().getNorthEast().lng,
+        lat: this.circlePath.center.lat
+      };
+    },
+
+    drawPolyline() {
+      let polyline = new BMap.Polyline(
+        [
+          new BMap.Point(
+            this.circlePath.center.lng,
+            this.circlePath.center.lat
+          ),
+          new BMap.Point(this.polylineLastPoint.lng, this.polylineLastPoint.lat)
+        ],
+        { strokeColor: '#47bafe', strokeWeight: 2, strokeStyle: 'dashed' }
+      );
+      this.$refs.baiduMap.map.addOverlay(polyline);
+    },
+
+    drawLabel() {
+      let labelPoint = new BMap.Point(
+        this.circlePath.center.lng +
+          (this.polylineLastPoint.lng - this.circlePath.center.lng) / 2,
+        this.circlePath.center.lat
+      );
+      let opts = {
+        position: labelPoint,
+        offset: new BMap.Size(-18, -20)
+      };
+      let label = new BMap.Label(`${this.circlePath.radius}米`, opts);
+      label.setStyle({
+        // color: '#fff',
+        fontSize: '12px',
+        height: '20px',
+        fontWeight: 'normal',
+        // lineHeight: '20px',
+        // fontFamily: 'Arial',
+        backgroundColor: 'transparent',
+        border: 0
+        // padding: '0 5px'
+      });
+      this.$refs.baiduMap.map.addOverlay(label);
+    },
+
+    setFenceSwitch() {
+      console.log(this.switchChecked,'switchChecked');
+    },
   }
 };
 </script>
@@ -264,9 +259,9 @@ export default {
 }
 
 .map-center-circle {
-  width: 0.15rem;
-  height: 0.15rem;
-  border-radius: 0.15rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
   background-color: #47bafe;
 }
 </style>
