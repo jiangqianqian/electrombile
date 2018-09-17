@@ -1,42 +1,55 @@
 <template>
   <div class="register-page">
     <div>
-      <van-field v-model.trim="phone" type="tel" left-icon="shouji" placeholder="请输入手机号" />
-      <van-field v-model.trim="sms" type="tel" left-icon="xiaoxi-moren" placeholder="请输入验证码">
-        <van-button class="sms-btn" slot="button" size="small" :disabled="!show" @click.stop="getSms(phone)">
+      <van-field v-model.trim="phone"
+                 type="tel"
+                 left-icon="shouji"
+                 placeholder="请输入手机号" />
+      <van-field v-model.trim="sms"
+                 type="tel"
+                 left-icon="xiaoxi-moren"
+                 placeholder="请输入验证码">
+        <van-button class="sms-btn"
+                    slot="button"
+                    size="small"
+                    :disabled="!show"
+                    @click.stop="getSms(phone)">
           <span v-show="show">获取验证码</span>
-          <span v-show="!show" class="count">{{count}} s</span>
+          <span v-show="!show"
+                class="count">{{count}} s</span>
         </van-button>
       </van-field>
     </div>
     <div class="text-tip">进入即默认您同意《酷行智动用户协议》</div>
     <div class="next-btn-wrap">
-      <van-button size="large" type="primary" @click.native="register">下一步</van-button>
+      <van-button size="large"
+                  type="primary"
+                  @click.native="register">下一步</van-button>
     </div>
   </div>
 </template>
 
 <script>
-import { Field, Button, Toast} from 'vant';
-import { mapGetters } from 'vuex';
+import { Field, Button, Toast } from 'vant';
+
+const TIME_COUNT = 60;
 
 export default {
   name: 'register',
   components: {
     [Field.name]: Field,
     [Button.name]: Button,
-    [Toast.name]: Toast,
+    [Toast.name]: Toast
   },
   data() {
     return {
       phone: '13714717742',
-      sms: '123'
+      sms: '123',
+      show: true, // 为 true 显示获取验证码按键，否则显示 60s 倒计时内容
+      count: '', // 60s 计数
+      timer: null
     };
   },
-  computed: {
-    ...mapGetters(['count', 'show'])
-  },
-  mounted() {},
   methods: {
     getSms(phone) {
       // if (this.checkPhone()) {
@@ -46,7 +59,7 @@ export default {
       // 发送获取验证码的接口
       this.$http
         .get('/getCoordinateQuantities', { phone: this.phone }, this)
-        .then(res => {
+        .then((res) => {
           console.log(res, 'res');
           if (res) {
             Toast.success('发送成功');
@@ -56,7 +69,7 @@ export default {
       this.$store.dispatch('setEndTime');
     },
 
-    checkSms: function() {
+    checkSms() {
       if (!this.sms.length) {
         Toast({
           message: '请输入验证码',
@@ -67,7 +80,7 @@ export default {
       return true;
     },
 
-    checkPhone: function() {
+    checkPhone() {
       // 检查手机号，验证码是否输入或输入正确
       if (!this.phone.length) {
         Toast({
@@ -77,7 +90,7 @@ export default {
         return false;
       }
 
-      let reg = /^[1][3,4,5,6,7,8,9][0-9]{9}$/;
+      const reg = /^[1][3,4,5,6,7,8,9][0-9]{9}$/;
       if (!reg.test(this.phone)) {
         Toast({
           message: '请输入正确的手机号',
@@ -89,17 +102,37 @@ export default {
       return true;
     },
 
-    register: function() {
+    register() {
       if (this.checkPhone() && this.checkSms()) {
         // 提交注册
         this.$http
-          .get('/getCoordinateQuantities', { phone: this.phone, sms: this.sms }, this)
-          .then(res => {
+          .get(
+            '/getCoordinateQuantities',
+            { phone: this.phone, sms: this.sms },
+            this
+          )
+          .then((res) => {
             // 跳转到轮播页面
             if (res) {
               this.$router.push('/swiper');
             }
           });
+      }
+    },
+
+    setEndTime() {
+      if (!this.timer) {
+        this.count = TIME_COUNT;
+        this.show = false;
+        this.timer = setInterval(() => {
+          if (this.count > 0 && this.count <= TIME_COUNT) {
+            this.count -= 1;
+          } else {
+            this.show = true;
+            clearInterval(this.timer);
+            this.timer = null;
+          }
+        }, 1000);
       }
     }
   }
@@ -125,7 +158,6 @@ export default {
   margin-left: 0.3rem;
   margin-right: 0.3rem;
 }
-
 </style>
 <style>
 .register-page .van-cell__left-icon {

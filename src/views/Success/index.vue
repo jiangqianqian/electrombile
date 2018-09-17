@@ -1,10 +1,12 @@
 <template>
   <div class="success-page">
-    <img class="img" src="@/assets/images/ok-green.png" />
+    <img class="img"
+         src="@/assets/images/ok-green.png" />
     <p class="text">设备绑定成功</p>
     <div class="btn-wrap">
       <router-link to='/home'>
-        <van-button size="large" type="primary">开始使用</van-button>
+        <van-button size="large"
+                    type="primary">开始使用</van-button>
       </router-link>
     </div>
   </div>
@@ -17,7 +19,7 @@ export default {
   name: 'success',
   components: {
     [Button.name]: Button
-  },
+  }
 };
 </script>
 

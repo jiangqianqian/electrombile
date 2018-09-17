@@ -30,7 +30,10 @@
                   name="zuobiao1" />
       </bm-overlay>
       <!-- 折线 -->
-      <bm-polyline :path="path" stroke-color="blue" :stroke-opacity="0.5" :stroke-weight="2"></bm-polyline>
+      <bm-polyline :path="path"
+                   stroke-color="blue"
+                   :stroke-opacity="0.5"
+                   :stroke-weight="2"></bm-polyline>
       <!-- <bm-polyline :path="polylinePath" stroke-color="red" :stroke-opacity="0.5" :stroke-weight="2"></bm-polyline> -->
     </baidu-map>
     <van-button type="default"
@@ -39,9 +42,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
 import { Button, Icon } from 'vant';
-import BaiduMap from 'vue-baidu-map/components/map/Map.vue';
+import BaiduMap from 'vue-baidu-map/components/map/Map';
 import { BmlLushu, BmDriving } from 'vue-baidu-map';
 
 export default {
@@ -64,14 +66,11 @@ export default {
       //   opts: { anchor: { width: 27, height: 13 } }
       // }
       polylinePath: [
-        {lng: 116.404, lat: 39.915},
-        {lng: 116.405, lat: 39.920},
-        {lng: 116.423493, lat: 39.907445}
+        { lng: 116.404, lat: 39.915 },
+        { lng: 116.405, lat: 39.92 },
+        { lng: 116.423493, lat: 39.907445 }
       ]
     };
-  },
-  computed: {
-    ...mapGetters(['play', 'path', 'icon', 'text'])
   },
   methods: {
     reset() {
@@ -89,17 +88,20 @@ export default {
       );
 
       // TODO:
-      el.style.left = pixel.x - 10 + 'px';
-      el.style.top = pixel.y - 10 + 'px';
+      el.style.left = `${pixel.x - 10}px`;
+      el.style.top = `${pixel.y - 10}px`;
     },
     drawEndPoint({ el, BMap, map, overlay }) {
       const pixel = map.pointToOverlayPixel(
-        new BMap.Point(this.path[this.path.length - 1].lng, this.path[this.path.length - 1].lat)
+        new BMap.Point(
+          this.path[this.path.length - 1].lng,
+          this.path[this.path.length - 1].lat
+        )
       );
 
       // TODO:
-      el.style.left = pixel.x - 10 + 'px';
-      el.style.top = pixel.y - 10 + 'px';
+      el.style.left = `${pixel.x - 10}px`;
+      el.style.top = `${pixel.y - 10}px`;
     }
   }
 };

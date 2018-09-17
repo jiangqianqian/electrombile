@@ -5,7 +5,6 @@ import BaiduMap from 'vue-baidu-map';
 import App from './App';
 import router from './router';
 import axios from './utils/axios';
-import store from './store';
 import './utils/rem';
 import './assets/font/iconfont.css';
 import './assets/css/resetui.css';
@@ -18,7 +17,7 @@ Vue.prototype.back = () => {
 
 Vue.use(BaiduMap, {
   // ak 是在百度地图开发者平台申请的密钥 详见 http://lbsyun.baidu.com/apiconsole/key */
-  ak: 'VFEAKmKYgUpGON4YsDjdW8c3t7RwnQqK',
+  ak: 'VFEAKmKYgUpGON4YsDjdW8c3t7RwnQqK'
 });
 
 router.beforeEach((to, from, next) => {
@@ -33,12 +32,12 @@ router.beforeEach((to, from, next) => {
     if (!isRegister) {
       if (to.path !== '/register') {
         return next({
-          path: '/register',
+          path: '/register'
         });
       }
     } else if (to.path === '/register') {
       return next({
-        path: '/',
+        path: '/'
       });
     }
   }
@@ -53,9 +52,8 @@ Vue.prototype.$http = axios;
 new Vue({
   el: '#app',
   router,
-  store,
   components: {
-    App,
+    App
   },
-  template: '<App/>',
+  template: '<App/>'
 });

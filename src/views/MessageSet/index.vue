@@ -94,7 +94,6 @@
 <script>
 import { Icon, Toast, Field, Switch, Picker, DatetimePicker } from 'vant';
 import navBar from '@/components/nav';
-import { mapGetters } from 'vuex';
 
 const levels = ['初级', '中级', '高级'];
 
@@ -125,9 +124,6 @@ export default {
       showStartTime: false,
       showEndTime: false
     };
-  },
-  computed: {
-    ...mapGetters(['loading', 'finished', 'list'])
   },
   mounted() {
     this.columns = [
@@ -173,16 +169,19 @@ export default {
     // 点击等级弹出 picker
     clickLevelPicker() {
       this.showLevelPicker = true;
-      this.showStartTime = this.showEndTime = false;
+      this.showStartTime = false;
+      this.showEndTime = false;
     },
     clickStartTime() {
       // 显示开始日期 picker，隐藏等级和结束 picker
       this.showStartTime = true;
-      this.showLevelPicker = this.showEndTime = false;
+      this.showLevelPicker = false;
+      this.showEndTime = false;
     },
     clickEndTime() {
       this.showEndTime = true;
-      this.showStartTime = this.showLevelPicker = false;
+      this.showStartTime = false;
+      this.showLevelPicker = false;
     },
     startTimeCancel() {
       this.showStartTime = false;

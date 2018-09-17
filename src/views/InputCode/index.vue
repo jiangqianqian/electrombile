@@ -1,10 +1,16 @@
 <template>
   <div class="bind-page">
-    <navBar title="输入编码绑定" leftText="绑定电动车" @clickLeft="back()" />
+    <navBar title="输入编码绑定"
+            leftText="绑定电动车"
+            @clickLeft="back()" />
     <div class="content">
       <!-- <img class="img" src="@/assets/images/vehicle.png" alt=""> -->
-      <van-field class="input-box" v-model.trim="vehicleCode" placeholder="请输入电动车编码" />
-      <van-button size="large" type="primary" @click.native="bind">绑定</van-button>
+      <van-field class="input-box"
+                 v-model.trim="vehicleCode"
+                 placeholder="请输入电动车编码" />
+      <van-button size="large"
+                  type="primary"
+                  @click.native="bind">绑定</van-button>
     </div>
   </div>
 </template>
@@ -19,7 +25,7 @@ export default {
     [Field.name]: Field,
     [Button.name]: Button,
     [Toast.name]: Toast,
-    navBar,
+    navBar
   },
   data() {
     return {
@@ -27,7 +33,7 @@ export default {
     };
   },
   computed: {},
-  mounted() {},
+  mounted() { },
   methods: {
     bind() {
       if (!this.vehicleCode.length) {
@@ -41,13 +47,17 @@ export default {
       // 请求接口 TODO: post
       this.$http
         .get('/getCoordinateQuantities', { code: this.vehicleCode }, this)
-        .then(res => {
+        .then((res) => {
           console.log(res, 'res');
           if (res) {
             // 跳转到设备绑定成功页面
             this.$router.push('/success');
+            return true;
           }
+          return false;
         });
+
+      return false;
     }
   }
 };

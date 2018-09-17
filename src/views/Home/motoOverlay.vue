@@ -1,14 +1,14 @@
 <template>
   <bm-overlay pane="markerPane"
-    ref="motoOverlay"
-    :class="{'marker-moto': true, cur}"
-    @draw="draw"
-    @touchend.native.stop="active(index)">
+              ref="motoOverlay"
+              :class="{'marker-moto': true, cur}"
+              @draw="draw"
+              @touchend.native.stop="active(index)">
     <div class="circle">
       <div class="drop"></div>
       <div class="circle-inner">
         <van-icon class="marker-icon-motuo"
-          name="diandongche" />
+                  name="diandongche" />
       </div>
     </div>
   </bm-overlay>
@@ -16,6 +16,9 @@
 
 <script>
 import { Button, Icon } from 'vant';
+import commonJs from '@/utils/common';
+import wgs84tobd09 from '@/utils/coordtransform';
+
 export default {
   name: 'motoOverlay',
   components: {
@@ -24,27 +27,27 @@ export default {
   },
   props: ['item', 'cur', 'index'],
   data() {
-    return {
-    };
+    return {};
   },
-  // watch: {
-  //   position: {
-  //     handler() {
-  //       this.$refs.customOverlay.reload();
-  //     },
-  //     deep: true
-  //   }
-  // },
   methods: {
     active(index) {
+      // 触发父组件的电动车切换
       this.$emit('change', index);
     },
+
     draw({ el, BMap, map, overlay }) {
+      // const pixel = map.pointToOverlayPixel(
+      //   new BMap.Point(this.item.lng, this.item.lat)
+      // );
+      // el.style.left = `${pixel.x - 60}px`;
+      // el.style.top = `${pixel.y - 20}px`;
+
+      const newCoord = wgs84tobd09(this.item.lng, this.item.lat);
       const pixel = map.pointToOverlayPixel(
-        new BMap.Point(this.item.lng, this.item.lat)
+        new BMap.Point(newCoord[0], newCoord[1])
       );
-      el.style.left = pixel.x - 60 + 'px';
-      el.style.top = pixel.y - 20 + 'px';
+      el.style.left = `${pixel.x - 60}px`;
+      el.style.top = `${pixel.y - 20}px`;
     }
   }
 };

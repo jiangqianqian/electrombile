@@ -1,6 +1,10 @@
 <template>
   <div class="swiper-page">
-    <van-swipe class="guide-swipe" ref="swiper" :loop="false" :show-indicators="showIndicator" @touchend.native="setIndicator">
+    <van-swipe class="guide-swipe"
+               ref="swiper"
+               :loop="false"
+               :show-indicators="showIndicator"
+               @touchend.native="setIndicator">
       <!-- <van-swipe-item v-for="(thumb, index) in thumbs" :key="thumb">
         <img :src="thumb" >
         <router-link v-if="index === thumbs.length - 1" to="/map">显示地图</router-link>
@@ -17,9 +21,14 @@
         <!-- <img class="img" src="@/assets/images/swipe3.png"> -->
         <div class="text">开始绑定我的电动车</div>
         <div class="bind-btn-wrap">
-          <van-button class="bind-btn" type="primary" size="large" @click="scanCode">开始绑定</van-button>
+          <van-button class="bind-btn"
+                      type="primary"
+                      size="large"
+                      @click="scanCode">开始绑定</van-button>
           <router-link to='/inputCode'>
-            <van-button class="bind-btn" type="primary" size="large">输入编码绑定</van-button>
+            <van-button class="bind-btn"
+                        type="primary"
+                        size="large">输入编码绑定</van-button>
           </router-link>
         </div>
       </van-swipe-item>
@@ -29,8 +38,7 @@
 
 <script>
 import { Swipe, SwipeItem, Button, Toast } from 'vant';
-import { mapGetters } from 'vuex';
-import wx from '@/../static/weixin-jssdk.js';
+import wx from '@/../static/weixin-jssdk';
 
 export default {
   name: 'swiper',
@@ -39,11 +47,13 @@ export default {
     [SwipeItem.name]: SwipeItem,
     [Button.name]: Button
   },
-  computed: {
-    ...mapGetters(['showIndicator'])
+  data() {
+    return {
+      showIndicator: true
+    };
   },
   created() {
-    this.getConfigItems().then(function(result) {
+    this.getConfigItems().then((result) => {
       if (result.code === 'C0000') {
         wx.config({
           // debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
@@ -56,7 +66,7 @@ export default {
       }
     });
 
-    wx.error(function(res) {
+    wx.error((res) => {
       // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
       console.log(res, '签名失败');
     });
@@ -69,7 +79,14 @@ export default {
   },
   methods: {
     setIndicator() {
-      this.$store.commit('setIndicator', this.$refs.swiper);
+      const $swiper = this.$refs.swiper;
+      const len = $swiper.$children.length;
+      const active = $swiper.active;
+      if (active === len - 1) {
+        this.showIndicator = false;
+      } else {
+        this.showIndicator = true;
+      }
     },
 
     getConfigItems() {
@@ -85,14 +102,14 @@ export default {
       wx.checkJsApi({
         // 验证接口是否可用
         jsApiList: ['scanQRCode'],
-        success: function(res) {
+        success: res => {
           if (res.checkResult.scanQRCode) {
             // 打开扫一扫
             wx.scanQRCode({
               needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
               scanType: ['qrCode'], // 可以指定扫二维码还是一维码，默认二者都有
-              success: function(res) {
-                let result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+              success: (data) => {
+                const result = data.resultStr; // 当needResult 为 1 时，扫码返回的结果
                 console.log('扫描结果：' + result);
                 // 提交绑定电动车
                 this.bindVihicle(result);
@@ -102,19 +119,19 @@ export default {
             Toast.fail('版本太低了~');
           }
         },
-        fail: function(res) {
-          console.loog(res.errMsg);
+        fail: (res) => {
+          console.log(res.errMsg);
         }
       });
     },
 
     async bindVihicle(param) {
-      let params = {
+      const params = {
         id: param
       };
 
       // TODO: POST
-      let res = await this.$http.get(
+      const res = await this.$http.get(
         '/getCoordinateQuantities',
         params,
         this

@@ -1,9 +1,8 @@
 <template>
   <div>
-    <navBar leftText="返回"
-            @clickLeft="back()">
+    <navBar>
       <template slot="titleBox">
-        <div class="titleBox"
+        <div class="title-box"
              @click.stop="selectFlag = true">
           {{currentSelectItem.name}}
           <van-icon class="title-arrow"
@@ -134,13 +133,14 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
 import { Button, Icon, Toast, DatetimePicker } from 'vant';
-import navBar from '@/components/nav';
 import { BmlLushu } from 'vue-baidu-map';
+import navBar from '@/components/nav';
+import path from '@/../static/path';
+import lushuIcon from '@/assets/images/lushu-icon.png';
 
 export default {
-  name: 'map12',
+  name: 'footPrint',
   components: {
     [Button.name]: Button,
     [Icon.name]: Icon,
@@ -171,38 +171,49 @@ export default {
       currentDate: { date: null, flag: '' }, // 当前打开的日期选择器属于开始时间还是结束时间
       startDate: '2018-09-10 10:20',
       endDate: '2018-09-11 10:20',
-      isHasRoute: false // 是否点击搜索并查到了路线
+      isHasRoute: false, // 是否点击搜索并查到了路线
+      play: false,
+      path, // 路书轨迹
+      text: '开始',
+      icon: {
+        // 路书移动物 icon
+        url: lushuIcon,
+        size: {
+          width: 30,
+          height: 38
+        },
+        opts: {
+          anchor: {
+            width: 15,
+            height: 38
+          }
+        }
+      }
     };
-  },
-  watch: {},
-  computed: {
-    ...mapGetters(['play', 'path', 'icon', 'text', 'playBoxIcon'])
   },
   created() {
     // TODO: 请求接口获取电动车列表并赋值当前选中的电动车的位置为地图中心点
     // 获取开始结束时间
 
-    let curIndex = window.activeVehicleIndex || 0;
+    const curIndex = window.activeVehicleIndex || 0;
     this.currentSelectItem = this.vehicleList[curIndex];
   },
-  mounted() {},
-
   methods: {
-    dateFormat: function(timestamp, fmt, humanized) {
+    dateFormat(timestamp, fmt, humanized) {
       // 格式化日期
       if (timestamp instanceof Date) {
         timestamp = timestamp.getTime();
-      } else if (typeof timestamp == 'string') {
+      } else if (typeof timestamp === 'string') {
         timestamp = new Date(timestamp);
       }
 
       if (timestamp != null) {
-        let localTime = new Date(
+        const localTime = new Date(
           timestamp +
             (new Date(timestamp).getTimezoneOffset() - -480) * 60 * 1000
         );
 
-        let today = new Date();
+        const today = new Date();
         if (humanized) {
           if (
             new Date(
@@ -242,7 +253,7 @@ export default {
           }
         }
 
-        let o = {
+        const o = {
           'M+': localTime.getMonth() + 1,
           'd+': localTime.getDate(),
           'h+': localTime.getHours(),
@@ -288,12 +299,14 @@ export default {
 
     resetPlay() {
       // 当路书停止时重置状态为开始
-      this.$store.commit('resetPlay');
+      this.play = false;
+      this.text = '开始';
     },
 
     changeText() {
       // 切换开始停止
-      this.$store.commit('changeText');
+      this.play = !this.play;
+      this.text = this.play ? '暂停' : '开始';
     },
 
     drawStartPoint({ el, BMap, map, overlay }) {
@@ -302,8 +315,8 @@ export default {
         new BMap.Point(this.path[0].lng, this.path[0].lat)
       );
 
-      el.style.left = pixel.x - 13 + 'px';
-      el.style.top = pixel.y - 26 + 'px';
+      el.style.left = `${pixel.x - 13}px`;
+      el.style.top = `${pixel.y - 26}px`;
     },
 
     drawEndPoint({ el, BMap, map, overlay }) {
@@ -315,8 +328,8 @@ export default {
         )
       );
 
-      el.style.left = pixel.x - 13 + 'px';
-      el.style.top = pixel.y - 26 + 'px';
+      el.style.left = `${pixel.x - 13}px`;
+      el.style.top = `${pixel.y - 26}px`;
     },
 
     resetState() {
@@ -392,8 +405,8 @@ export default {
 
       // 点击搜索
       // 判断开始结束时间是否有效
-      let startTime = new Date(this.startDate).getTime();
-      let endTime = new Date(this.endDate).getTime();
+      const startTime = new Date(this.startDate).getTime();
+      const endTime = new Date(this.endDate).getTime();
       if (startTime > endTime) {
         Toast('开始时间须小于结束时间');
       }
@@ -411,13 +424,15 @@ export default {
 
       this.isHasRoute = true;
     },
+
     drawPolyline() {
-      let polylinePoints = this.path.map(item => {
+      const polylinePoints = this.path.map(item => {
         return new BMap.Point(item.lng, item.lat);
       });
 
       this.polyline = new BMap.Polyline(polylinePoints, {
         strokeColor: '#47bafe',
+        strokeOpacity: 1,
         strokeWeight: 6
       });
       this.$refs.baiduMap.map.addOverlay(this.polyline);
@@ -519,10 +534,6 @@ export default {
   bottom: 0.32rem;
 }
 
-.play-box-icon {
-  /* padding-right: 0.1rem; */
-}
-
 .message {
   position: absolute;
   left: 50%;
@@ -561,19 +572,21 @@ export default {
   color: #47bafe;
 }
 
-.titleBox {
+.title-box {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.3rem;
 }
+
 .title-arrow {
   position: relative;
   top: -2px;
   left: 3px;
   color: #858585;
 }
+
 .title-list {
   position: absolute;
   top: 52px;
@@ -584,6 +597,7 @@ export default {
   box-shadow: 0 2px 5px 2px rgba(0, 0, 0, 0.21);
   background-color: #fff;
 }
+
 .title-list-item {
   height: 0.9rem;
   line-height: 0.9rem;
@@ -591,12 +605,15 @@ export default {
   font-size: 0.3rem;
   border-bottom: 1px solid #e5e5e5;
 }
+
 .title-list-item:last-child {
   border-bottom: none;
 }
+
 .title-list-item.cur {
   font-weight: bold;
 }
+
 .map-expand {
   position: absolute;
   top: 0.48rem;

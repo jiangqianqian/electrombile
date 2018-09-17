@@ -3,18 +3,9 @@
     <baidu-map ref="baiduMap"
                class="bm-view"
                :center="center"
-               :zoom="17"
+               :zoom="19"
                @ready="mapReady">
-      <!-- 覆盖物 -->
 
-      <!-- <bm-overlay pane="markerPane" v-for="(item, index) in markerList" :key="index" :class="{'marker-moto': true, active: index === activeIndex}" @draw="draw" @touchend.native.stop="active(index)">
-        <div class="circle">
-          <div class="drop"></div>
-          <div class="circle-inner">
-            <van-icon class="marker-icon-motuo" name="motuo" />
-          </div>
-        </div>
-      </bm-overlay> -->
       <MotoOverlay v-for="(item, index) in markerList"
                    :cur="index === activeIndex"
                    :key="index"
@@ -32,6 +23,7 @@
       </bm-overlay>
 
     </baidu-map>
+
     <div class="message"
          v-if="showMessage">
       {{message}}
@@ -105,12 +97,11 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
 import { Button, Icon, Toast } from 'vant';
-import MotoOverlay from './motoOverlay.vue';
+import MotoOverlay from './motoOverlay';
 
 export default {
-  name: 'map12',
+  name: 'home',
   components: {
     [Button.name]: Button,
     [Icon.name]: Icon,
@@ -136,9 +127,17 @@ export default {
         address: ''
       },
       markerList: [
+        // {
+        //   lat: 22.546,
+        //   lng: 114.025,
+        //   title: '名字1',
+        //   state: 'YES',
+        //   address: '广东省深圳市大冲商务中心',
+        //   src: '@/assets/images/2.jpg'
+        // },
         {
-          lat: 22.546,
-          lng: 114.025,
+          lat: 22.542621707139265,
+          lng: 114.01351470704279,
           title: '名字1',
           state: 'YES',
           address: '广东省深圳市大冲商务中心',
@@ -156,17 +155,6 @@ export default {
       ]
     };
   },
-  watch: {
-    // center: {
-    //   handler() {
-    //     this.$refs.mapCenter.reload();
-    //   },
-    //   deep: true
-    // }
-  },
-  computed: {
-    // ...mapGetters(['play', 'path', 'icon', 'text'])
-  },
   created() {
     // 获取中心点完成前显示加载中
     Toast.loading({
@@ -183,7 +171,7 @@ export default {
 
     change(index) {
       // 切换卡版为用户或电动车信息
-      let prevIndex = this.activeIndex;
+      const prevIndex = this.activeIndex;
       this.activeIndex = index;
       if (index < this.markerList.length) {
         // 表示是点击的电动车
@@ -207,10 +195,10 @@ export default {
 
     setCenter() {
       // 当前用户所在位置
-      let _this = this;
-      let geolocation = new BMap.Geolocation();
+      const _this = this;
+      const geolocation = new BMap.Geolocation();
       geolocation.getCurrentPosition(
-        function(r) {
+        function (r) {
           // 画当前位置
           if (this.getStatus() == BMAP_STATUS_SUCCESS) {
             Toast.clear();
@@ -234,13 +222,13 @@ export default {
       var _this = this;
 
       // 创建地址解析器实例
-      let myGeo = new BMap.Geocoder();
+      const myGeo = new BMap.Geocoder();
       // 将地址解析结果显示在地图上，并调整地图视野
 
-      let point = new BMap.Point(this.center.lng, this.center.lat);
+      const point = new BMap.Point(this.center.lng, this.center.lat);
 
-      myGeo.getLocation(point, function(rs) {
-        let address = rs.addressComponents;
+      myGeo.getLocation(point, rs => {
+        const address = rs.addressComponents;
         _this.userInfo.address =
           address.province +
           address.city +
@@ -256,8 +244,8 @@ export default {
       );
 
       // TODO:
-      el.style.left = pixel.x - 10 + 'px';
-      el.style.top = pixel.y - 10 + 'px';
+      el.style.left = `${pixel.x - 10}px`;
+      el.style.top = `${pixel.y - 10}px`;
     },
 
     backUser() {
@@ -274,46 +262,46 @@ export default {
 
     adjustOS() {
       // 判断是否属于 ios
-      var ua = window.navigator.userAgent.toLowerCase();
+      const ua = window.navigator.userAgent.toLowerCase();
       return ua.indexOf('os') > 0;
     },
 
     wakeBaidu() {
-      let timeout = 600;
-      var activeVehicle = this.markerList[this.activeIndex];
+      const timeout = 600;
+      const activeVehicle = this.markerList[this.activeIndex];
       let scheme = ''; // 唤起百度地图的配置信息
 
       if (this.adjustOS) {
         // 手机系统 ios
         scheme = `baidumap://map/marker?location=${activeVehicle.lat},${
           activeVehicle.lng
-        }&title=${activeVehicle.title}&content=${
+          }&title=${activeVehicle.title}&content=${
           activeVehicle.address
-        }&output=html&src=webapp.baidu.openAPIdemo`;
+          }&output=html&src=webapp.baidu.openAPIdemo`;
       } else {
         // 手机系统 android
         scheme = `bdapp://map/marker?location=${activeVehicle.lat},${
           activeVehicle.lng
-        }&title=${activeVehicle.title}&content=${
+          }&title=${activeVehicle.title}&content=${
           activeVehicle.address
-        }&output=html&src=webapp.baidu.openAPIdemo`;
+          }&output=html&src=webapp.baidu.openAPIdemo`;
       }
 
       // 如果手机没装百度地图，打开网页版地图
-      let startTime = Date.now();
+      const startTime = Date.now();
       window.location.href = scheme;
-      let t = setTimeout(function() {
-        let endTime = Date.now();
+      const t = setTimeout(() => {
+        const endTime = Date.now();
         if (!startTime || endTime - startTime < timeout + 200) {
           window.location.href = `http://api.map.baidu.com/marker?location=${
             activeVehicle.lat
-          },${activeVehicle.lng}&title=${activeVehicle.title}&content=${
+            },${activeVehicle.lng}&title=${activeVehicle.title}&content=${
             activeVehicle.address
-          }&output=html`;
+            }&output=html`;
         }
       }, timeout);
 
-      window.onblur = function() {
+      window.onblur = () => {
         clearTimeout(t);
       };
     }

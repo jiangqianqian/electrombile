@@ -31,7 +31,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
 import { Button, Icon, Toast, Switch } from 'vant';
 
 export default {
@@ -62,9 +61,6 @@ export default {
       polylineLastPoint: {}
     };
   },
-  computed: {
-    // ...mapGetters(['play', 'path', 'icon', 'text'])
-  },
   created() {
     // 获取中心点完成前显示加载中
     Toast.loading({
@@ -73,7 +69,6 @@ export default {
       message: '加载中...'
     });
   },
-
   methods: {
     mapReady({ BMap, map }) {
       // 地图准备好后设置并绘制中心点
@@ -82,10 +77,10 @@ export default {
 
     setAndDrawCenter() {
       // 当前用户所在位置
-      let _this = this;
-      let geolocation = new BMap.Geolocation();
+      const _this = this;
+      const geolocation = new BMap.Geolocation();
       geolocation.getCurrentPosition(
-        function(r) {
+        function (r) {
           // 画当前位置
           if (this.getStatus() == BMAP_STATUS_SUCCESS) {
             console.log('success', r.point.lng);
@@ -97,7 +92,6 @@ export default {
             _this.drawCircle();
             _this.drawPolyline();
             _this.drawLabel();
-
           } else {
             Toast.clear();
             Toast.fail('获取定位失败!');
@@ -110,19 +104,19 @@ export default {
     },
 
     getAddress() {
-      let _this = this;
+      const _this = this;
 
       // 创建地址解析器实例
-      let myGeo = new BMap.Geocoder();
+      const myGeo = new BMap.Geocoder();
       // 将地址解析结果显示在地图上，并调整地图视野
 
-      let point = new BMap.Point(
+      const point = new BMap.Point(
         this.circlePath.center.lng,
         this.circlePath.center.lat
       );
 
-      myGeo.getLocation(point, function(rs) {
-        let address = rs.addressComponents;
+      myGeo.getLocation(point, (rs) => {
+        const address = rs.addressComponents;
         _this.userInfo.address =
           address.province +
           address.city +
@@ -133,20 +127,21 @@ export default {
     },
 
     drawCenter({ el, BMap, map, overlay }) {
-      let pixel = map.pointToOverlayPixel(
+      const pixel = map.pointToOverlayPixel(
         new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat)
       );
 
-      el.style.left = pixel.x - 4 + 'px';
-      el.style.top = pixel.y - 4 + 'px';
+      el.style.left = `${pixel.x - 4}px`;
+      el.style.top = `${pixel.y - 4}px`;
     },
 
     drawCircle() {
-      let circle = new BMap.Circle(
+      const circle = new BMap.Circle(
         new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat),
         this.circlePath.radius,
         {
           strokeColor: '#47bafe',
+          strokeOpacity: 1,
           strokeWeight: 1,
           fillColor: '#47bafe',
           fillOpacity: 0.18
@@ -162,7 +157,7 @@ export default {
     },
 
     drawPolyline() {
-      let polyline = new BMap.Polyline(
+      const polyline = new BMap.Polyline(
         [
           new BMap.Point(
             this.circlePath.center.lng,
@@ -176,16 +171,16 @@ export default {
     },
 
     drawLabel() {
-      let labelPoint = new BMap.Point(
+      const labelPoint = new BMap.Point(
         this.circlePath.center.lng +
-          (this.polylineLastPoint.lng - this.circlePath.center.lng) / 2,
+        (this.polylineLastPoint.lng - this.circlePath.center.lng) / 2,
         this.circlePath.center.lat
       );
-      let opts = {
+      const opts = {
         position: labelPoint,
         offset: new BMap.Size(-18, -20)
       };
-      let label = new BMap.Label(`${this.circlePath.radius}米`, opts);
+      const label = new BMap.Label(`${this.circlePath.radius}米`, opts);
       label.setStyle({
         // color: '#fff',
         fontSize: '12px',
@@ -201,8 +196,8 @@ export default {
     },
 
     setFenceSwitch() {
-      console.log(this.switchChecked,'switchChecked');
-    },
+      console.log(this.switchChecked, 'switchChecked');
+    }
   }
 };
 </script>

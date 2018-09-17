@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {
-  Toast,
+  Toast
 } from 'vant';
 
 // vue 实例
@@ -22,7 +22,7 @@ axios.interceptors.request.use((config) => {
     Toast.loading({
       mask: true,
       message: '加载中...',
-      duration: 0,
+      duration: 0
     });
   }
   return config;
@@ -93,7 +93,7 @@ export default class api {
       method: 'get',
       url: `${BASE_URL}${url}`,
       params,
-      withCredentials: true, // 表示跨域请求时是否需要使用凭证
+      withCredentials: true // 表示跨域请求时是否需要使用凭证
       // headers: {
       //   'X-Requested-With': 'XMLHttpRequest',
       // },
@@ -119,7 +119,7 @@ export default class api {
       // url: `${BASE_URL}${url}`,
       url: `${BASE_URL}${url}`,
       data: params,
-      withCredentials: true, // 表示跨域请求时是否需要使用凭证
+      withCredentials: true // 表示跨域请求时是否需要使用凭证
       // 发送请求前处理request的数据
       // transformRequest: [
       //   function (data) {

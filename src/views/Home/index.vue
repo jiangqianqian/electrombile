@@ -41,10 +41,9 @@
 
 <script>
 import { Icon, Tabbar, TabbarItem, Toast } from 'vant';
-import { mapGetters } from 'vuex';
 
 export default {
-  name: 'home',
+  name: 'tab',
   components: {
     [Icon.name]: Icon,
     [Tabbar.name]: Tabbar,
@@ -56,30 +55,10 @@ export default {
       active: 0
     };
   },
-  computed: {
-    ...mapGetters(['loading', 'finished', 'list'])
-    // ...mapState({
-    //   loading: state => state.home,
-    //   finished: state => state.home.finished,
-    //   list: state => state.home.list,
-    // }),
-  },
   created() {
     this.active = this.$route.meta.active || 0;
   },
-  methods: {
-    // onLoad() {
-    //   setTimeout(() => {
-    //     for (let i = 0; i < 10; i++) {
-    //       this.list.push(this.list.length + 1);
-    //     }
-    //     this.loading = false;
-    //     if (this.list.length >= 40) {
-    //       this.finished = true;
-    //     }
-    //   }, 500);
-    // }
-  }
+  methods: {}
 };
 </script>
 

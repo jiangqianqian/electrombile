@@ -1,13 +1,27 @@
 <template>
-  <van-nav-bar @click-left="onClickLeft" @click-right="onClickRight">
-    <template class="van-nav-bar__left" slot="left">
-      <van-icon class="left-arrow" name="yuanzuojiantou" />
-      <span class="van-nav-bar__text" v-if="leftText">{{leftText}}</span>
+  <van-nav-bar @click-left="onClickLeft"
+               @click-right="onClickRight">
+    <template class="van-nav-bar__left"
+              slot="left">
+      <van-icon class="left-arrow"
+                name="yuanzuojiantou"
+                v-if="leftText || leftArrow" />
+      <span class="van-nav-bar__text"
+            v-if="leftText">{{leftText}}</span>
     </template>
-    <div class="van-ellipsis van-nav-bar__title" slot="title" v-if="title">{{title}}</div>
-    <slot name="titleBox" slot="title" v-else></slot>
-    <span class="van-nav-bar__text" v-if="rightText" slot="right">{{rightText}}</span>
-    <van-icon class="right-icon" :name="rightIcon" v-else-if="rightIcon" slot="right" />
+    <div class="van-ellipsis van-nav-bar__title"
+         slot="title"
+         v-if="title">{{title}}</div>
+    <slot name="titleBox"
+          slot="title"
+          v-else></slot>
+    <span class="van-nav-bar__text"
+          v-if="rightText"
+          slot="right">{{rightText}}</span>
+    <van-icon class="right-icon"
+              :name="rightIcon"
+              v-else-if="rightIcon"
+              slot="right" />
   </van-nav-bar>
 </template>
 
@@ -32,6 +46,9 @@ export default {
     },
     rightIcon: {
       type: String
+    },
+    leftArrow: {
+      type: Boolean
     }
   },
   data() {
@@ -57,7 +74,6 @@ export default {
   font-size: 0.44rem;
   color: #333;
 }
-
 </style>
 <style>
 .van-nav-bar__left {
