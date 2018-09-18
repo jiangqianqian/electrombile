@@ -14,7 +14,7 @@ let loading = false;
 // 基础接口
 const BASE_URL = 'http://localhost:3003';
 
-// axios.defaults.timeout = 10000;
+axios.defaults.timeout = 10000;
 
 // 请求开始时，开启加载中动画，出错了提示并关闭动画
 axios.interceptors.request.use((config) => {
@@ -38,11 +38,16 @@ axios.interceptors.response.use((response) => {
   Toast.clear();
 
   // 一切正常，返回数据或空对象
-  if (response.data.code === 'C0000') {
+  if (response.data.code === 200) {
     return response.data.data || {};
     // TODO:
+  } else if (response.data.code === 401 || response.data.code === 403 || response.data.code === 404) {
+    // 返回了其他状态码
+    if (vue) {
+      vue.$router.replace('/register');
+    }
   } else if (response.data.msg != null && response.data.msg.length > 0) {
-    // 没有数据，只有提示信息，则弹出提示信息，
+    // 没有数据，只有提示信息，则弹出提示信息
     if (vue && showToast) {
       Toast.fail(response.data.msg);
     }
@@ -51,10 +56,10 @@ axios.interceptors.response.use((response) => {
 }, (error) => {
   Toast.clear();
   if (error.response) {
-    if (error.response.data.code === 10 || error.response.data.code === 6) {
+    if (error.response.data.code === 401 || error.response.data.code === 403 || error.response.data.code === 404) {
       // 未登录
       if (vue) {
-        // vue.$router.replace('/login');
+        vue.$router.replace('/register');
       }
     }
     // 请求已发出，但服务器响应的状态码不在 2xx 范围内，有错误信息则弹出错误信息

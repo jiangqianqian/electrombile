@@ -61,12 +61,16 @@
     </ul>
     <div class="time-wrap">
       <van-field class="time-item"
+                 :readonly="true"
+                 :border="false"
                  v-model="startTime"
-                 @click="clickStartTime" />
+                 @click="showTimePicker({ flag: 'start'})" />
       <span class="split-text">至</span>
       <van-field class="time-item"
+                 :readonly="true"
+                 :border="false"
                  v-model="endTime"
-                 @click="clickEndTime" />
+                 @click="showTimePicker({ flag: 'end'})" />
     </div>
     <van-picker ref="levelPicker"
                 :columns="columns"
@@ -77,17 +81,13 @@
                 @confirm="levelPickerConfirm"
                 v-if="showLevelPicker" />
 
-    <van-datetime-picker v-model="startTime"
+    <van-datetime-picker v-model="currentTime.time"
                          type="time"
-                         @cancel="startTimeCancel"
-                         @confirm="startTimeConfirm"
-                         v-if="showStartTime" />
-
-    <van-datetime-picker v-model="endTime"
-                         type="time"
-                         @cancel="endTimeCancel"
-                         @confirm="endTimeConfirm"
-                         v-if="showEndTime" />
+                         :title="timePickerTitle"
+                         @cancel="timePickerCancel"
+                         @confirm="timePickerConfirm"
+                         @change="changeTime"
+                         v-if="isShowTime" />
   </div>
 </template>
 
@@ -111,27 +111,22 @@ export default {
   data() {
     return {
       vibration: false,
-      prevLevel: null,
-      level: '高级',
       cut: true,
       fence: false,
       noDisturb: true,
-      startTime: '00:00',
-      endTime: '23:59',
+      prevLevel: null,
+      level: '高级',
       columns: [],
       valueKey: ['a', 'b', 'c'],
       showLevelPicker: false,
-      showStartTime: false,
-      showEndTime: false
+      startTime: '00:00',
+      endTime: '23:59',
+      prevStartTime: null,
+      prevEndTime: null,
+      currentTime: { time: null, flag: '' },
+      timePickerTitle: '',
+      isShowTime: false,
     };
-  },
-  mounted() {
-    this.columns = [
-      {
-        values: levels,
-        defaultIndex: levels.indexOf(this.level)
-      }
-    ];
   },
   watch: {
     // 为了每次打开能保留上次选择的值
@@ -144,24 +139,33 @@ export default {
       ];
     }
   },
-  created() {},
+  created() { },
+  mounted() {
+    this.columns = [
+      {
+        values: levels,
+        defaultIndex: levels.indexOf(this.level)
+      }
+    ];
+  },
   methods: {
     save() {
       Toast.success('保存成功');
+      // TODO: 跳转页面
     },
 
     // 等级改变
     levelPickerChange() {
-      if (!this.prevLevel) {
-        this.prevLevel = this.level;
-      }
+      this.prevLevel = this.level;
       this.level = this.$refs.levelPicker.getValues()[0];
       this.$refs.levelPicker.setValues = this.level;
     },
+
     levelPickerCancel() {
       this.level = this.prevLevel;
       this.showLevelPicker = false;
     },
+
     levelPickerConfirm() {
       this.showLevelPicker = false;
     },
@@ -169,31 +173,52 @@ export default {
     // 点击等级弹出 picker
     clickLevelPicker() {
       this.showLevelPicker = true;
-      this.showStartTime = false;
-      this.showEndTime = false;
+      this.isShowTime = false;
     },
-    clickStartTime() {
-      // 显示开始日期 picker，隐藏等级和结束 picker
-      this.showStartTime = true;
+
+    showTimePicker(state) {
+      // 显示时间选择器
       this.showLevelPicker = false;
-      this.showEndTime = false;
+      this.isShowTime = true;
+      if (state.flag === 'start') {
+        this.currentTime = {
+          time: this.startTime,
+          flag: 'start'
+        };
+        this.timePickerTitle = '开始时间';
+      } else {
+        this.currentTime = {
+          time: this.endTime,
+          flag: 'end'
+        };
+        this.timePickerTitle = '结束时间';
+      }
     },
-    clickEndTime() {
-      this.showEndTime = true;
-      this.showStartTime = false;
-      this.showLevelPicker = false;
+
+    timePickerCancel() {
+      // // 时间选择器点击取消
+      this.isShowTime = false;
+      if (this.currentTime.flag === 'start') {
+        this.startTime = this.prevStartTime;
+      } else {
+        this.endTime = this.prevEndTime;
+      }
     },
-    startTimeCancel() {
-      this.showStartTime = false;
+
+    timePickerConfirm() {
+      // 时间选择器点击确定
+      this.isShowTime = false;
     },
-    startTimeConfirm() {
-      this.showStartTime = false;
-    },
-    endTimeCancel() {
-      this.showEndTime = false;
-    },
-    endTimeConfirm() {
-      this.showEndTime = false;
+
+    changeTime() {
+      // 时间选择器值发生了变化
+      if (this.currentTime.flag === 'start') {
+        this.prevStartTime = this.startTime;
+        this.startTime = this.currentTime.time;
+      } else {
+        this.prevEndTime = this.endTime;
+        this.endTime = this.currentTime.time;
+      }
     }
   }
 };

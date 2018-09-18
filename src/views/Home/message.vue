@@ -5,58 +5,95 @@
             rightText="设置"
             @clickLeft="back()"
             @clickRight="goSetMsg" />
-    <ul class="msg-list">
-      <li class="msg-item"
-          v-for="(item, index) in msgList"
-          :key="index">
-        <div class="header">
-          <div class="title">{{item.title}}</div>
-          <div class="time">{{item.time}}</div>
+    <div class="msg-list">
+      <van-list v-model="loading"
+                :finished="finished"
+                @load="onLoad">
+        <div class="msg-item"
+             v-for="(item, index) in msgList"
+             :key="index">
+          <div class="header">
+            <div class="title">{{item.title}}</div>
+            <div class="time">{{item.time}}</div>
+          </div>
+          <div class="info">{{item.info}}</div>
         </div>
-        <div class="info">{{item.info}}</div>
-      </li>
-    </ul>
+        <div class="no-data"
+             v-if="isNoData">暂无数据</div>
+        <div class="no-more-data"
+             v-if="finished">没有更多数据了
+        </div>
+      </van-list>
+    </div>
   </div>
 </template>
 
 <script>
-import { Icon, Tabbar, TabbarItem, Toast } from 'vant';
+import { Icon, Tabbar, TabbarItem, Toast, List } from 'vant';
 import navBar from '@/components/nav';
 
 export default {
-  name: 'home',
+  name: 'message',
   components: {
     [Icon.name]: Icon,
     [Tabbar.name]: Tabbar,
     [TabbarItem.name]: TabbarItem,
     [Toast.name]: Toast,
+    [List.name]: List,
     navBar
   },
   data() {
     return {
-      msgList: [
-        {
-          title: '震动警报',
-          time: '06-11 12:24',
-          info: '设备：001震动了一下'
-        },
-        {
-          title: '震动警报2',
-          time: '06-11 12:25',
-          info: '设2备：001震动了一下'
-        }
-      ]
+      loading: false, // 列表加载中
+      finished: false,  // 列表加载完成
+      curPage: 1,
+      pageSize: 10,
+      isNoData: false,
+      msgList: []
     };
   },
   methods: {
     goSetMsg() {
       this.$router.push('/messageSet');
+    },
+    async onLoad() {
+      const params = {
+        curPage: this.curPage,
+        pageSize: this.pageSize
+      };
+
+      const res = await this.$http.get(
+        '/getMsgList',
+        params,
+        this
+      );
+
+      if (res.msgList.length) {
+        this.msgList = [...res.msgList, ...this.msgList];
+        this.loading = false;
+        if (res.count > (this.curPage - 1) * this.pageSize + res.msgList.length) {
+          this.curPage += 1;
+        } else {
+          this.finished = true;
+        }
+      } else if (this.curPage === 1) {
+        // 消息页面暂无数据
+        this.isNoData = true;
+      }
     }
   }
 };
 </script>
 
 <style scoped>
+.msg-list {
+  position: fixed;
+  top: 46px;
+  bottom: 50px;
+  width: 100%;
+  overflow-y: auto;
+}
+
 .msg-item {
   padding: 0.3rem;
   line-height: 1;
@@ -79,5 +116,12 @@ export default {
 
 .time {
   color: #858585;
+}
+
+.no-more-data {
+  line-height: 50px;
+  font-size: 13px;
+  color: #999;
+  text-align: center;
 }
 </style>
