@@ -35,28 +35,36 @@ export default new Router({
       path: '',
       component: Home,
       meta: {
-        active: 0
+        title: '酷行智动',
+        active: 0,
+        keepAlive: true
       }
     },
     {
       path: 'footPrint',
       component: FootPrint,
       meta: {
-        active: 1
+        title: '酷行智动',
+        active: 1,
+        keepAlive: false
       }
     },
     {
       path: 'fence',
       component: Fence,
       meta: {
-        active: 2
+        title: '酷行智动',
+        active: 2,
+        keepAlive: true
       }
     },
     {
       path: 'message',
       component: Message,
       meta: {
-        active: 3
+        title: '酷行智动',
+        active: 3,
+        keepAlive: true
       }
     }
     ]

@@ -3,7 +3,7 @@
     <baidu-map ref="baiduMap"
                class="bm-view"
                :center="center"
-               :zoom="19"
+               :zoom="17"
                @ready="mapReady">
 
       <MotoOverlay v-for="(item, index) in markerList"
@@ -49,6 +49,7 @@
       </div>
     </div>
 
+    <!-- TODO: 获取用户信息 -->
     <div :class="{card:true, reverse: reverse === true}">
       <div class="info front">
         <div>
@@ -69,13 +70,15 @@
       <div class="info back">
         <div>
           <img class="figure"
-               src="@/assets/images/1.jpg" />
+               :src="markerList[activeVehicleIndex].src" />
         </div>
         <div class="info-main">
           <div class="name-box">
             <span class="name">{{markerList[activeVehicleIndex].title}}</span>
             <span class="state online"
                   v-if="markerList[activeVehicleIndex].state === 'YES'">在线</span>
+            <span class="state"
+                  v-if="markerList[activeVehicleIndex].state !== 'YES'">离线</span>
             <span class="time"
                   v-if="(markerList[activeVehicleIndex].state !== 'YES') && markerList[activeVehicleIndex].time">{{markerList[activeVehicleIndex].time}}</span>
           </div>
@@ -126,33 +129,34 @@ export default {
         src: 'https://www.baidu.com/img/baidu_jgylogo3.gif',
         address: ''
       },
-      markerList: [
-        // {
-        //   lat: 22.546,
-        //   lng: 114.025,
-        //   title: '名字1',
-        //   state: 'YES',
-        //   address: '广东省深圳市大冲商务中心',
-        //   src: '@/assets/images/2.jpg'
-        // },
-        {
-          lat: 22.542621707139265,
-          lng: 114.01351470704279,
-          title: '名字1',
-          state: 'YES',
-          address: '广东省深圳市大冲商务中心',
-          src: '@/assets/images/2.jpg'
-        },
-        {
-          lat: 22.545,
-          lng: 114.025,
-          title: '名字2',
-          state: 'NO',
-          time: '2018-09-20 14：20：20',
-          address: '广东省深圳市大冲商务中心2',
-          src: '@/assets/images/3.jpg'
-        }
-      ]
+      // markerList: [
+      //   // {
+      //   //   lat: 22.546, // 22.542621707139265
+      //   //   lng: 114.025,  // 114.01351470704279
+      //   //   title: '名字1',
+      //   //   state: 'YES',
+      //   //   address: '广东省深圳市大冲商务中心',
+      //   //   src: '@/assets/images/2.jpg'
+      //   // },
+      //   {
+      //     lat: 22.542621707139265,
+      //     lng: 114.01351470704279,
+      //     title: '名字1',
+      //     state: 'YES',
+      //     address: '广东省深圳市大冲商务中心',
+      //     src: '@/assets/images/2.jpg'
+      //   },
+      //   {
+      //     lat: 22.545,  // 22.54162186570159
+      //     lng: 114.025,  // 114.01351525885238
+      //     title: '名字2',
+      //     state: 'NO',
+      //     time: '2018-09-20 14：20：20',
+      //     address: '广东省深圳市大冲商务中心2',
+      //     src: '@/assets/images/3.jpg'
+      //   }
+      // ]
+      markerList: this.Global.vehicleList
     };
   },
   created() {
@@ -170,14 +174,14 @@ export default {
     },
 
     change(index) {
-      // 切换卡版为用户或电动车信息
+      // 切换卡片为用户或电动车信息
       const prevIndex = this.activeIndex;
       this.activeIndex = index;
       if (index < this.markerList.length) {
         // 表示是点击的电动车
         const curItem = this.markerList[index];
         this.activeVehicleIndex = index;
-        window.activeVehicleIndex = index;
+        this.Global.activeVehicleIndex = index;
         this.$refs.baiduMap.map.panTo(new BMap.Point(curItem.lng, curItem.lat));
         if (!prevIndex || prevIndex >= this.markerList.length) {
           this.reverse = true;
@@ -239,13 +243,14 @@ export default {
     },
 
     drawCenter({ el, BMap, map, overlay }) {
+      console.log(this.center.lng, this.center.lat,'34324')
       const pixel = map.pointToOverlayPixel(
         new BMap.Point(this.center.lng, this.center.lat)
       );
 
       // TODO:
-      el.style.left = `${pixel.x - 10}px`;
-      el.style.top = `${pixel.y - 10}px`;
+      el.style.left = `${pixel.x - 13}px`;
+      el.style.top = `${pixel.y - 10 }px`;
     },
 
     backUser() {
@@ -516,7 +521,7 @@ export default {
 }
 
 .icon-map-center {
-  font-size: 0.54rem;
+  font-size: 26px;
   color: #47bafe;
 }
 </style>

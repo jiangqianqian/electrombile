@@ -34,8 +34,10 @@
       </van-tabbar-item>
     </van-tabbar>
     <keep-alive>
-      <router-view/>
+      <router-view v-if="$route.meta.keepAlive"/>
     </keep-alive>
+    <!-- 轨迹不使用 keepAlive -->
+    <router-view v-if="!$route.meta.keepAlive"/>
   </div>
 </template>
 

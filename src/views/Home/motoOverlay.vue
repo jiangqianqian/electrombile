@@ -36,18 +36,11 @@ export default {
     },
 
     draw({ el, BMap, map, overlay }) {
-      // const pixel = map.pointToOverlayPixel(
-      //   new BMap.Point(this.item.lng, this.item.lat)
-      // );
-      // el.style.left = `${pixel.x - 60}px`;
-      // el.style.top = `${pixel.y - 20}px`;
-
-      const newCoord = wgs84tobd09(this.item.lng, this.item.lat);
       const pixel = map.pointToOverlayPixel(
-        new BMap.Point(newCoord[0], newCoord[1])
+        new BMap.Point(this.item.lng, this.item.lat)
       );
-      el.style.left = `${pixel.x - 60}px`;
-      el.style.top = `${pixel.y - 20}px`;
+      el.style.left = `${pixel.x - commonJs.rem2px(0.6) / 2}px`;
+      el.style.top = `${pixel.y - commonJs.rem2px(0.6) - 6}px`;
     }
   }
 };

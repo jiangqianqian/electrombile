@@ -1,7 +1,7 @@
 const commonJs = {
-  rem2px(val) {
+  rem2px(rem) {
     const width = window.screen.width;
-    return (val * 100) / (750 / width);
+    return (rem * 100) / (750 / width);
   }
 };
 

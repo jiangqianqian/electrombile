@@ -4,16 +4,16 @@
       <template slot="titleBox">
         <div class="title-box"
              @click.stop="selectFlag = true">
-          {{currentSelectItem.name}}
+          {{currentSelectItem.title}}
           <van-icon class="title-arrow"
                     name="xiasanjiao" />
         </div>
         <ul class="title-list"
             v-if="selectFlag">
-          <li :class="{'title-list-item': true, 'cur': item.id === currentSelectItem.id}"
+          <li :class="{'title-list-item': true, 'cur': item.imei === currentSelectItem.imei}"
               v-for="(item,index) in vehicleList"
               :key="index"
-              @click.stop="selectItem(item)">{{item.name}}</li>
+              @click.stop="selectItem(item)">{{item.title}}</li>
         </ul>
       </template>
     </navBar>
@@ -22,7 +22,7 @@
       <baidu-map ref="baiduMap"
                  class="bm-view"
                  :center="center"
-                 :zoom="15"
+                 :zoom="17"
                  @ready="mapReady">
 
         <!-- 中心点 -->
@@ -154,11 +154,7 @@ export default {
       selectFlag: false, // 为 true 显示电动车下拉框
       isShrink: true, // 为 true 为地图未展开状态
       currentSelectItem: null, // 电动车下拉框在首页选中的某个值
-      vehicleList: [
-        { id: 1, name: '小牛' },
-        { id: 2, name: '新日' },
-        { id: 3, name: '小米' }
-      ],
+      vehicleList: this.Global.vehicleList,
       center: {
         // 中心点
         lng: 0,
@@ -192,10 +188,10 @@ export default {
     };
   },
   created() {
-    // TODO: 请求接口获取电动车列表并赋值当前选中的电动车的位置为地图中心点
+    // TODO: 设置选中的电动车
     // 获取开始结束时间
 
-    const curIndex = window.activeVehicleIndex || 0;
+    const curIndex = this.Global.activeVehicleIndex || 0;
     this.currentSelectItem = this.vehicleList[curIndex];
   },
   methods: {
@@ -285,15 +281,14 @@ export default {
     },
 
     mapReady({ BMap, map }) {
-      // TODO: 测试用
       this.setCenter();
     },
 
     setCenter() {
-      // TODO: 测试用
+      // 设置当前选中的电动车坐标为中心点
       this.center = {
-        lng: this.path[0].lng,
-        lat: this.path[0].lat
+        lng: this.currentSelectItem.lng,
+        lat: this.currentSelectItem.lat
       };
     },
 
@@ -391,9 +386,9 @@ export default {
       }
     },
 
-    clearOverlays() {
-      this.$refs.baiduMap.map.clearOverlays();
-    },
+    // clearOverlays() {
+    //   this.$refs.baiduMap.map.clearOverlays();
+    // },
 
     search() {
       // 重置播放状态为起始
@@ -419,7 +414,7 @@ export default {
       //   message: '加载中...'
       // });
 
-      // 请求结束后
+      // 请求结束后, 先坐标转换再绘制
       this.drawPolyline();
 
       this.isHasRoute = true;

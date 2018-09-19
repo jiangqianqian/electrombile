@@ -112,7 +112,7 @@ export default {
                 const result = data.resultStr; // 当needResult 为 1 时，扫码返回的结果
                 console.log('扫描结果：' + result);
                 // 提交绑定电动车
-                this.bindVihicle(result);
+                this.bindVehicle(result);
               }
             });
           } else {
@@ -125,7 +125,7 @@ export default {
       });
     },
 
-    async bindVihicle(param) {
+    async bindVehicle(param) {
       const params = {
         id: param
       };

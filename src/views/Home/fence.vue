@@ -1,37 +1,58 @@
 <template>
-  <div class="bm-view-wrap">
-    <baidu-map ref="baiduMap"
-               class="bm-view"
-               :center="circlePath.center"
-               :zoom="17"
-               @ready="mapReady">
-
-      <!-- 中心点 -->
-      <bm-overlay ref="mapCenter"
-                  pane="markerPane"
-                  class="map-center"
-                  @draw="drawCenter">
-        <div class="map-center-circle"></div>
-      </bm-overlay>
-    </baidu-map>
-
-    <div class="card">
-      <div class="info-main">
-        <span class="title">{{userInfo.title}}</span>
-
-        <div class="address">
-          {{userInfo.address}}
+  <div>
+    <navBar>
+      <template slot="titleBox">
+        <div class="title-box"
+             @click.stop="selectFlag = true">
+          {{currentSelectItem.title}}
+          <van-icon class="title-arrow"
+                    name="xiasanjiao" />
         </div>
+        <ul class="title-list"
+            v-if="selectFlag">
+          <li :class="{'title-list-item': true, 'cur': item.imei === currentSelectItem.imei}"
+              v-for="(item,index) in vehicleList"
+              :key="index"
+              @click.stop="selectItem(item)">{{item.title}}</li>
+        </ul>
+      </template>
+    </navBar>
+
+    <div class="bm-view-wrap">
+      <baidu-map ref="baiduMap"
+                 class="bm-view"
+                 :center="circlePath.center"
+                 :zoom="17"
+                 @ready="mapReady">
+
+        <!-- 中心点 -->
+        <!-- <bm-overlay ref="mapCenter"
+                    pane="markerPane"
+                    class="map-center"
+                    @draw="drawCenter">
+          <div class="map-center-circle"></div>
+        </bm-overlay> -->
+      </baidu-map>
+
+      <div class="card">
+        <div class="info-main">
+          <span class="title">{{cardTitle}}</span>
+
+          <div class="address">
+            {{address}}
+          </div>
+        </div>
+        <van-switch class="switch-btn"
+                    v-model="switchChecked"
+                    @change="setFenceSwitch" />
       </div>
-      <van-switch class="switch-btn"
-                  v-model="switchChecked"
-                  @change="setFenceSwitch" />
     </div>
   </div>
 </template>
 
 <script>
 import { Button, Icon, Toast, Switch } from 'vant';
+import navBar from '@/components/nav';
 
 export default {
   name: 'fence',
@@ -39,7 +60,8 @@ export default {
     [Button.name]: Button,
     [Icon.name]: Icon,
     [Toast.name]: Toast,
-    [Switch.name]: Switch
+    [Switch.name]: Switch,
+    navBar
   },
   data() {
     return {
@@ -52,22 +74,22 @@ export default {
         radius: 200
       },
       // TODO: 通过接口拿到姓名及头像，通过地图逆址解析拿到地址
-      userInfo: {
-        title: '电子围栏(200米)',
-        address: ''
-      },
-      switchChecked: true,
-      circle: null,
-      polylineLastPoint: {}
+      // userInfo: {
+      //   title: '电子围栏(200米)',
+      //   address: ''
+      // },
+      address: '',  // 当前被选中的电动车所在的位置
+      cardTitle: '电子围栏(200米)',
+      switchChecked: false, // 设置电子围栏的开关, 默认为 false, 设为 true 后需要提交接口保存
+      polylineLastPoint: {},  // 圆右边界的坐标
+      vehicleList: this.Global.vehicleList,
+      selectFlag: false, // 为 true 显示电动车下拉框
+      currentSelectItem: null, // 电动车被选中的某个值
     };
   },
   created() {
-    // 获取中心点完成前显示加载中
-    Toast.loading({
-      mask: true,
-      duration: 0,
-      message: '加载中...'
-    });
+    // 默认选中第 1 个
+    this.currentSelectItem = this.vehicleList[0];
   },
   methods: {
     mapReady({ BMap, map }) {
@@ -76,31 +98,17 @@ export default {
     },
 
     setAndDrawCenter() {
-      // 当前用户所在位置
-      const _this = this;
-      const geolocation = new BMap.Geolocation();
-      geolocation.getCurrentPosition(
-        function (r) {
-          // 画当前位置
-          if (this.getStatus() == BMAP_STATUS_SUCCESS) {
-            console.log('success', r.point.lng);
-            Toast.clear();
-            _this.circlePath.center.lng = r.point.lng;
-            _this.circlePath.center.lat = r.point.lat;
+      // 电动车切换时先清除地图上的覆盖物
+      this.$refs.baiduMap.map.clearOverlays();
 
-            _this.getAddress();
-            _this.drawCircle();
-            _this.drawPolyline();
-            _this.drawLabel();
-          } else {
-            Toast.clear();
-            Toast.fail('获取定位失败!');
-          }
-        },
-        {
-          enableHighAccuracy: true
-        }
-      );
+      this.circlePath.center.lng = this.currentSelectItem.lng;
+      this.circlePath.center.lat = this.currentSelectItem.lat;
+
+      this.getAddress();
+      this.drawCenter();
+      this.drawCircle();
+      this.drawPolyline();
+      this.drawLabel();
     },
 
     getAddress() {
@@ -117,7 +125,7 @@ export default {
 
       myGeo.getLocation(point, (rs) => {
         const address = rs.addressComponents;
-        _this.userInfo.address =
+        _this.address =
           address.province +
           address.city +
           address.district +
@@ -126,13 +134,27 @@ export default {
       });
     },
 
-    drawCenter({ el, BMap, map, overlay }) {
-      const pixel = map.pointToOverlayPixel(
-        new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat)
-      );
+    // drawCenter({ el, BMap, map, overlay }) {
+    //   const pixel = map.pointToOverlayPixel(
+    //     new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat)
+    //   );
 
-      el.style.left = `${pixel.x - 4}px`;
-      el.style.top = `${pixel.y - 4}px`;
+    //   el.style.left = `${pixel.x - 4}px`;
+    //   el.style.top = `${pixel.y - 4}px`;
+    // },
+
+    drawCenter() {
+      const circlePoint = new BMap.Circle(
+        new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat),
+        8,
+        {
+          strokeColor: 'transparent',
+          strokeOpacity: 0,
+          strokeWeight: 0,
+          fillColor: '#47bafe',
+        }
+      );
+      this.$refs.baiduMap.map.addOverlay(circlePoint);
     },
 
     drawCircle() {
@@ -197,7 +219,16 @@ export default {
 
     setFenceSwitch() {
       console.log(this.switchChecked, 'switchChecked');
-    }
+    },
+
+    selectItem(item) {
+      // 隐藏下拉框
+      this.selectFlag = false;
+      this.currentSelectItem = item;
+
+      // 重新绘制围栏
+      this.setAndDrawCenter();
+    },
   }
 };
 </script>
@@ -205,7 +236,7 @@ export default {
 <style scoped>
 .bm-view-wrap {
   position: absolute;
-  top: 0;
+  top: 46px;
   left: 0;
   right: 0;
   bottom: 50px;
@@ -258,5 +289,47 @@ export default {
   height: 8px;
   border-radius: 8px;
   background-color: #47bafe;
+}
+
+.title-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.3rem;
+}
+
+.title-arrow {
+  position: relative;
+  top: -2px;
+  left: 3px;
+  color: #858585;
+}
+
+.title-list {
+  position: absolute;
+  top: 52px;
+  left: 50%;
+  margin-left: -28%;
+  width: 56%;
+  border-radius: 0.08rem;
+  box-shadow: 0 2px 5px 2px rgba(0, 0, 0, 0.21);
+  background-color: #fff;
+}
+
+.title-list-item {
+  height: 0.9rem;
+  line-height: 0.9rem;
+  text-align: center;
+  font-size: 0.3rem;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.title-list-item:last-child {
+  border-bottom: none;
+}
+
+.title-list-item.cur {
+  font-weight: bold;
 }
 </style>
