@@ -26,12 +26,12 @@
                  @ready="mapReady">
 
         <!-- 中心点 -->
-        <!-- <bm-overlay ref="mapCenter"
+        <bm-overlay ref="mapCenter"
                     pane="markerPane"
                     class="map-center"
                     @draw="drawCenter">
           <div class="map-center-circle"></div>
-        </bm-overlay> -->
+        </bm-overlay>
       </baidu-map>
 
       <div class="card">
@@ -85,6 +85,9 @@ export default {
       vehicleList: this.Global.vehicleList,
       selectFlag: false, // 为 true 显示电动车下拉框
       currentSelectItem: null, // 电动车被选中的某个值
+      circleOverlay: null, // 地图上的圆覆盖物
+      polylineOverlay: null,
+      labelOverlay: null
     };
   },
   created() {
@@ -93,19 +96,46 @@ export default {
   },
   methods: {
     mapReady({ BMap, map }) {
-      // 地图准备好后设置并绘制中心点
-      this.setAndDrawCenter();
+      // 请求接口确定是否已设置围栏
+      this.init();
+    },
+
+    init() {
+      this.$http.get(
+        '/isHasFence',
+        {
+          imei: this.currentSelectItem.imei
+        },
+        this
+      ).then((res) => {
+        if (res && res.isHasFence) {
+          // 以前设置过围栏的情况
+          const data = res.data;
+          this.circlePath.center.lng = data.lng;
+          this.circlePath.center.lat = data.lat;
+          this.address = data.address;
+          this.switchChecked = data.fenceOn;
+        } else {
+          // 通过逆址解析获取到地址
+          this.getAddress();
+        }
+
+        // 地图准备好后设置并绘制中心点
+        this.setAndDrawCenter();
+      });
     },
 
     setAndDrawCenter() {
       // 电动车切换时先清除地图上的覆盖物
-      this.$refs.baiduMap.map.clearOverlays();
+      const map = this.$refs.baiduMap.map;
+      map.removeOverlay(this.circleOverlay);
+      map.removeOverlay(this.polylineOverlay);
+      map.removeOverlay(this.labelOverlay);
+      this.$refs.mapCenter.reload();
 
       this.circlePath.center.lng = this.currentSelectItem.lng;
       this.circlePath.center.lat = this.currentSelectItem.lat;
 
-      this.getAddress();
-      this.drawCenter();
       this.drawCircle();
       this.drawPolyline();
       this.drawLabel();
@@ -134,31 +164,31 @@ export default {
       });
     },
 
-    // drawCenter({ el, BMap, map, overlay }) {
-    //   const pixel = map.pointToOverlayPixel(
-    //     new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat)
-    //   );
-
-    //   el.style.left = `${pixel.x - 4}px`;
-    //   el.style.top = `${pixel.y - 4}px`;
-    // },
-
-    drawCenter() {
-      const circlePoint = new BMap.Circle(
-        new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat),
-        8,
-        {
-          strokeColor: 'transparent',
-          strokeOpacity: 0,
-          strokeWeight: 0,
-          fillColor: '#47bafe',
-        }
+    drawCenter({ el, BMap, map, overlay }) {
+      const pixel = map.pointToOverlayPixel(
+        new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat)
       );
-      this.$refs.baiduMap.map.addOverlay(circlePoint);
+
+      el.style.left = `${pixel.x - 4}px`;
+      el.style.top = `${pixel.y - 4}px`;
     },
 
+    // drawCenter() {
+    //   const circlePoint = new BMap.Circle(
+    //     new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat),
+    //     8,
+    //     {
+    //       strokeColor: 'transparent',
+    //       strokeOpacity: 0,
+    //       strokeWeight: 0,
+    //       fillColor: '#47bafe',
+    //     }
+    //   );
+    //   this.$refs.baiduMap.map.addOverlay(circlePoint);
+    // },
+
     drawCircle() {
-      const circle = new BMap.Circle(
+      this.circleOverlay = new BMap.Circle(
         new BMap.Point(this.circlePath.center.lng, this.circlePath.center.lat),
         this.circlePath.radius,
         {
@@ -169,17 +199,17 @@ export default {
           fillOpacity: 0.18
         }
       );
-      this.$refs.baiduMap.map.addOverlay(circle);
+      this.$refs.baiduMap.map.addOverlay(this.circleOverlay);
 
       // 获取圆右边界的坐标
       this.polylineLastPoint = {
-        lng: circle.getBounds().getNorthEast().lng,
+        lng: this.circleOverlay.getBounds().getNorthEast().lng,
         lat: this.circlePath.center.lat
       };
     },
 
     drawPolyline() {
-      const polyline = new BMap.Polyline(
+      this.polylineOverlay = new BMap.Polyline(
         [
           new BMap.Point(
             this.circlePath.center.lng,
@@ -189,7 +219,7 @@ export default {
         ],
         { strokeColor: '#47bafe', strokeWeight: 2, strokeStyle: 'dashed' }
       );
-      this.$refs.baiduMap.map.addOverlay(polyline);
+      this.$refs.baiduMap.map.addOverlay(this.polylineOverlay);
     },
 
     drawLabel() {
@@ -202,8 +232,8 @@ export default {
         position: labelPoint,
         offset: new BMap.Size(-18, -20)
       };
-      const label = new BMap.Label(`${this.circlePath.radius}米`, opts);
-      label.setStyle({
+      this.labelOverlay = new BMap.Label(`${this.circlePath.radius}米`, opts);
+      this.labelOverlay.setStyle({
         // color: '#fff',
         fontSize: '12px',
         height: '20px',
@@ -214,11 +244,30 @@ export default {
         border: 0
         // padding: '0 5px'
       });
-      this.$refs.baiduMap.map.addOverlay(label);
+      this.$refs.baiduMap.map.addOverlay(this.labelOverlay);
     },
 
     setFenceSwitch() {
-      console.log(this.switchChecked, 'switchChecked');
+      // 保存围栏的设置
+      const params = {
+        lng: this.circlePath.center.lng,
+        lat: this.circlePath.center.lat,
+        address: this.address,
+        imei: this.currentSelectItem.imei,
+        switchChecked: this.switchChecked
+      };
+
+      // TODO: POST
+      this.$http.get(
+        '/saveFence',
+        params,
+        this,
+        true
+      ).then((res) => {
+        if (res) {
+          Toast.success('设置成功');
+        }
+      });
     },
 
     selectItem(item) {
@@ -227,7 +276,7 @@ export default {
       this.currentSelectItem = item;
 
       // 重新绘制围栏
-      this.setAndDrawCenter();
+      this.init();
     },
   }
 };

@@ -11,7 +11,7 @@ let showToast = true;
 
 let loading = false;
 
-// 基础接口
+// 基础接口 TODO:
 const BASE_URL = 'http://localhost:3003';
 
 axios.defaults.timeout = 10000;
@@ -80,6 +80,13 @@ axios.interceptors.response.use((response) => {
 
 export default class api {
   static get = (url, params, vueContext, showLoading, isShow) => {
+    /*
+      *@param {String} url 路径
+      *@param {Obj} params 传参
+      *@param {Obj} vueContext 一般传 this
+      *@param {Boolean} showLoading 默认是 false,表示请求时不给加载中提示
+      *@param {Boolean} isShow 默认为 true,表示请求异常给出提示
+    */
     showToast = true;
     if (vueContext != null) {
       vue = vueContext;

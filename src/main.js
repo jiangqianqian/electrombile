@@ -10,25 +10,29 @@ import wgs84tobd09 from './utils/coordtransform';
 import './assets/font/iconfont.css';
 import './assets/css/resetui.css';
 
-// 返回
-Vue.prototype.back = () => {
-  // route.animate = 2;
-  history.go(-1);
-};
-
 Vue.use(BaiduMap, {
   // ak 是在百度地图开发者平台申请的密钥 详见 http://lbsyun.baidu.com/apiconsole/key */
   ak: 'VFEAKmKYgUpGON4YsDjdW8c3t7RwnQqK'
 });
 
 const Global = {
-  openId: '', // 用户 openId
+  userInfo: null, // 用户信息
   activeVehicleIndex: 0, // 首页中被选中的电动车索引号
   vehicleList: [], // 电动车列表
   hasGetvehicleList: false // 当绑定了设备或获取到电动车列表后置为 true
 };
 
 Vue.prototype.Global = Global;
+
+// 返回
+Vue.prototype.back = () => {
+  // route.animate = 2;
+  history.go(-1);
+};
+
+Vue.config.productionTip = false;
+
+Vue.prototype.$http = axios;
 
 router.beforeEach((to, from, next) => {
   /* 路由发生变化修改页面title */
@@ -55,7 +59,7 @@ router.beforeEach((to, from, next) => {
   if (!Global.hasGetvehicleList) {
     // 没有获取电动车列表，表示未确定该用户是否有绑定电动车
     const params = {
-      openId: Global.openId
+      openId: Global.userInfo.openId
     };
 
     axios.get(
@@ -107,10 +111,6 @@ router.beforeEach((to, from, next) => {
     });
   }
 });
-
-Vue.config.productionTip = false;
-
-Vue.prototype.$http = axios;
 
 /* eslint-disable no-new */
 new Vue({

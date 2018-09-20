@@ -68,6 +68,10 @@ export default {
         this
       );
 
+      if (!res) {
+        return;
+      }
+
       if (res.msgList.length) {
         this.msgList = [...res.msgList, ...this.msgList];
         this.loading = false;
