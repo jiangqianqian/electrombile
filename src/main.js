@@ -19,7 +19,7 @@ const Global = {
   userInfo: null, // 用户信息
   activeVehicleIndex: 0, // 首页中被选中的电动车索引号
   vehicleList: [], // 电动车列表
-  hasGetvehicleList: false // 当绑定了设备或获取到电动车列表后置为 true
+  hasGetVehicleList: false // 当绑定了设备或获取到电动车列表后置为 true
 };
 
 Vue.prototype.Global = Global;
@@ -34,7 +34,86 @@ Vue.config.productionTip = false;
 
 Vue.prototype.$http = axios;
 
-router.beforeEach((to, from, next) => {
+function bindVehicle(to) {
+  if (!Global.hasGetVehicleList) {
+    // 没有获取电动车列表，表示未确定该用户是否有绑定电动车
+    const params = {
+      openId: Global.userInfo.openId
+    };
+
+    axios.get(
+      '/vehicleList',
+      params,
+      this
+    ).then((res) => {
+      Global.hasGetVehicleList = true;
+
+      // 要求没有电动车列表时，返回 []
+      Global.vehicleList = res.map((item) => {
+        const newItem = wgs84tobd09(item.lng, item.lat);
+        item.lng = newItem[0];
+        item.lat = newItem[1];
+        return item;
+      });
+
+      console.log(Global.vehicleList, '123123');
+      if (Global.vehicleList.length) {
+        if (to.fullPath === '/') {
+          // 如果绑定了电动车且访问的是根目录，直接跳转上首页
+          return '/home';
+        }
+        return false;
+      }
+      // 没有绑定电动车的情况
+      return '/register';
+    });
+  } else {
+    if (to.path === '/register') {
+      return false;
+    }
+
+    if (Global.vehicleList.length) {
+      if (to.fullPath === '/') {
+        // 如果绑定了电动车且访问的是根目录，直接跳转上首页
+        return '/home';
+      }
+      return false;
+    }
+
+    // 没有绑定电动车的情况
+    return '/register';
+  }
+  return false;
+}
+
+function getCode(search) {
+  if (!search) {
+    return false;
+  }
+
+  const array = search.split('&');
+  for (const val of array) {
+    if (val.includes('code')) {
+      // 例: code=123
+      return val.substring(5);
+    }
+    return false;
+  }
+
+  return false;
+}
+
+function toAuth() {
+  // 进入授权页面
+  // 这个 redirectUrl用当前页路径或者 tof.fullPath(将要进入的路径)
+  let redirectUrl = window.location.href;
+  redirectUrl = encodeURIComponent(redirectUrl);
+  console.log(redirectUrl);
+  const appid = 'wxdff0642c2120ea39';
+  window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appid}&redirect_uri=${redirectUrl}&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect`;
+}
+
+router.beforeEach(async (to, from, next) => {
   /* 路由发生变化修改页面title */
   if (to.meta.title) {
     document.title = to.meta.title;
@@ -56,59 +135,46 @@ router.beforeEach((to, from, next) => {
   //   }
   // }
   // return next();
-  if (!Global.hasGetvehicleList) {
-    // 没有获取电动车列表，表示未确定该用户是否有绑定电动车
-    const params = {
-      openId: Global.userInfo.openId
-    };
 
-    axios.get(
-      '/vehicleList',
-      params,
+  // 获取用户信息
+  if (Global.userInfo) {
+    // 已经授权
+    const res = bindVehicle(to);
+    if (res) {
+      // 有值表示返回了特定路径
+      return next(res);
+    }
+    return next();
+  }
+
+  // 未授权
+  const code = getCode(window.location.search); // 截取url上的code ,可能没有,则返回 false;
+  if (code) {
+    // 表示这个页面是用户点了授权后跳转到的页面,获取用户信息,后端可首先通过cookie,session等判断,没有信息则通过code获取
+    const data = await this.$http.get(
+      '/imsl/user/user-auth', {
+        code
+      },
       this
-    ).then((res) => {
-      Global.hasGetvehicleList = true;
-      Global.vehicleList = res.map((item) => {
-        const newItem = wgs84tobd09(item.lng, item.lat);
-        item.lng = newItem[0];
-        item.lat = newItem[1];
-        return item;
-      });
+    );
 
-      console.log(Global.vehicleList, '123123');
-      if (Global.vehicleList.length) {
-        if (to.fullPath === '/') {
-          // 如果绑定了电动车且访问的是根目录，直接跳转上首页
-          return next({
-            path: '/home'
-          });
-        }
-        return next();
+    if (data) {
+      Global.userInfo = data;
+
+      // 去绑定电动车
+      const res = bindVehicle(to);
+      if (res) {
+        // 有值表示返回了特定路径
+        return next(res);
       }
-      // 没有绑定电动车的情况
-      return next({
-        path: '/register'
-      });
-    });
+      return next();
+    }
+
+    // 去授权
+    toAuth();
   } else {
-    if (to.path === '/register') {
-      return next();
-    }
-
-    if (Global.vehicleList.length) {
-      if (to.fullPath === '/') {
-        // 如果绑定了电动车且访问的是根目录，直接跳转上首页
-        return next({
-          path: '/home'
-        });
-      }
-      return next();
-    }
-
-    // 没有绑定电动车的情况
-    return next({
-      path: '/register'
-    });
+    // 对于已关注公众号的用户，如果用户从公众号的会话或者自定义菜单进入本公众号的网页授权页，即使是scope为snsapi_userinfo，也是静默授权，用户无感知
+    toAuth();
   }
 });
 
