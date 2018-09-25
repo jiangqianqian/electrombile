@@ -78,10 +78,10 @@ export default {
       //   title: '电子围栏(200米)',
       //   address: ''
       // },
-      address: '',  // 当前被选中的电动车所在的位置
+      address: '', // 当前被选中的电动车所在的位置
       cardTitle: '电子围栏(200米)',
       switchChecked: false, // 设置电子围栏的开关, 默认为 false, 设为 true 后需要提交接口保存
-      polylineLastPoint: {},  // 圆右边界的坐标
+      polylineLastPoint: {}, // 圆右边界的坐标
       vehicleList: this.Global.vehicleList,
       selectFlag: false, // 为 true 显示电动车下拉框
       currentSelectItem: null, // 电动车被选中的某个值

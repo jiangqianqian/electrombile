@@ -223,7 +223,7 @@ export default {
     },
 
     getAddress() {
-      var _this = this;
+      const _this = this;
 
       // 创建地址解析器实例
       const myGeo = new BMap.Geocoder();
@@ -243,14 +243,14 @@ export default {
     },
 
     drawCenter({ el, BMap, map, overlay }) {
-      console.log(this.center.lng, this.center.lat,'34324')
+      console.log(this.center.lng, this.center.lat, '34324');
       const pixel = map.pointToOverlayPixel(
         new BMap.Point(this.center.lng, this.center.lat)
       );
 
       // TODO:
       el.style.left = `${pixel.x - 13}px`;
-      el.style.top = `${pixel.y - 10 }px`;
+      el.style.top = `${pixel.y - 10}px`;
     },
 
     backUser() {
@@ -278,18 +278,10 @@ export default {
 
       if (this.adjustOS) {
         // 手机系统 ios
-        scheme = `baidumap://map/marker?location=${activeVehicle.lat},${
-          activeVehicle.lng
-          }&title=${activeVehicle.title}&content=${
-          activeVehicle.address
-          }&output=html&src=webapp.baidu.openAPIdemo`;
+        scheme = `baidumap://map/marker?location=${activeVehicle.lat},${activeVehicle.lng}&title=${activeVehicle.title}&content=${activeVehicle.address}&output=html&src=webapp.baidu.openAPIdemo`;
       } else {
         // 手机系统 android
-        scheme = `bdapp://map/marker?location=${activeVehicle.lat},${
-          activeVehicle.lng
-          }&title=${activeVehicle.title}&content=${
-          activeVehicle.address
-          }&output=html&src=webapp.baidu.openAPIdemo`;
+        scheme = `bdapp://map/marker?location=${activeVehicle.lat},${activeVehicle.lng}&title=${activeVehicle.title}&content=${activeVehicle.address}&output=html&src=webapp.baidu.openAPIdemo`;
       }
 
       // 如果手机没装百度地图，打开网页版地图
@@ -298,11 +290,7 @@ export default {
       const t = setTimeout(() => {
         const endTime = Date.now();
         if (!startTime || endTime - startTime < timeout + 200) {
-          window.location.href = `http://api.map.baidu.com/marker?location=${
-            activeVehicle.lat
-            },${activeVehicle.lng}&title=${activeVehicle.title}&content=${
-            activeVehicle.address
-            }&output=html`;
+          window.location.href = `http://api.map.baidu.com/marker?location=${activeVehicle.lat},${activeVehicle.lng}&title=${activeVehicle.title}&content=${activeVehicle.address}&output=html`;
         }
       }, timeout);
 

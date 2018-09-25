@@ -263,7 +263,7 @@ export default {
           );
         }
 
-        for (let k in o) {
+        for (const k in o) {
           if (new RegExp('(' + k + ')').test(fmt)) {
             fmt = fmt.replace(
               RegExp.$1,
@@ -275,9 +275,8 @@ export default {
         }
 
         return fmt;
-      } else {
-        return '';
       }
+      return '';
     },
 
     mapReady({ BMap, map }) {
@@ -421,7 +420,7 @@ export default {
     },
 
     drawPolyline() {
-      const polylinePoints = this.path.map(item => {
+      const polylinePoints = this.path.map((item) => {
         return new BMap.Point(item.lng, item.lat);
       });
 

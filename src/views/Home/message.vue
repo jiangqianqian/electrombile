@@ -45,7 +45,7 @@ export default {
   data() {
     return {
       loading: false, // 列表加载中
-      finished: false,  // 列表加载完成
+      finished: false, // 列表加载完成
       curPage: 1,
       pageSize: 10,
       isNoData: false,

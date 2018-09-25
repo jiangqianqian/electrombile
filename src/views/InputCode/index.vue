@@ -4,7 +4,7 @@
             leftText="绑定电动车"
             @clickLeft="back()" />
     <div class="content">
-      <!-- <img class="img" src="@/assets/images/vehicle.png" alt=""> -->
+      <img class="img" src="@/assets/images/vehicle.png" alt="">
       <van-field class="input-box"
                  v-model.trim="vehicleCode"
                  placeholder="请输入电动车编码" />

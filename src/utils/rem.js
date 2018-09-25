@@ -1,4 +1,4 @@
-(function (d, w) {
+(function px2rem(d, w) {
   const doc = d.documentElement;
 
   function rem() {

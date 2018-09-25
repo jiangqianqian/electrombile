@@ -1,7 +1,7 @@
 <template>
   <div class="success-page">
     <img class="img"
-         src="@/assets/images/ok-green.png" />
+         src="../../assets/images/ok-green.png" />
     <p class="text">设备绑定成功</p>
     <div class="btn-wrap">
       <router-link to='/home'>

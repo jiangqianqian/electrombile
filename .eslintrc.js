@@ -69,5 +69,16 @@ module.exports = {
     }],
     'arrow-body-style': ['error', 'always'],
     'prefer-template': 'off', // Unexpected string concatenation
+    'no-mixed-operators': 0,
+    'eqeqeq': 'off',
+    'no-restricted-syntax': 'off',
+    'no-unused-expressions': 'off',
+    'no-undef': 0,
+    'no-underscore-dangle': 'off',
+    'comma-dangle': 'off',
+    'arrow-parens': 'off',
+    'camelcase': 'off',
+    'consistent-return': 'off',
+    'func-names': 'off'
   }
 };

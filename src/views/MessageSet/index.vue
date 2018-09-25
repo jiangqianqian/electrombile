@@ -125,7 +125,7 @@ export default {
       prevEndTime: null,
       currentTime: { time: null, flag: '' },
       timePickerTitle: '',
-      isShowTime: false,
+      isShowTime: false
     };
   },
   watch: {
