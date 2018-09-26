@@ -11,7 +11,7 @@
         <div class="set-bar">
           <van-switch class="switch-btn"
                       size="28px"
-                      v-model="vibration" />
+                      v-model="shockAlarm" />
         </div>
       </li>
       <li class="msg-item">
@@ -39,7 +39,7 @@
         <div class="set-bar">
           <van-switch class="switch-btn"
                       size="28px"
-                      v-model="cut" />
+                      v-model="outageAlarm" />
         </div>
       </li>
       <li class="msg-item">
@@ -47,7 +47,7 @@
         <div class="set-bar">
           <van-switch class="switch-btn"
                       size="28px"
-                      v-model="fence" />
+                      v-model="fenceAlarm" />
         </div>
       </li>
       <li class="msg-item">
@@ -55,7 +55,7 @@
         <div class="set-bar">
           <van-switch class="switch-btn"
                       size="28px"
-                      v-model="noDisturb" />
+                      v-model="mute" />
         </div>
       </li>
     </ul>
@@ -64,30 +64,30 @@
                  :readonly="true"
                  :border="false"
                  v-model="startTime"
-                 @click="showTimePicker({ flag: 'start'})" />
+                 @click.native="showTimePicker({ flag: 'start'})" />
       <span class="split-text">至</span>
       <van-field class="time-item"
                  :readonly="true"
                  :border="false"
                  v-model="endTime"
-                 @click="showTimePicker({ flag: 'end'})" />
+                 @click.native="showTimePicker({ flag: 'end'})" />
     </div>
     <van-picker ref="levelPicker"
                 :columns="columns"
                 show-toolbar
                 title="选择级别"
+                v-if="showLevelPicker"
                 @change="levelPickerChange"
                 @cancel="levelPickerCancel"
-                @confirm="levelPickerConfirm"
-                v-if="showLevelPicker" />
+                @confirm="levelPickerConfirm" />
 
-    <van-datetime-picker v-model="currentTime.time"
-                         type="time"
+    <van-datetime-picker type="time"
                          :title="timePickerTitle"
+                         v-model="currentTime.time"
+                         v-if="isShowTime"
                          @cancel="timePickerCancel"
                          @confirm="timePickerConfirm"
-                         @change="changeTime"
-                         v-if="isShowTime" />
+                         @change="changeTime" />
   </div>
 </template>
 
@@ -110,14 +110,13 @@ export default {
   },
   data() {
     return {
-      vibration: false,
-      cut: true,
-      fence: false,
-      noDisturb: true,
+      shockAlarm: false, // 振动
+      outageAlarm: true, // 断电
+      fenceAlarm: false, // 围栏
+      mute: true, // 勿扰
       prevLevel: null,
       level: '高级',
       columns: [],
-      valueKey: ['a', 'b', 'c'],
       showLevelPicker: false,
       startTime: '00:00',
       endTime: '23:59',
@@ -141,6 +140,8 @@ export default {
   },
   created() { },
   mounted() {
+    // TODO: 请求接口获取上次消息设置的值
+
     this.columns = [
       {
         values: levels,
@@ -151,7 +152,7 @@ export default {
   methods: {
     save() {
       Toast.success('保存成功');
-      // TODO: 跳转页面
+
     },
 
     // 等级改变

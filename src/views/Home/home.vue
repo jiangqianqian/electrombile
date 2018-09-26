@@ -29,7 +29,7 @@
       {{message}}
       <van-icon class="message-icon-close"
                 name="guangbi"
-                @click="showMessage = false;" />
+                @click.native="showMessage = false;" />
     </div>
     <div class="map-control">
       <div class="icon-control-wrap"

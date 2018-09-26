@@ -10,21 +10,21 @@
         <router-link v-if="index === thumbs.length - 1" to="/map">显示地图</router-link>
       </van-swipe-item> -->
       <van-swipe-item class="item item1">
-        <!-- <img class="img" src="@/assets/images/swipe1.png"> -->
+        <img class="img" src="@/assets/images/swipe1.png">
         <div class="text">酷行智动，伴您一路畅行</div>
       </van-swipe-item>
       <van-swipe-item class="item item1">
-        <!-- <img class="img" src="@/assets/images/2.jpg"> -->
+        <img class="img" src="@/assets/images/2.jpg">
         <div class="text">这里是文字2</div>
       </van-swipe-item>
       <van-swipe-item class="item item3">
-        <!-- <img class="img" src="@/assets/images/swipe3.png"> -->
+        <img class="img" src="@/assets/images/swipe3.png">
         <div class="text">开始绑定我的电动车</div>
         <div class="bind-btn-wrap">
           <van-button class="bind-btn"
                       type="primary"
                       size="large"
-                      @click="scanCode">开始绑定</van-button>
+                      @click.native="scanCode">开始绑定</van-button>
           <router-link to='/inputCode'>
             <van-button class="bind-btn"
                         type="primary"
@@ -53,14 +53,14 @@ export default {
     };
   },
   created() {
-    this.getConfigItems().then((result) => {
-      if (result.code === 'C0000') {
+    this.getConfigItems().then((res) => {
+      if (res) {
         wx.config({
           // debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-          appId: result.data.appId, // 必填，公众号的唯一标识
-          timestamp: result.data.timestamp, // 必填，生成签名的时间戳
-          nonceStr: result.data.nonceStr, // 必填，生成签名的随机串
-          signature: result.data.signature, // 必填，签名
+          appId: res.appId, // 必填，公众号的唯一标识
+          timestamp: res.timestamp, // 必填，生成签名的时间戳
+          nonceStr: res.nonceStr, // 必填，生成签名的随机串
+          signature: res.signature, // 必填，签名
           jsApiList: ['checkJsApi', 'scanQRCode'] // 必填，需要使用的JS接口列表
         });
       }
@@ -92,17 +92,21 @@ export default {
     getConfigItems() {
       // 获取微信权限验证配置信息
       return this.$http.get(
-        '/qfang-agent-api/sdk/getConfig',
-        { url: location.href.split('#')[0] },
+        '/wechat/signature',
+        {
+          accessKeyId: this.Golbal.accessKeyId,
+          url: location.href.split('#')[0]
+        },
         this
       );
     },
 
     scanCode() {
+      // checkJsApi接口是客户端6.0.2新引入的一个预留接口，第一期开放的接口均可不使用checkJsApi来检测, 看是否可去掉
       wx.checkJsApi({
         // 验证接口是否可用
         jsApiList: ['scanQRCode'],
-        success: res => {
+        success: (res) => {
           if (res.checkResult.scanQRCode) {
             // 打开扫一扫
             wx.scanQRCode({
@@ -125,21 +129,21 @@ export default {
       });
     },
 
-    async bindVehicle(param) {
+    async bindVehicle(imei) {
       const params = {
-        id: param
+        imei,
+        openId: this.Golbal.userInfo.openId
       };
 
-      // TODO: POST
-      const res = await this.$http.get(
-        '/getCoordinateQuantities',
+      const res = await this.$http.post(
+        '/userBindImei',
         params,
         this
       );
 
       if (res) {
         // 跳到绑定成功界面
-        this.$router.push();
+        this.$router.push('/success');
       }
     }
   }

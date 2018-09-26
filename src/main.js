@@ -19,7 +19,9 @@ const Global = {
   userInfo: null, // 用户信息
   activeVehicleIndex: 0, // 首页中被选中的电动车索引号
   vehicleList: [], // 电动车列表
-  hasGetVehicleList: false // 当绑定了设备或获取到电动车列表后置为 true
+  hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
+  accessKeyId: '82A8C3B67DE5', // 传给后端的
+  accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
 };
 
 Vue.prototype.Global = Global;

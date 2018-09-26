@@ -13,7 +13,7 @@
                     slot="button"
                     size="small"
                     :disabled="!show"
-                    @click.stop="getSms(phone)">
+                    @click.native="getSms">
           <span v-show="show">获取验证码</span>
           <span v-show="!show"
                 class="count">{{count}} s</span>
@@ -43,7 +43,7 @@ export default {
   },
   data() {
     return {
-      phone: '13714717742',
+      phone: '13714717742', // TODO:
       sms: '123',
       show: true, // 为 true 显示获取验证码按键，否则显示 60s 倒计时内容
       count: '', // 60s 计数
@@ -51,22 +51,20 @@ export default {
     };
   },
   methods: {
-    getSms(phone) {
-      // if (this.checkPhone()) {
-      //   // 获取验证码  把后面的代码放在这里
-      // }
+    getSms() {
+      if (this.checkPhone()) {
+        // 发送获取验证码的接口
+        this.$http
+          .get('/verifyCode', { phone: this.phone }, this)
+          .then((res) => {
+            console.log(res, 'res');
+            if (res) {
+              Toast.success('发送成功');
+            }
+          });
 
-      // 发送获取验证码的接口
-      this.$http
-        .get('/getCoordinateQuantities', { phone: this.phone }, this)
-        .then((res) => {
-          console.log(res, 'res');
-          if (res) {
-            Toast.success('发送成功');
-          }
-        });
-
-      this.$store.dispatch('setEndTime');
+        this.setEndTime();
+      }
     },
 
     checkSms() {
@@ -104,11 +102,24 @@ export default {
 
     register() {
       if (this.checkPhone() && this.checkSms()) {
+        const params = {
+          agencyCode: '', // 先写死
+          agencyId: '',
+          agencyName: '',
+          appId: '',
+          appName: '',
+          avatar: this.Global.userInfo.avatar,
+          gender: this.Global.userInfo.gender,
+          nickname: this.Global.userInfo.nickname,
+          openId: this.Global.userInfo.openId,
+          phone: this.phone,
+          verificationCode: this.sms
+        };
         // 提交注册
         this.$http
           .get(
-            '/getCoordinateQuantities',
-            { phone: this.phone, sms: this.sms },
+            '/registerComplete',
+            params,
             this
           )
           .then((res) => {

@@ -3,7 +3,7 @@
     <navBar>
       <template slot="titleBox">
         <div class="title-box"
-             @click.stop="selectFlag = true">
+             @click="selectFlag = true">
           {{currentSelectItem.title}}
           <van-icon class="title-arrow"
                     name="xiasanjiao" />
@@ -13,7 +13,7 @@
           <li :class="{'title-list-item': true, 'cur': item.imei === currentSelectItem.imei}"
               v-for="(item,index) in vehicleList"
               :key="index"
-              @click.stop="selectItem(item)">{{item.title}}</li>
+              @click="selectItem(item)">{{item.title}}</li>
         </ul>
       </template>
     </navBar>
@@ -78,7 +78,7 @@
         {{message}}
         <van-icon class="message-icon-close"
                   name="guangbi"
-                  @click="showMessage = false;" />
+                  @click.native="showMessage = false;" />
       </div>
       <div class="map-expand"
            @click="isShrink = !isShrink">

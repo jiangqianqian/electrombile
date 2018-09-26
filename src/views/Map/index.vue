@@ -37,7 +37,7 @@
       <!-- <bm-polyline :path="polylinePath" stroke-color="red" :stroke-opacity="0.5" :stroke-weight="2"></bm-polyline> -->
     </baidu-map>
     <van-button type="default"
-                @click="changeText">{{text}}</van-button>
+                @click.native="changeText">{{text}}</van-button>
   </div>
 </template>
 
