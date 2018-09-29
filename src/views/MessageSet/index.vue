@@ -11,14 +11,14 @@
         <div class="set-bar">
           <van-switch class="switch-btn"
                       size="28px"
-                      v-model="shockAlarm" />
+                      v-model="msgParam.shockAlarm" />
         </div>
       </li>
       <li class="msg-item">
         <div class="title">振动等级</div>
         <div class="set-bar"
              @click="clickLevelPicker">
-          <span class="level-text">{{level}}</span>
+          <span class="level-text">{{renewalLevel}}</span>
           <van-icon class="right-arrow"
                     name="arrow" />
         </div>
@@ -39,7 +39,7 @@
         <div class="set-bar">
           <van-switch class="switch-btn"
                       size="28px"
-                      v-model="outageAlarm" />
+                      v-model="msgParam.outageAlarm" />
         </div>
       </li>
       <li class="msg-item">
@@ -47,7 +47,7 @@
         <div class="set-bar">
           <van-switch class="switch-btn"
                       size="28px"
-                      v-model="fenceAlarm" />
+                      v-model="msgParam.fenceAlarm" />
         </div>
       </li>
       <li class="msg-item">
@@ -55,7 +55,7 @@
         <div class="set-bar">
           <van-switch class="switch-btn"
                       size="28px"
-                      v-model="mute" />
+                      v-model="msgParam.mute" />
         </div>
       </li>
     </ul>
@@ -63,13 +63,13 @@
       <van-field class="time-item"
                  :readonly="true"
                  :border="false"
-                 v-model="startTime"
+                 v-model="msgParam.startTime"
                  @click.native="showTimePicker({ flag: 'start'})" />
       <span class="split-text">至</span>
       <van-field class="time-item"
                  :readonly="true"
                  :border="false"
-                 v-model="endTime"
+                 v-model="msgParam.endTime"
                  @click.native="showTimePicker({ flag: 'end'})" />
     </div>
     <van-picker ref="levelPicker"
@@ -110,16 +110,18 @@ export default {
   },
   data() {
     return {
-      shockAlarm: false, // 振动
-      outageAlarm: true, // 断电
-      fenceAlarm: false, // 围栏
-      mute: true, // 勿扰
+      msgParam: {
+        shockAlarm: false, // 振动
+        outageAlarm: false, // 断电
+        fenceAlarm: false, // 围栏
+        mute: false, // 勿扰
+        startTime: '00:00',
+        endTime: '23:59'
+      },
+      renewalLevel: '初级',
       prevLevel: null,
-      level: '高级',
       columns: [],
       showLevelPicker: false,
-      startTime: '00:00',
-      endTime: '23:59',
       prevStartTime: null,
       prevEndTime: null,
       currentTime: { time: null, flag: '' },
@@ -129,7 +131,7 @@ export default {
   },
   watch: {
     // 为了每次打开能保留上次选择的值
-    level(newLevel, oldLevel) {
+    renewalLevel(newLevel, oldLevel) {
       this.columns = [
         {
           values: levels,
@@ -138,32 +140,51 @@ export default {
       ];
     }
   },
-  created() { },
+  created() {},
   mounted() {
     // TODO: 请求接口获取上次消息设置的值
+    const params = {
+      openId: this.Global.userInfo.openId
+    };
 
-    this.columns = [
-      {
-        values: levels,
-        defaultIndex: levels.indexOf(this.level)
+    this.$http.get('/getMessageSetting', params, this).then(res => {
+      if (res) {
+        this.renewalLevel = res.renewalLevel;
+        delete res.renewalLevel;
+        this.msgParam = res;
+
+        this.columns = [
+          {
+            values: levels,
+            defaultIndex: levels.indexOf(this.renewalLevel)
+          }
+        ];
       }
-    ];
+    });
   },
   methods: {
-    save() {
-      Toast.success('保存成功');
+    async save() {
+      // 保存消息设置
+      const res = await this.$http.post(
+        '/messageSetting',
+        this.msgParam,
+        this
+      );
 
+      if (res) {
+        Toast.success('保存成功');
+      }
     },
 
     // 等级改变
     levelPickerChange() {
-      this.prevLevel = this.level;
-      this.level = this.$refs.levelPicker.getValues()[0];
-      this.$refs.levelPicker.setValues = this.level;
+      this.prevLevel = this.renewalLevel;
+      this.renewalLevel = this.$refs.levelPicker.getValues()[0];
+      this.$refs.levelPicker.setValues = this.renewalLevel;
     },
 
     levelPickerCancel() {
-      this.level = this.prevLevel;
+      this.renewalLevel = this.prevLevel;
       this.showLevelPicker = false;
     },
 
@@ -183,13 +204,13 @@ export default {
       this.isShowTime = true;
       if (state.flag === 'start') {
         this.currentTime = {
-          time: this.startTime,
+          time: this.msgParam.startTime,
           flag: 'start'
         };
         this.timePickerTitle = '开始时间';
       } else {
         this.currentTime = {
-          time: this.endTime,
+          time: this.msgParam.endTime,
           flag: 'end'
         };
         this.timePickerTitle = '结束时间';
@@ -200,9 +221,9 @@ export default {
       // // 时间选择器点击取消
       this.isShowTime = false;
       if (this.currentTime.flag === 'start') {
-        this.startTime = this.prevStartTime;
+        this.msgParam.startTime = this.prevStartTime;
       } else {
-        this.endTime = this.prevEndTime;
+        this.msgParam.endTime = this.prevEndTime;
       }
     },
 
@@ -214,11 +235,11 @@ export default {
     changeTime() {
       // 时间选择器值发生了变化
       if (this.currentTime.flag === 'start') {
-        this.prevStartTime = this.startTime;
-        this.startTime = this.currentTime.time;
+        this.prevStartTime = this.msgParam.startTime;
+        this.msgParam.startTime = this.currentTime.time;
       } else {
-        this.prevEndTime = this.endTime;
-        this.endTime = this.currentTime.time;
+        this.prevEndTime = this.msgParam.endTime;
+        this.msgParam.endTime = this.currentTime.time;
       }
     }
   }
