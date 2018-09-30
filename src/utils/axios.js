@@ -12,7 +12,7 @@ let showToast = true;
 let loading = false;
 
 // 基础接口 TODO:
-const BASE_URL = 'http://localhost:3003';
+const BASE_URL = 'http://47.104.101.0:8010';
 
 axios.defaults.timeout = 10000;
 
@@ -46,10 +46,10 @@ axios.interceptors.response.use((response) => {
     if (vue) {
       vue.$router.replace('/register');
     }
-  } else if (response.data.msg != null && response.data.msg.length > 0) {
+  } else if (response.data.message != null && response.data.message.length > 0) {
     // 没有数据，只有提示信息，则弹出提示信息
     if (vue && showToast) {
-      Toast.fail(response.data.msg);
+      Toast.fail(response.data.message);
     }
   }
   return false;
@@ -64,9 +64,9 @@ axios.interceptors.response.use((response) => {
     }
     // 请求已发出，但服务器响应的状态码不在 2xx 范围内，有错误信息则弹出错误信息
     console.log('response-error-data', error.response.data);
-    if (error.response.data.msg != null && error.response.data.msg.length > 0) {
+    if (error.response.data.message != null && error.response.data.message.length > 0) {
       if (vue && showToast) {
-        Toast.fail(error.response.data.msg);
+        Toast.fail(error.response.data.message);
       }
     }
   } else {

@@ -54,11 +54,11 @@
       <div class="info front">
         <div>
           <img class="figure"
-               :src="userInfo.src" />
+               :src="userInfo.headimgurl" />
         </div>
         <div class="info-main">
           <div class="name-box">
-            <span class="name">{{userInfo.title}}</span>
+            <span class="name">{{userInfo.nickname}}</span>
           </div>
           <div class="address">
             <van-icon class="address-icon"
@@ -76,11 +76,11 @@
           <div class="name-box">
             <span class="name">{{markerList[activeVehicleIndex].title}}</span>
             <span class="state online"
-                  v-if="markerList[activeVehicleIndex].state === 'YES'">在线</span>
+                  v-if="markerList[activeVehicleIndex].isOnline">在线</span>
             <span class="state"
-                  v-if="markerList[activeVehicleIndex].state !== 'YES'">离线</span>
+                  v-if="!markerList[activeVehicleIndex].isOnline">离线</span>
             <span class="time"
-                  v-if="(markerList[activeVehicleIndex].state !== 'YES') && markerList[activeVehicleIndex].time">{{markerList[activeVehicleIndex].time}}</span>
+                  v-if="!markerList[activeVehicleIndex].isOnline && markerList[activeVehicleIndex].receiveTime">{{markerList[activeVehicleIndex].receiveTime}}</span>
           </div>
           <div class="address">
             <van-icon class="address-icon"
@@ -89,7 +89,7 @@
         </div>
         <a href="javascript:;"
            class="info-btn"
-           v-if="markerList[activeVehicleIndex].state === 'YES'"
+           v-if="markerList[activeVehicleIndex].isOnline"
            @click="wakeBaidu">
           <van-icon class="info-btn-icon"
                     name="zuobiao1" /> 寻车
@@ -123,10 +123,11 @@ export default {
       message: '电话来了', // 实时信息
       activeVehicleIndex: 0, // 用于展示切换卡面时保留的电动车索引
       activeIndex: null, // 电动车和当前用户位置切换的 index
-      // TODO: 通过接口拿到姓名及头像，通过地图逆址解析拿到地址
+
+      // 通过接口拿到姓名及头像，通过地图逆址解析拿到地址
       userInfo: {
-        title: '用户名',
-        src: 'https://www.baidu.com/img/baidu_jgylogo3.gif',
+        nickname: this.Global.userInfo.nickname,
+        headimgurl: this.Global.userInfo.headimgurl,
         address: ''
       },
       // markerList: [
@@ -181,7 +182,7 @@ export default {
         // 表示是点击的电动车
         const curItem = this.markerList[index];
         this.activeVehicleIndex = index;
-        this.Global.activeVehicleIndex = index;
+        // this.Global.activeVehicleIndex = index;
         this.$refs.baiduMap.map.panTo(new BMap.Point(curItem.lng, curItem.lat));
         if (!prevIndex || prevIndex >= this.markerList.length) {
           this.reverse = true;
@@ -261,7 +262,7 @@ export default {
         new BMap.Point(this.center.lng, this.center.lat)
       );
 
-      // 卡片信息为用户信息
+      // 卡片信息为用户信息, 自定义用户的索引为 this.markerList.length + 1
       this.change(this.markerList.length + 1);
     },
 
@@ -273,7 +274,7 @@ export default {
 
     wakeBaidu() {
       const timeout = 600;
-      const activeVehicle = this.markerList[this.activeIndex];
+      const activeVehicle = this.markerList[this.activeVehicleIndex];
       let scheme = ''; // 唤起百度地图的配置信息
 
       if (this.adjustOS) {

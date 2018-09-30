@@ -17,7 +17,7 @@ Vue.use(BaiduMap, {
 
 const Global = {
   userInfo: null, // 用户信息
-  activeVehicleIndex: 0, // 首页中被选中的电动车索引号
+  // activeVehicleIndex: 0, // 首页中被选中的电动车索引号
   vehicleList: [], // 电动车列表
   hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
   accessKeyId: '82A8C3B67DE5', // 传给后端的
@@ -36,6 +36,26 @@ Vue.config.productionTip = false;
 
 Vue.prototype.$http = axios;
 
+function getAddress(lng, lat) {
+  // 创建地址解析器实例
+  const myGeo = new BMap.Geocoder();
+  // 将地址解析结果显示在地图上，并调整地图视野
+
+  const point = new BMap.Point(lng, lat);
+
+  let addressGroup;
+  myGeo.getLocation(point, rs => {
+    const address = rs.addressComponents;
+    addressGroup =
+      address.province +
+      address.city +
+      address.district +
+      address.street +
+      address.streetNumber;
+  });
+  return addressGroup;
+}
+
 function bindVehicle(to) {
   if (!Global.hasGetVehicleList) {
     // 没有获取电动车列表，表示未确定该用户是否有绑定电动车
@@ -44,30 +64,37 @@ function bindVehicle(to) {
     };
 
     axios.get(
-      '/vehicleList',
+      '/findBindImeiList',
       params,
       this
     ).then((res) => {
-      Global.hasGetVehicleList = true;
+      if (res) {
+        Global.hasGetVehicleList = true;
 
-      // 要求没有电动车列表时，返回 []
-      Global.vehicleList = res.map((item) => {
-        const newItem = wgs84tobd09(item.lng, item.lat);
-        item.lng = newItem[0];
-        item.lat = newItem[1];
-        return item;
-      });
+        // 要求没有电动车列表时，返回 []
+        Global.vehicleList = res.map((item) => {
+          const newItem = wgs84tobd09(item.lon, item.lat);
+          item.lng = newItem[0];
+          item.lat = newItem[1];
+          item.address = getAddress(item.lng, item.lat);
 
-      console.log(Global.vehicleList, '123123');
-      if (Global.vehicleList.length) {
-        if (to.fullPath === '/') {
-          // 如果绑定了电动车且访问的是根目录，直接跳转上首页
-          return '/home';
+          // TODO: 头像名字先写死
+          item.src = 'https://img0.bdstatic.com/static/searchdetail/img/logo-2X_b99594a.png';
+          item.title = '电动车';
+          return item;
+        });
+
+        console.log(Global.vehicleList, '123123');
+        if (Global.vehicleList.length) {
+          if (to.fullPath === '/') {
+            // 如果绑定了电动车且访问的是根目录，直接跳转上首页
+            return '/home';
+          }
+          return false;
         }
-        return false;
+        // 没有绑定电动车的情况
+        return '/register';
       }
-      // 没有绑定电动车的情况
-      return '/register';
     });
   } else {
     if (to.path === '/register') {
@@ -154,6 +181,7 @@ router.beforeEach(async (to, from, next) => {
   if (code) {
     // 表示这个页面是用户点了授权后跳转到的页面,获取用户信息,后端可首先通过cookie,session等判断,没有信息则通过code获取
     const data = await this.$http.get(
+      // TODO: 授权的接口
       '/imsl/user/user-auth', {
         code
       },
@@ -176,7 +204,8 @@ router.beforeEach(async (to, from, next) => {
     toAuth();
   } else {
     // 对于已关注公众号的用户，如果用户从公众号的会话或者自定义菜单进入本公众号的网页授权页，即使是scope为snsapi_userinfo，也是静默授权，用户无感知
-    toAuth();
+    // toAuth();
+    return next();
   }
 });
 

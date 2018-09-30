@@ -29,13 +29,11 @@ export default {
   },
   data() {
     return {
-      vehicleCode: '12s'
+      vehicleCode: ''
     };
   },
-  computed: {},
-  mounted() { },
   methods: {
-    bind() {
+    async bind() {
       if (!this.vehicleCode.length) {
         Toast({
           message: '请输入电动车编码',
@@ -44,20 +42,34 @@ export default {
         return false;
       }
 
-      // 请求接口 TODO: post
-      this.$http
-        .get('/getCoordinateQuantities', { code: this.vehicleCode }, this)
-        .then((res) => {
-          console.log(res, 'res');
-          if (res) {
-            // 跳转到设备绑定成功页面
-            this.$router.push('/success');
-            return true;
-          }
-          return false;
-        });
+      const params = {
+        imei: this.vehicleCode,
+        openId: this.Global.userInfo.openId
+      };
 
-      return false;
+      const res = await this.$http.post(
+        '/userBindImei',
+        params,
+        this
+      );
+
+      if (res) {
+        // 跳到绑定成功界面
+        this.$router.push('/success');
+      }
+
+      // 请求接口 TODO: post
+      // this.$http
+      //   .get('/getCoordinateQuantities', { code: this.vehicleCode }, this)
+      //   .then((res) => {
+      //     console.log(res, 'res');
+      //     if (res) {
+      //       // 跳转到设备绑定成功页面
+      //       this.$router.push('/success');
+      //       return true;
+      //     }
+      //     return false;
+      //   });
     }
   }
 };

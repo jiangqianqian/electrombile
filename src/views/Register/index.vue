@@ -43,8 +43,8 @@ export default {
   },
   data() {
     return {
-      phone: '13714717742', // TODO:
-      sms: '123',
+      phone: '',
+      sms: '',
       show: true, // 为 true 显示获取验证码按键，否则显示 60s 倒计时内容
       count: '', // 60s 计数
       timer: null
@@ -108,7 +108,7 @@ export default {
           agencyName: '',
           appId: '',
           appName: '',
-          avatar: this.Global.userInfo.avatar,
+          avatar: this.Global.userInfo.headimgurl,
           gender: this.Global.userInfo.gender,
           nickname: this.Global.userInfo.nickname,
           openId: this.Global.userInfo.openId,
@@ -117,7 +117,7 @@ export default {
         };
         // 提交注册
         this.$http
-          .get(
+          .post(
             '/registerComplete',
             params,
             this

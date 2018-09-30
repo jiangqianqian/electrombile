@@ -111,9 +111,9 @@ export default {
   data() {
     return {
       msgParam: {
-        shockAlarm: false, // 振动
-        outageAlarm: false, // 断电
-        fenceAlarm: false, // 围栏
+        shockAlarm: true, // 振动
+        outageAlarm: true, // 断电
+        fenceAlarm: true, // 围栏
         mute: false, // 勿扰
         startTime: '00:00',
         endTime: '23:59'

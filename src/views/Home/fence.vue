@@ -73,18 +73,13 @@ export default {
         },
         radius: 200
       },
-      // TODO: 通过接口拿到姓名及头像，通过地图逆址解析拿到地址
-      // userInfo: {
-      //   title: '电子围栏(200米)',
-      //   address: ''
-      // },
       address: '', // 当前被选中的电动车所在的位置
       cardTitle: '电子围栏(200米)',
       switchChecked: false, // 设置电子围栏的开关, 默认为 false, 设为 true 后需要提交接口保存
       polylineLastPoint: {}, // 圆右边界的坐标
       vehicleList: this.Global.vehicleList,
       selectFlag: false, // 为 true 显示电动车下拉框
-      currentSelectItem: null, // 电动车被选中的某个值
+      currentSelectItem: this.Global.vehicleList[0], // 电动车被选中的某个值
       circleOverlay: null, // 地图上的圆覆盖物
       polylineOverlay: null,
       labelOverlay: null
@@ -92,7 +87,7 @@ export default {
   },
   created() {
     // 默认选中第 1 个
-    this.currentSelectItem = this.vehicleList[0];
+    // this.currentSelectItem = this.vehicleList[0];
   },
   methods: {
     mapReady({ BMap, map }) {
@@ -102,20 +97,22 @@ export default {
 
     init() {
       this.$http.get(
+        // TODO: 改接口名字
         '/isHasFence',
-        {
-          imei: this.currentSelectItem.imei
-        },
-        this
+        [this.currentSelectItem.imei],
+        this,
+        true
       ).then((res) => {
-        if (res && res.isHasFence) {
+        if (res && res.isSetting && !res.isSwitch) {
           // 以前设置过围栏的情况
-          const data = res.data;
-          this.circlePath.center.lng = data.lng;
-          this.circlePath.center.lat = data.lat;
-          this.address = data.address;
-          this.switchChecked = data.fenceOn;
+          this.circlePath.center.lng = res.lon;
+          this.circlePath.center.lat = res.lat;
+          this.address = res.location;
+          this.switchChecked = res.isSwitch;
         } else {
+          this.circlePath.center.lng = this.currentSelectItem.lng;
+          this.circlePath.center.lat = this.currentSelectItem.lat;
+
           // 通过逆址解析获取到地址
           this.getAddress();
         }
@@ -250,16 +247,15 @@ export default {
     setFenceSwitch() {
       // 保存围栏的设置
       const params = {
-        lng: this.circlePath.center.lng,
+        lon: this.circlePath.center.lng,
         lat: this.circlePath.center.lat,
-        address: this.address,
+        location: this.address,
         imei: this.currentSelectItem.imei,
-        switchChecked: this.switchChecked
+        isSwitch: this.switchChecked
       };
 
-      // TODO: POST
-      this.$http.get(
-        '/saveFence',
+      this.$http.post(
+        '/insertFence',
         params,
         this,
         true

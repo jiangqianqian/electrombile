@@ -14,8 +14,8 @@
         <div class="text">酷行智动，伴您一路畅行</div>
       </van-swipe-item>
       <van-swipe-item class="item item1">
-        <img class="img" src="@/assets/images/2.jpg">
-        <div class="text">这里是文字2</div>
+        <img class="img" src="@/assets/images/swipe1.png">
+        <div class="text">酷行智动，伴您一路畅行2</div>
       </van-swipe-item>
       <van-swipe-item class="item item3">
         <img class="img" src="@/assets/images/swipe3.png">
@@ -94,7 +94,7 @@ export default {
       return this.$http.get(
         '/wechat/signature',
         {
-          accessKeyId: this.Golbal.accessKeyId,
+          accessKeyId: this.Global.accessKeyId,
           url: location.href.split('#')[0]
         },
         this
@@ -132,7 +132,7 @@ export default {
     async bindVehicle(imei) {
       const params = {
         imei,
-        openId: this.Golbal.userInfo.openId
+        openId: this.Global.userInfo.openId
       };
 
       const res = await this.$http.post(

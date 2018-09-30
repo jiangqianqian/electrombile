@@ -136,7 +136,7 @@
 import { Button, Icon, Toast, DatetimePicker } from 'vant';
 import { BmlLushu } from 'vue-baidu-map';
 import navBar from '@/components/nav';
-import path from '@/../static/path';
+// import path from '@/../static/path';
 import lushuIcon from '@/assets/images/lushu-icon.png';
 
 export default {
@@ -153,7 +153,7 @@ export default {
     return {
       selectFlag: false, // 为 true 显示电动车下拉框
       isShrink: true, // 为 true 为地图未展开状态
-      currentSelectItem: null, // 电动车下拉框在首页选中的某个值
+      currentSelectItem: this.Global.vehicleList[0], // 电动车下拉框在首页选中的某个值，后改为默认第一个
       vehicleList: this.Global.vehicleList,
       center: {
         // 中心点
@@ -169,7 +169,7 @@ export default {
       endDate: '2018-09-11 10:20',
       isHasRoute: false, // 是否点击搜索并查到了路线
       play: false,
-      path, // 路书轨迹
+      path: null, // 路书轨迹
       text: '开始',
       icon: {
         // 路书移动物 icon
@@ -188,11 +188,14 @@ export default {
     };
   },
   created() {
-    // TODO: 设置选中的电动车
-    // 获取开始结束时间
-
-    const curIndex = this.Global.activeVehicleIndex || 0;
-    this.currentSelectItem = this.vehicleList[curIndex];
+    // 设置选中的电动车
+    // const curIndex = this.Global.activeVehicleIndex || 0;
+    // this.currentSelectItem = this.vehicleList[curIndex];
+  },
+  mounted() {
+    // 设置结束时间为当前，开始时间为结束时间的前一天
+    this.endDate = this.dateFormat(new Date(), 'yyyy-MM-dd hh:mm');
+    this.startDate = this.dateFormat(new Date().getTime() - 24 * 60 * 60 * 1000, 'yyyy-MM-dd hh:mm');
   },
   methods: {
     dateFormat(timestamp, fmt, humanized) {
@@ -206,7 +209,7 @@ export default {
       if (timestamp != null) {
         const localTime = new Date(
           timestamp +
-            (new Date(timestamp).getTimezoneOffset() - -480) * 60 * 1000
+          (new Date(timestamp).getTimezoneOffset() - -480) * 60 * 1000
         );
 
         const today = new Date();
@@ -214,35 +217,35 @@ export default {
           if (
             new Date(
               localTime.getFullYear() +
-                '/' +
-                (localTime.getMonth() + 1) +
-                '/' +
-                localTime.getDate()
+              '/' +
+              (localTime.getMonth() + 1) +
+              '/' +
+              localTime.getDate()
             ).getTime() ==
             new Date(
               today.getFullYear() +
-                '/' +
-                (today.getMonth() + 1) +
-                '/' +
-                today.getDate()
+              '/' +
+              (today.getMonth() + 1) +
+              '/' +
+              today.getDate()
             ).getTime()
           ) {
             fmt = fmt.replace(/(y+-)?M+-d+/, '今天');
           } else if (
             new Date(
               localTime.getFullYear() +
-                '/' +
-                (localTime.getMonth() + 1) +
-                '/' +
-                localTime.getDate()
+              '/' +
+              (localTime.getMonth() + 1) +
+              '/' +
+              localTime.getDate()
             ).getTime() ==
             new Date(
               today.getFullYear() +
-                '/' +
-                (today.getMonth() + 1) +
-                '/' +
-                today.getDate() -
-                1
+              '/' +
+              (today.getMonth() + 1) +
+              '/' +
+              today.getDate() -
+              1
             ).getTime()
           ) {
             fmt = fmt.replace(/(y+-)?M+-d+/, '昨天');
@@ -329,10 +332,8 @@ export default {
     resetState() {
       // 切换了电动车后重置状态
       // 清除覆盖物
-      // if (this.polyline) {
       this.polyline && this.$refs.baiduMap.map.removeOverlay(this.polyline);
 
-      // }
       this.resetPlay();
 
       this.isHasRoute = false;
@@ -405,18 +406,41 @@ export default {
         Toast('开始时间须小于结束时间');
       }
 
-      // TODO: 请求接口
-      // 如果没有数据，实时消息打开并显示暂无数据
       // 获取 path, 设置起终点，画线， 根据获取到的点设置最佳视野
       // Toast.loading({
       //   mask: true,
       //   message: '加载中...'
       // });
 
-      // 请求结束后, 先坐标转换再绘制
-      this.drawPolyline();
+      // 获取轨迹
+      const params = {
+        imei: this.currentSelectItem.imei,
+        begintTime: this.startDate,
+        endTime: this.endDate
+      };
+      this.$http.get(
+        '/carTrajectory',
+        params,
+        this,
+        true
+      ).then((res) => {
+        if (res && res.length) {
+          this.path = res.map((item) => {
+            const newItem = wgs84tobd09(item.lon, item.lat);
+            item.lng = newItem[0];
+            item.lat = newItem[1];
+            return item;
+          });
 
-      this.isHasRoute = true;
+          this.drawPolyline();
+
+          this.isHasRoute = true;
+        } else {
+          // 如果没有数据，实时消息打开并显示暂无数据
+          this.showMessage = true;
+          this.message = '暂无数据';
+        }
+      });
     },
 
     drawPolyline() {
