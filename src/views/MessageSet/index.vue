@@ -142,12 +142,12 @@ export default {
   },
   created() {},
   mounted() {
-    // TODO: 请求接口获取上次消息设置的值
+    // 请求接口获取上次消息设置的值
     const params = {
       openId: this.Global.userInfo.openId
     };
 
-    this.$http.get('/getMessageSetting', params, this).then(res => {
+    this.$http.get('/messageSetting', params, this).then(res => {
       if (res) {
         this.renewalLevel = res.renewalLevel;
         delete res.renewalLevel;

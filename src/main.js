@@ -181,9 +181,10 @@ router.beforeEach(async (to, from, next) => {
   if (code) {
     // 表示这个页面是用户点了授权后跳转到的页面,获取用户信息,后端可首先通过cookie,session等判断,没有信息则通过code获取
     const data = await this.$http.get(
-      // TODO: 授权的接口
-      '/imsl/user/user-auth', {
-        code
+      // 授权的接口
+      '/wechat/findUserInfo', {
+        code,
+        appid: Global.accessKeyId
       },
       this
     );
@@ -205,6 +206,9 @@ router.beforeEach(async (to, from, next) => {
   } else {
     // 对于已关注公众号的用户，如果用户从公众号的会话或者自定义菜单进入本公众号的网页授权页，即使是scope为snsapi_userinfo，也是静默授权，用户无感知
     // toAuth();
+
+    // test
+    Global.userInfo.openId = '1234';
     return next();
   }
 });

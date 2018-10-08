@@ -10,13 +10,13 @@
                 :finished="finished"
                 @load="onLoad">
         <div class="msg-item"
-             v-for="(item, index) in msgList"
+             v-for="(item, index) in records"
              :key="index">
           <div class="header">
-            <div class="title">{{item.title}}</div>
-            <div class="time">{{item.time}}</div>
+            <div class="title">{{item.alarmTypeName}}</div>
+            <div class="time">{{item.receiveTime}}</div>
           </div>
-          <div class="info">{{item.info}}</div>
+          <div class="info">{{alarmText[item.alarmType]}}</div>
         </div>
         <div class="no-data"
              v-if="isNoData">暂无数据</div>
@@ -47,9 +47,25 @@ export default {
       loading: false, // 列表加载中
       finished: false, // 列表加载完成
       curPage: 1,
-      pageSize: 10,
+      limit: 10,
       isNoData: false,
-      msgList: []
+      records: [],
+      alarmText: {
+        1: '紧急报警',
+        2: '超速报警',
+        3: '疲劳驾驶',
+        4: '终端低电量',
+        5: '已断电，可能发生电源脱离或没电',
+        6: '震动了一下',
+        7: '超时停车',
+        8: '已超出你设定的安全范围',
+        9: '油量异常',
+        10: '非法点火',
+        11: '距上次停车点发生了偏移',
+        12: '碰撞预警',
+        13: '侧翻预警',
+        14: '非法开门',
+      },
     };
   },
   methods: {
@@ -58,12 +74,13 @@ export default {
     },
     async onLoad() {
       const params = {
+        openId: Global.userInfo.openId,
         curPage: this.curPage,
-        pageSize: this.pageSize
+        limit: this.limit
       };
 
       const res = await this.$http.get(
-        '/getMsgList',
+        '/findAlarmItemPage',
         params,
         this
       );
@@ -72,10 +89,10 @@ export default {
         return;
       }
 
-      if (res.msgList.length) {
-        this.msgList = [...res.msgList, ...this.msgList];
+      if (res.records.length) {
+        this.records = [...res.records, ...this.records];
         this.loading = false;
-        if (res.count > (this.curPage - 1) * this.pageSize + res.msgList.length) {
+        if (res.count > (this.curPage - 1) * this.limit + res.records.length) {
           this.curPage += 1;
         } else {
           this.finished = true;
