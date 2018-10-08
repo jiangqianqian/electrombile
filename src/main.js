@@ -2,6 +2,8 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue';
 import BaiduMap from 'vue-baidu-map';
+import sha1 from 'sha1';
+import axiosOriginal from 'axios';
 import App from './App';
 import router from './router';
 import axios from './utils/axios';
@@ -64,8 +66,8 @@ function bindVehicle(to) {
     };
 
     axios.get(
-      '/findBindImeiList',
-      params,
+      `/findBindImeiList/${Global.userInfo.openId}`,
+      // params,
       this
     ).then((res) => {
       if (res) {
@@ -180,7 +182,7 @@ router.beforeEach(async (to, from, next) => {
   const code = getCode(window.location.search); // 截取url上的code ,可能没有,则返回 false;
   if (code) {
     // 表示这个页面是用户点了授权后跳转到的页面,获取用户信息,后端可首先通过cookie,session等判断,没有信息则通过code获取
-    const data = await this.$http.get(
+    const data = await axios.get(
       // 授权的接口
       '/wechat/findUserInfo', {
         code,
@@ -208,8 +210,26 @@ router.beforeEach(async (to, from, next) => {
     // toAuth();
 
     // test
-    Global.userInfo.openId = '1234';
-    return next();
+    const timestamp = new Date().getTime();
+    // const timestamp = 1538997089756;
+    const tokenParams = {
+      accessKeyId: Global.accessKeyId,
+      timestamp,
+      sign: sha1(`accessKeyId=${Global.accessKeyId}&accessKeySecret=${Global.accessKeySecret}&timestamp=${timestamp}`)
+    };
+    const data = await axios.get(
+      // 授权的接口
+      '/wechat/accessToken',
+      tokenParams,
+      this
+    );
+    if (data) {
+      Global.userInfo = {
+        openId: '3334444'
+      };
+      axiosOriginal.defaults.headers.common.token = data.token;
+      return next('/register');
+    }
   }
 });
 

@@ -55,7 +55,7 @@ export default {
       if (this.checkPhone()) {
         // 发送获取验证码的接口
         this.$http
-          .get('/verifyCode', { phone: this.phone }, this)
+          .get(`/verifyCode/${this.phone}`, this)
           .then((res) => {
             console.log(res, 'res');
             if (res) {

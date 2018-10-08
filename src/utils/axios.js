@@ -12,7 +12,7 @@ let showToast = true;
 let loading = false;
 
 // 基础接口 TODO:
-const BASE_URL = 'http://47.104.101.0:8010';
+const BASE_URL = 'http://open.leta.cn/api/lbs-agent-service';
 
 axios.defaults.timeout = 10000;
 
@@ -38,7 +38,7 @@ axios.interceptors.response.use((response) => {
   Toast.clear();
 
   // 一切正常，返回数据或空对象
-  if (response.data.code === 200) {
+  if (response.data.code === 0) {
     return response.data.data || {};
     // TODO:
   } else if (response.data.code === 401 || response.data.code === 403 || response.data.code === 404) {

@@ -97,8 +97,7 @@ export default {
 
     init() {
       this.$http.get(
-        // TODO: 改接口名字
-        '/isHasFence',
+        '/findFenceDate',
         [this.currentSelectItem.imei],
         this,
         true
