@@ -419,7 +419,7 @@ export default {
         endTime: this.endDate
       };
       this.$http.get(
-        '/carTrajectory',
+        '/equipment/carTrajectory.htm',
         params,
         this,
         true

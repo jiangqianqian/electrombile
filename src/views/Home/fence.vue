@@ -97,7 +97,7 @@ export default {
 
     init() {
       this.$http.get(
-        '/findFenceDate',
+        '/equipment/findFenceDate.htm',
         [this.currentSelectItem.imei],
         this,
         true
@@ -254,7 +254,7 @@ export default {
       };
 
       this.$http.post(
-        '/insertFence',
+        'equipment/insertFence.htm',
         params,
         this,
         true

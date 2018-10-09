@@ -1,5 +1,5 @@
 < template >
-  <div class = "test" ></div>
+  <div class="test"></div>
 </template>
 
 <script >
@@ -22,7 +22,7 @@
         this.websock = new WebSocket(wsuri);
         this.websock.onmessage = this.websocketonmessage;
         this.websock.onopen = this.websocketonopen;
-        this.websock. = this.websocket;
+        this.websocket.onerror = this.websocket;
         this.websock.onclose = this.websocketclose;
       },
       websocketonopen() { //连接建立之后执行send方法发送数据

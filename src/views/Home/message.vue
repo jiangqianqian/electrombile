@@ -80,7 +80,7 @@ export default {
       };
 
       const res = await this.$http.get(
-        '/findAlarmItemPage',
+        '/equipment/findAlarmItemPage.htm',
         params,
         this
       );

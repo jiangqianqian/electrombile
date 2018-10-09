@@ -48,7 +48,7 @@ export default {
       };
 
       const res = await this.$http.post(
-        '/userBindImei',
+        '/equipment/userBindImei.htm',
         params,
         this
       );

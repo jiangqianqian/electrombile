@@ -63,13 +63,13 @@ function getAddress(lng, lat) {
 function bindVehicle(to) {
   if (!Global.hasGetVehicleList) {
     // 没有获取电动车列表，表示未确定该用户是否有绑定电动车
-    // const params = {
-    //   openId: Global.userInfo.openId
-    // };
+    const params = {
+      openId: Global.userInfo.openId
+    };
 
     axios.get(
-      `/findBindImeiList/${Global.userInfo.openId}`,
-      {},
+      '/equipment/findBindImeiList.htm',
+      params,
       this
     ).then((res) => {
       if (res) {
@@ -180,8 +180,8 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 未授权
-  // const code = getCode(window.location.search); // 截取url上的code ,可能没有,则返回 false;
-  const code = '071xshzx0ZDYFh134Wzx0qrjzx0xshz2'; // test
+  const code = getCode(window.location.search); // 截取url上的code ,可能没有,则返回 false;
+  // const code = '071xshzx0ZDYFh134Wzx0qrjzx0xshz2'; // test
   if (code) {
     // 表示这个页面是用户点了授权后跳转到的页面,获取用户信息,后端可首先通过cookie,session等判断,没有信息则通过code获取
     const data = await axios.get(
@@ -216,29 +216,29 @@ router.beforeEach(async (to, from, next) => {
     // toAuth();
   } else {
     // 对于已关注公众号的用户，如果用户从公众号的会话或者自定义菜单进入本公众号的网页授权页，即使是scope为snsapi_userinfo，也是静默授权，用户无感知
-    toAuth();
+    // toAuth();
 
     // test
-    // const timestamp = new Date().getTime();
-    // const tokenParams = {
-    //   accessKeyId: Global.accessKeyId,
-    //   timestamp,
-    //   sign: sha1(`accessKeyId=${Global.accessKeyId}&accessKeySecret=${Global.accessKeySecret}&timestamp=${timestamp}`)
-    // };
-    // const data = await axios.get(
-    //   // 授权的接口
-    //   // '/wechat/accessToken',
-    //   '/wechat/accessToken.htm',
-    //   tokenParams,
-    //   this
-    // );
-    // if (data) {
-    //   Global.userInfo = {
-    //     openId: '3334444'
-    //   };
-    //   axiosOriginal.defaults.headers.common.token = data.token;
-    //   return next('/register');
-    // }
+    const timestamp = new Date().getTime();
+    const tokenParams = {
+      accessKeyId: Global.accessKeyId,
+      timestamp,
+      sign: sha1(`accessKeyId=${Global.accessKeyId}&accessKeySecret=${Global.accessKeySecret}&timestamp=${timestamp}`)
+    };
+    const data = await axios.get(
+      // 授权的接口
+      // '/wechat/accessToken',
+      '/wechat/accessToken.htm',
+      tokenParams,
+      this
+    );
+    if (data) {
+      Global.userInfo = {
+        openId: '3334444'
+      };
+      axiosOriginal.defaults.headers.common.token = data.token;
+      return next('/register');
+    }
   }
 });
 

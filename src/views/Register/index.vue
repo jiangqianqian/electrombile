@@ -55,8 +55,8 @@ export default {
       if (this.checkPhone()) {
         // 发送获取验证码的接口
         this.$http
-          .get(`/verifyCode/${this.phone}`, {}, this)
-          .then((res) => {
+          .get('/equipment/verifyCode.htm', { phone: this.phone }, this)
+          .then(res => {
             console.log(res, 'res');
             if (res) {
               Toast.success('发送成功');
@@ -116,18 +116,12 @@ export default {
           verificationCode: this.sms
         };
         // 提交注册
-        this.$http
-          .post(
-            '/registerComplete',
-            params,
-            this
-          )
-          .then((res) => {
-            // 跳转到轮播页面
-            if (res) {
-              this.$router.push('/swiper');
-            }
-          });
+        this.$http.post('/equipment/registerSuccess.htm', params, this).then(res => {
+          // 跳转到轮播页面
+          if (res) {
+            this.$router.push('/swiper');
+          }
+        });
       }
     },
 

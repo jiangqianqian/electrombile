@@ -16,6 +16,7 @@ let loading = false;
 const BASE_URL = '/leta_service';
 
 axios.defaults.timeout = 10000;
+axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
 
 // 请求开始时，开启加载中动画，出错了提示并关闭动画
 axios.interceptors.request.use((config) => {
