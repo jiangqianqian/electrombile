@@ -12,7 +12,8 @@ let showToast = true;
 let loading = false;
 
 // 基础接口 TODO:
-const BASE_URL = 'http://open.leta.cn/api/lbs-agent-service';
+// const BASE_URL = 'http://open.leta.cn/api/lbs-agent-service';
+const BASE_URL = '/leta_service';
 
 axios.defaults.timeout = 10000;
 

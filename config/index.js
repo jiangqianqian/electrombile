@@ -14,6 +14,10 @@ module.exports = {
       '/qfang-agent-api/sdk/getConfig': {
         changeOrigin: true,
         target: 'http://192.168.0.51',
+      },
+      '/leta_service/*': {
+        changeOrigin: true,
+        target: 'http://47.104.101.0:8090',
       }
     },
 

@@ -23,7 +23,9 @@ const Global = {
   vehicleList: [], // 电动车列表
   hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
   accessKeyId: '82A8C3B67DE5', // 传给后端的
-  accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
+  // accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
+  accessKeySecret: 'bbfbdc8e70a3ee1e6ec35d017f22b455',
+  appid: 'wx0ddfdcab9f6d8b1c'
 };
 
 Vue.prototype.Global = Global;
@@ -61,13 +63,13 @@ function getAddress(lng, lat) {
 function bindVehicle(to) {
   if (!Global.hasGetVehicleList) {
     // 没有获取电动车列表，表示未确定该用户是否有绑定电动车
-    const params = {
-      openId: Global.userInfo.openId
-    };
+    // const params = {
+    //   openId: Global.userInfo.openId
+    // };
 
     axios.get(
       `/findBindImeiList/${Global.userInfo.openId}`,
-      // params,
+      {},
       this
     ).then((res) => {
       if (res) {
@@ -140,8 +142,7 @@ function toAuth() {
   let redirectUrl = window.location.href;
   redirectUrl = encodeURIComponent(redirectUrl);
   console.log(redirectUrl);
-  const appid = 'wxdff0642c2120ea39';
-  window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appid}&redirect_uri=${redirectUrl}&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect`;
+  window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${Global.appid}&redirect_uri=${redirectUrl}&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect`;
 }
 
 router.beforeEach(async (to, from, next) => {
@@ -150,7 +151,7 @@ router.beforeEach(async (to, from, next) => {
     document.title = to.meta.title;
   }
 
-  // 请求接口判断是否绑定了设备
+  // 请求接口判断是否绑定了设备 不要的
   // if (to.fullPath === '/') {
   //   const isRegister = false;
   //   if (!isRegister) {
@@ -179,14 +180,22 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 未授权
-  const code = getCode(window.location.search); // 截取url上的code ,可能没有,则返回 false;
+  // const code = getCode(window.location.search); // 截取url上的code ,可能没有,则返回 false;
+  const code = '071xshzx0ZDYFh134Wzx0qrjzx0xshz2'; // test
   if (code) {
     // 表示这个页面是用户点了授权后跳转到的页面,获取用户信息,后端可首先通过cookie,session等判断,没有信息则通过code获取
     const data = await axios.get(
       // 授权的接口
-      '/wechat/findUserInfo', {
+      // '/wechat/findUserInfo', {
+      //   code,
+      //   appid: Global.accessKeyId
+      // },
+
+      // test
+      '/wechat/findUserInfo.htm', {
         code,
-        appid: Global.accessKeyId
+        appid: Global.appid,
+        secret: Global.accessKeySecret
       },
       this
     );
@@ -203,33 +212,33 @@ router.beforeEach(async (to, from, next) => {
       return next();
     }
 
-    // 去授权
-    toAuth();
+    // 去授权 要加上
+    // toAuth();
   } else {
     // 对于已关注公众号的用户，如果用户从公众号的会话或者自定义菜单进入本公众号的网页授权页，即使是scope为snsapi_userinfo，也是静默授权，用户无感知
-    // toAuth();
+    toAuth();
 
     // test
-    const timestamp = new Date().getTime();
-    // const timestamp = 1538997089756;
-    const tokenParams = {
-      accessKeyId: Global.accessKeyId,
-      timestamp,
-      sign: sha1(`accessKeyId=${Global.accessKeyId}&accessKeySecret=${Global.accessKeySecret}&timestamp=${timestamp}`)
-    };
-    const data = await axios.get(
-      // 授权的接口
-      '/wechat/accessToken',
-      tokenParams,
-      this
-    );
-    if (data) {
-      Global.userInfo = {
-        openId: '3334444'
-      };
-      axiosOriginal.defaults.headers.common.token = data.token;
-      return next('/register');
-    }
+    // const timestamp = new Date().getTime();
+    // const tokenParams = {
+    //   accessKeyId: Global.accessKeyId,
+    //   timestamp,
+    //   sign: sha1(`accessKeyId=${Global.accessKeyId}&accessKeySecret=${Global.accessKeySecret}&timestamp=${timestamp}`)
+    // };
+    // const data = await axios.get(
+    //   // 授权的接口
+    //   // '/wechat/accessToken',
+    //   '/wechat/accessToken.htm',
+    //   tokenParams,
+    //   this
+    // );
+    // if (data) {
+    //   Global.userInfo = {
+    //     openId: '3334444'
+    //   };
+    //   axiosOriginal.defaults.headers.common.token = data.token;
+    //   return next('/register');
+    // }
   }
 });
 
