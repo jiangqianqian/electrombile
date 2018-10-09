@@ -1,48 +1,31 @@
-< template >
-  <div class = "test" ></div>
+<template>
+  <div id="app">
+    <keep-alive>
+      <router-view/>
+    </keep-alive>
+  </div>
 </template>
 
-<script >
-  export default {
-    name: 'test',
-    data() {
-      return {
-        websock: null,
-      }
-    },
-    created() {
-      this.initWebSocket();
-    },
-    destroyed() {
-      this.websock.close()
-    },
-    methods: {
-      initWebSocket() { //初始化weosocket
-        const wsuri = "ws://127.0.0.1:8080";
-        this.websock = new WebSocket(wsuri);
-        this.websock.onmessage = this.websocketonmessage;
-        this.websock.onopen = this.websocketonopen;
-        this.websock. = this.websocket;
-        this.websock.onclose = this.websocketclose;
-      },
-      websocketonopen() { //连接建立之后执行send方法发送数据
-        let actions = {
-          "test": "12345"
-        };
-        this.websocketsend(JSON.stringify(actions));
-      },
-      websocket() { //连接建立失败重连
-        this.initWebSocket();
-      },
-      websocketonmessage(e) { //数据接收
-        const redata = JSON.parse(e.data);
-      },
-      websocketsend(Data) { //数据发送
-        this.websock.send(Data);
-      },
-      websocketclose(e) { //关闭
-        console.log('断开连接', e);
-      },
-    },
-  }
-  </script>
+<script>
+export default {
+  name: 'App'
+};
+</script>
+
+<style>
+html {
+  height: 100%;
+}
+body {
+  font-size: 16px;
+  background-color: #f2f2f2;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+</style>
