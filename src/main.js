@@ -24,7 +24,8 @@ const Global = {
   hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
   accessKeyId: '82A8C3B67DE5', // 传给后端的
   // accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
-  accessKeySecret: 'bbfbdc8e70a3ee1e6ec35d017f22b455',
+  accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0',
+  appsecret: 'bbfbdc8e70a3ee1e6ec35d017f22b455',
   appid: 'wx0ddfdcab9f6d8b1c'
 };
 

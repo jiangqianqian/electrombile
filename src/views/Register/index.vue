@@ -16,7 +16,7 @@
                     @click.native="getSms">
           <span v-show="show">获取验证码</span>
           <span v-show="!show"
-                class="count">{{count}} s</span>
+                class="count">重新获取({{count}}s)</span>
         </van-button>
       </van-field>
     </div>
@@ -59,7 +59,7 @@ export default {
           .then(res => {
             console.log(res, 'res');
             if (res) {
-              Toast.success('发送成功');
+              Toast('验证码发送成功，请注意查收');
             }
           });
 
@@ -130,7 +130,7 @@ export default {
         this.count = TIME_COUNT;
         this.show = false;
         this.timer = setInterval(() => {
-          if (this.count > 0 && this.count <= TIME_COUNT) {
+          if (this.count > 1 && this.count <= TIME_COUNT) {
             this.count -= 1;
           } else {
             this.show = true;
