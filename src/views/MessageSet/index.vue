@@ -165,9 +165,10 @@ export default {
   methods: {
     async save() {
       // 保存消息设置
+      const params = Object.assign({ renewalLevel: this.renewalLevel }, this.msgParam);
       const res = await this.$http.post(
         '/messageSetting/add.htm',
-        this.msgParam,
+        params,
         this
       );
 

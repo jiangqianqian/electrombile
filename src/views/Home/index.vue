@@ -26,7 +26,7 @@
                   :name="active === 3 ? 'xiaoxi-xuanzhong' : 'xiaoxi-moren'" />
         <span>消息</span>
       </van-tabbar-item>
-      <van-tabbar-item>
+      <van-tabbar-item to="/home/mine">
         <van-icon slot="icon"
                   slot-scope="props"
                   :name="active === 4 ? 'wode-xuanzhong' : 'wode-moren'" />
@@ -43,6 +43,7 @@
 
 <script>
 import { Icon, Tabbar, TabbarItem, Toast } from 'vant';
+import midware from '@/assets/midware';
 
 export default {
   name: 'tab',
@@ -59,6 +60,9 @@ export default {
   },
   created() {
     this.active = this.$route.meta.active || 0;
+    midware.$on('tabChange', (active) => {
+      this.active = active;
+    });
   },
   methods: {}
 };

@@ -103,14 +103,14 @@ export default {
     register() {
       if (this.checkPhone() && this.checkSms()) {
         const params = {
-          agencyCode: '', // 先写死
-          agencyId: '',
-          agencyName: '',
-          appId: '',
-          appName: '',
-          avatar: this.Global.userInfo.headimgurl,
-          gender: this.Global.userInfo.gender,
-          nickname: this.Global.userInfo.nickname,
+          agencyCode: this.Global.userInfo.agencyCode || '', // 先写死
+          agencyId: this.Global.userInfo.agencyId || '',
+          agencyName: this.Global.userInfo.agencyName || '',
+          appId: this.Global.userInfo.appId || '',
+          appName: this.Global.userInfo.appName || '',
+          avatar: this.Global.userInfo.avatar || '',
+          gender: this.Global.userInfo.gender || 0,
+          nickname: this.Global.userInfo.nickname || '',
           openId: this.Global.userInfo.openId,
           phone: this.phone,
           verificationCode: this.sms
@@ -120,6 +120,12 @@ export default {
           // 跳转到轮播页面
           if (res) {
             this.$router.push('/swiper');
+          } else {
+            this.show = true;
+            if (this.timer) {
+              clearInterval(this.timer);
+            }
+            this.timer = null;
           }
         });
       }

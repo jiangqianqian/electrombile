@@ -17,7 +17,7 @@ module.exports = {
       },
       '/leta_service/*': {
         changeOrigin: true,
-        target: 'http://47.104.101.0',
+        target: 'http://47.104.101.0:8097',
       }
     },
 

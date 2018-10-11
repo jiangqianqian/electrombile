@@ -4,7 +4,7 @@
       <template slot="titleBox">
         <div class="title-box"
              @click="selectFlag = true">
-          {{currentSelectItem.title}}
+          {{currentSelectItem.brandName}}
           <van-icon class="title-arrow"
                     name="xiasanjiao" />
         </div>
@@ -13,7 +13,7 @@
           <li :class="{'title-list-item': true, 'cur': item.imei === currentSelectItem.imei}"
               v-for="(item,index) in vehicleList"
               :key="index"
-              @click="selectItem(item)">{{item.title}}</li>
+              @click="selectItem(item)">{{item.brandName}}</li>
         </ul>
       </template>
     </navBar>
@@ -53,6 +53,7 @@
 <script>
 import { Button, Icon, Toast, Switch } from 'vant';
 import navBar from '@/components/nav';
+import midware from '@/assets/midware';
 
 export default {
   name: 'fence',
@@ -88,6 +89,9 @@ export default {
   created() {
     // 默认选中第 1 个
     // this.currentSelectItem = this.vehicleList[0];
+  },
+  activated() {
+    midware.$emit('tabChange', 2);
   },
   methods: {
     mapReady({ BMap, map }) {

@@ -4,7 +4,7 @@
       <template slot="titleBox">
         <div class="title-box"
              @click="selectFlag = true">
-          {{currentSelectItem.title}}
+          {{currentSelectItem.brandName}}
           <van-icon class="title-arrow"
                     name="xiasanjiao" />
         </div>
@@ -13,7 +13,7 @@
           <li :class="{'title-list-item': true, 'cur': item.imei === currentSelectItem.imei}"
               v-for="(item,index) in vehicleList"
               :key="index"
-              @click="selectItem(item)">{{item.title}}</li>
+              @click="selectItem(item)">{{item.brandName}}</li>
         </ul>
       </template>
     </navBar>
@@ -135,7 +135,9 @@
 <script>
 import { Button, Icon, Toast, DatetimePicker } from 'vant';
 import { BmlLushu } from 'vue-baidu-map';
+import commonJs from '@/utils/common';
 import navBar from '@/components/nav';
+import midware from '@/assets/midware';
 // import path from '@/../static/path';
 import lushuIcon from '@/assets/images/lushu-icon.png';
 
@@ -160,8 +162,8 @@ export default {
         lng: 0,
         lat: 0
       },
-      showMessage: true, // 为 true 显示实时消息
-      message: '电话来了', // 实时消息
+      showMessage: false, // 为 true 显示暂无消息
+      message: '这段时间您没有行车记录哦', // 实时消息
       isShowDate: false, // 显示日期选择器
       pickerTitle: '', // 日期选择器 title
       currentDate: { date: null, flag: '' }, // 当前打开的日期选择器属于开始时间还是结束时间
@@ -191,97 +193,14 @@ export default {
     // 设置选中的电动车
     // const curIndex = this.Global.activeVehicleIndex || 0;
     // this.currentSelectItem = this.vehicleList[curIndex];
+    midware.$emit('tabChange', 1);
   },
   mounted() {
     // 设置结束时间为当前，开始时间为结束时间的前一天
-    this.endDate = this.dateFormat(new Date(), 'yyyy-MM-dd hh:mm');
-    this.startDate = this.dateFormat(new Date().getTime() - 24 * 60 * 60 * 1000, 'yyyy-MM-dd hh:mm');
+    this.endDate = commonJs.dateFormat(new Date(), 'yyyy-MM-dd hh:mm');
+    this.startDate = commonJs.dateFormat(new Date().getTime() - 24 * 60 * 60 * 1000, 'yyyy-MM-dd hh:mm');
   },
   methods: {
-    dateFormat(timestamp, fmt, humanized) {
-      // 格式化日期
-      if (timestamp instanceof Date) {
-        timestamp = timestamp.getTime();
-      } else if (typeof timestamp === 'string') {
-        timestamp = new Date(timestamp);
-      }
-
-      if (timestamp != null) {
-        const localTime = new Date(
-          timestamp +
-          (new Date(timestamp).getTimezoneOffset() - -480) * 60 * 1000
-        );
-
-        const today = new Date();
-        if (humanized) {
-          if (
-            new Date(
-              localTime.getFullYear() +
-              '/' +
-              (localTime.getMonth() + 1) +
-              '/' +
-              localTime.getDate()
-            ).getTime() ==
-            new Date(
-              today.getFullYear() +
-              '/' +
-              (today.getMonth() + 1) +
-              '/' +
-              today.getDate()
-            ).getTime()
-          ) {
-            fmt = fmt.replace(/(y+-)?M+-d+/, '今天');
-          } else if (
-            new Date(
-              localTime.getFullYear() +
-              '/' +
-              (localTime.getMonth() + 1) +
-              '/' +
-              localTime.getDate()
-            ).getTime() ==
-            new Date(
-              today.getFullYear() +
-              '/' +
-              (today.getMonth() + 1) +
-              '/' +
-              today.getDate() -
-              1
-            ).getTime()
-          ) {
-            fmt = fmt.replace(/(y+-)?M+-d+/, '昨天');
-          }
-        }
-
-        const o = {
-          'M+': localTime.getMonth() + 1,
-          'd+': localTime.getDate(),
-          'h+': localTime.getHours(),
-          'm+': localTime.getMinutes(),
-          's+': localTime.getSeconds()
-        };
-        if (/(y+)/.test(fmt)) {
-          fmt = fmt.replace(
-            RegExp.$1,
-            (localTime.getFullYear() + '').substr(4 - RegExp.$1.length)
-          );
-        }
-
-        for (const k in o) {
-          if (new RegExp('(' + k + ')').test(fmt)) {
-            fmt = fmt.replace(
-              RegExp.$1,
-              RegExp.$1.length == 1
-                ? o[k]
-                : ('00' + o[k]).substr(('' + o[k]).length)
-            );
-          }
-        }
-
-        return fmt;
-      }
-      return '';
-    },
-
     mapReady({ BMap, map }) {
       this.setCenter();
     },
@@ -345,6 +264,7 @@ export default {
       // 隐藏下拉框
       this.selectFlag = false;
       this.currentSelectItem = item;
+      this.setCenter();
     },
 
     showDatePicker(state) {
@@ -374,12 +294,12 @@ export default {
       // 日期选择器点击确定
       this.isShowDate = false;
       if (this.currentDate.flag === 'start') {
-        this.startDate = this.dateFormat(
+        this.startDate = commonJs.dateFormat(
           this.currentDate.date,
           'yyyy-MM-dd hh:mm'
         );
       } else {
-        this.endDate = this.dateFormat(
+        this.endDate = commonJs.dateFormat(
           this.currentDate.date,
           'yyyy-MM-dd hh:mm'
         );
@@ -438,7 +358,6 @@ export default {
         } else {
           // 如果没有数据，实时消息打开并显示暂无数据
           this.showMessage = true;
-          this.message = '暂无数据';
         }
       });
     },
@@ -557,6 +476,7 @@ export default {
   left: 50%;
   margin-left: -45.5%;
   top: 0.3rem;
+  z-index: 999;
   width: 92%;
   height: 0.6rem;
   line-height: 0.6rem;

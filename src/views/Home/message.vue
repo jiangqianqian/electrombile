@@ -1,9 +1,7 @@
 <template>
   <div>
     <navBar title="消息"
-            leftText="返回"
             rightText="设置"
-            @clickLeft="back()"
             @clickRight="goSetMsg" />
     <div class="msg-list">
       <van-list v-model="loading"
@@ -21,7 +19,7 @@
         <div class="no-data"
              v-if="isNoData">暂无数据</div>
         <div class="no-more-data"
-             v-if="finished">没有更多数据了
+             v-if="noMoreData">没有更多数据了
         </div>
       </van-list>
     </div>
@@ -31,6 +29,7 @@
 <script>
 import { Icon, Tabbar, TabbarItem, Toast, List } from 'vant';
 import navBar from '@/components/nav';
+import midware from '@/assets/midware';
 
 export default {
   name: 'message',
@@ -46,6 +45,7 @@ export default {
     return {
       loading: false, // 列表加载中
       finished: false, // 列表加载完成
+      noMoreData: false,
       curPage: 1,
       limit: 10,
       isNoData: false,
@@ -68,13 +68,16 @@ export default {
       },
     };
   },
+  activated() {
+    midware.$emit('tabChange', 3);
+  },
   methods: {
     goSetMsg() {
       this.$router.push('/messageSet');
     },
     async onLoad() {
       const params = {
-        openId: Global.userInfo.openId,
+        openId: this.Global.userInfo.openId,
         curPage: this.curPage,
         limit: this.limit
       };
@@ -92,14 +95,17 @@ export default {
       if (res.records.length) {
         this.records = [...res.records, ...this.records];
         this.loading = false;
-        if (res.count > (this.curPage - 1) * this.limit + res.records.length) {
+        if (res.total > (this.curPage - 1) * this.limit + res.records.length) {
           this.curPage += 1;
         } else {
           this.finished = true;
+          this.noMoreData = true;
         }
       } else if (this.curPage === 1) {
         // 消息页面暂无数据
         this.isNoData = true;
+        this.loading = false;
+        this.finished = true;
       }
     }
   }

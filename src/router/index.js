@@ -12,6 +12,7 @@ const Home = Vue.extend(require('@/views/Home/home.vue').default);
 const FootPrint = Vue.extend(require('@/views/Home/footPrint.vue').default);
 const Fence = Vue.extend(require('@/views/Home/fence.vue').default);
 const Message = Vue.extend(require('@/views/Home/message.vue').default);
+const Mine = Vue.extend(require('@/views/Home/mine.vue').default);
 
 Vue.use(Router);
 
@@ -64,6 +65,15 @@ export default new Router({
       meta: {
         title: '酷行智动',
         active: 3,
+        keepAlive: true
+      }
+    },
+    {
+      path: 'mine',
+      component: Mine,
+      meta: {
+        title: '酷行智动',
+        active: 4,
         keepAlive: true
       }
     }

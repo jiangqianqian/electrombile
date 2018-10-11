@@ -54,7 +54,7 @@
       <div class="info front">
         <div>
           <img class="figure"
-               :src="userInfo.headimgurl" />
+               :src="userInfo.avatar" />
         </div>
         <div class="info-main">
           <div class="name-box">
@@ -70,11 +70,11 @@
       <div class="info back">
         <div>
           <img class="figure"
-               :src="markerList[activeVehicleIndex].src" />
+               :src="markerList[activeVehicleIndex].brandLogo" />
         </div>
         <div class="info-main">
           <div class="name-box">
-            <span class="name">{{markerList[activeVehicleIndex].title}}</span>
+            <span class="name">{{markerList[activeVehicleIndex].brandName}}</span>
             <span class="state online"
                   v-if="markerList[activeVehicleIndex].isOnline">在线</span>
             <span class="state"
@@ -101,6 +101,7 @@
 
 <script>
 import { Button, Icon, Toast } from 'vant';
+import midware from '@/assets/midware';
 import MotoOverlay from './motoOverlay';
 
 export default {
@@ -127,7 +128,7 @@ export default {
       // 通过接口拿到姓名及头像，通过地图逆址解析拿到地址
       userInfo: {
         nickname: this.Global.userInfo.nickname,
-        headimgurl: this.Global.userInfo.headimgurl,
+        avatar: this.Global.userInfo.avatar,
         address: ''
       },
       // markerList: [
@@ -167,6 +168,9 @@ export default {
       duration: 0,
       message: '加载中...'
     });
+  },
+  activated() {
+    midware.$emit('tabChange', 0);
   },
 
   methods: {
