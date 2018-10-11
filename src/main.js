@@ -41,21 +41,40 @@ const vehicleList2 = [{
 }];
 
 // test
+// const userInfo2 = {
+//   agencyCode: '1000',
+//   agencyId: 3,
+//   agencyName: '酷行智动',
+//   appId: 'wx0ddfdcab9f6d8b1c',
+//   appName: null,
+//   avatar: 'http://thirdwx.qlogo.cn/mmopen/vi_32/PFK7lPu7VbhbuiaHXSs1iaBAPtsUdhdUO4PJlziatiaECkicsX4k9kcuWasqsRacohCAxXSjNRJ5MKlJooe4ibgiamLBA/132',
+//   createBy: 1,
+//   createName: '系统管理员',
+//   createTime: '2018-10-11 15:33:03',
+//   customerId: 9,
+//   gender: 2,
+//   id: 7,
+//   nickname: '芊～:)',
+//   openId: 'ofMDZ0rD9LISYEuH8jB1AY3AdoEs',
+//   phone: null,
+//   statuss: 1
+// };
+
 const userInfo2 = {
-  agencyCode: '1000',
-  agencyId: 3,
-  agencyName: '酷行智动',
-  appId: 'wx0ddfdcab9f6d8b1c',
-  appName: null,
-  avatar: 'http://thirdwx.qlogo.cn/mmopen/vi_32/PFK7lPu7VbhbuiaHXSs1iaBAPtsUdhdUO4PJlziatiaECkicsX4k9kcuWasqsRacohCAxXSjNRJ5MKlJooe4ibgiamLBA/132',
+  agencyCode: 'AJFKLJDL',
+  agencyId: 12211,
+  agencyName: '测试编码',
+  appId: 'ALJJEJFKLDJFLSJSF',
+  appName: '公众号名称',
+  avatar: 'string',
   createBy: 1,
   createName: '系统管理员',
   createTime: '2018-10-11 15:33:03',
   customerId: 9,
-  gender: 2,
+  gender: 0,
   id: 7,
   nickname: '芊～:)',
-  openId: 'ofMDZ0rD9LISYEuH8jB1AY3AdoEs',
+  openId: '8432098437892',
   phone: null,
   statuss: 1
 };

@@ -28,7 +28,7 @@ export default {
       Toast.clear();
     }
   }
-}
+};
 </script>
 <style>
 .mine-box {

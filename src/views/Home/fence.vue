@@ -258,7 +258,7 @@ export default {
       };
 
       this.$http.post(
-        'equipment/insertFence.htm',
+        '/equipment/insertFence.htm',
         params,
         this,
         true

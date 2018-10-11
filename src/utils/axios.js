@@ -16,7 +16,7 @@ let loading = false;
 const BASE_URL = '/leta_service';
 
 axios.defaults.timeout = 10000;
-axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
+// axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded';
 
 // 请求开始时，开启加载中动画，出错了提示并关闭动画
 axios.interceptors.request.use((config) => {
@@ -107,9 +107,10 @@ export default class api {
       method: 'get',
       url: `${BASE_URL}${url}`,
       params,
-      withCredentials: true // 表示跨域请求时是否需要使用凭证
+      withCredentials: true, // 表示跨域请求时是否需要使用凭证
       // headers: {
       //   'X-Requested-With': 'XMLHttpRequest',
+      //   'Content-Type': 'application/x-www-form-urlencoded',
       // },
     });
   }
@@ -133,7 +134,7 @@ export default class api {
       // url: `${BASE_URL}${url}`,
       url: `${BASE_URL}${url}`,
       data: params,
-      withCredentials: true // 表示跨域请求时是否需要使用凭证
+      withCredentials: true, // 表示跨域请求时是否需要使用凭证
       // 发送请求前处理request的数据
       // transformRequest: [
       //   function (data) {
@@ -144,10 +145,10 @@ export default class api {
       //     return ret
       //   }
       // ],
-      // headers: {
-      //   'X-Requested-With': 'XMLHttpRequest',
-      //   'Content-Type': 'application/x-www-form-urlencoded',
-      // },
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
     });
   }
 }

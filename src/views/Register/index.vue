@@ -60,6 +60,12 @@ export default {
             console.log(res, 'res');
             if (res) {
               Toast('验证码发送成功，请注意查收');
+            } else {
+              this.show = true;
+              if (this.timer) {
+                clearInterval(this.timer);
+              }
+              this.timer = null;
             }
           });
 
@@ -116,18 +122,14 @@ export default {
           verificationCode: this.sms
         };
         // 提交注册
-        this.$http.post('/equipment/registerSuccess.htm', params, this).then(res => {
-          // 跳转到轮播页面
-          if (res) {
-            this.$router.push('/swiper');
-          } else {
-            this.show = true;
-            if (this.timer) {
-              clearInterval(this.timer);
+        this.$http
+          .post('/equipment/registerSuccess.htm', params, this)
+          .then(res => {
+            // 跳转到轮播页面
+            if (res) {
+              this.$router.push('/swiper');
             }
-            this.timer = null;
-          }
-        });
+          });
       }
     },
 
