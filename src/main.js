@@ -161,11 +161,11 @@ function bindVehicle(to) {
           return false;
         }
         // 没有绑定电动车的情况
-        return '/register';
+        return '/swiper';
       }
     });
   } else {
-    if (to.path === '/register') {
+    if (to.path === '/swiper') {
       return false;
     }
 
@@ -178,7 +178,7 @@ function bindVehicle(to) {
     }
 
     // 没有绑定电动车的情况
-    return '/register';
+    return '/swiper';
   }
   return false;
 }
@@ -233,7 +233,7 @@ router.beforeEach(async (to, from, next) => {
   // }
   // return next();
 
-  // 获取用户信息
+  // 判断是否有用户信息
   if (Global.userInfo) {
     // 已经授权
     const res = bindVehicle(to);
@@ -256,7 +256,7 @@ router.beforeEach(async (to, from, next) => {
       //   appid: Global.accessKeyId
       // },
 
-      // test
+      // 获取用户信息
       '/kxzdLogin', {
         // code,
         // appid: Global.appid,
@@ -267,6 +267,11 @@ router.beforeEach(async (to, from, next) => {
 
     if (data) {
       Global.userInfo = data;
+
+      // 判断是否注册了
+      if (!data.customerId || !data.customerId.toString().length) {
+        return next('/register');
+      }
 
       // 去绑定电动车
       const res = bindVehicle(to);
