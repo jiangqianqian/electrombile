@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Qs from 'qs';
 import {
   Toast
 } from 'vant';
@@ -16,7 +17,7 @@ let loading = false;
 const BASE_URL = '/leta_service';
 
 axios.defaults.timeout = 10000;
-// axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded';
+axios.defaults.headers.common['Accept'] = '*/*';
 
 // 请求开始时，开启加载中动画，出错了提示并关闭动画
 axios.interceptors.request.use((config) => {
@@ -108,10 +109,11 @@ export default class api {
       url: `${BASE_URL}${url}`,
       params,
       withCredentials: true, // 表示跨域请求时是否需要使用凭证
-      // headers: {
-      //   'X-Requested-With': 'XMLHttpRequest',
-      //   'Content-Type': 'application/x-www-form-urlencoded',
-      // },
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        // 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        Accept: '*/*'
+      },
     });
   }
 
@@ -145,9 +147,14 @@ export default class api {
       //     return ret
       //   }
       // ],
+      transformRequest: [function (data) {
+        // 对 data 进行任意转换处理
+        return Qs.stringify(data);
+      }],
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded',
+        // 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        Accept: '*/*'
       },
     });
   }
