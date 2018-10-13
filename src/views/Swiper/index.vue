@@ -77,6 +77,9 @@ export default {
     //   $swiper.swipeTo($swiper.$children.length - 1);
     // }
   },
+  activated() {
+    Toast(1)
+  },
   methods: {
     setIndicator() {
       const $swiper = this.$refs.swiper;

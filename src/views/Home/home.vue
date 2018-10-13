@@ -404,8 +404,8 @@ export default {
 }
 
 .figure {
-  width: 0.8rem;
-  height: 0.8rem;
+  width: 0.9rem;
+  height: 0.9rem;
   border-radius: 4px;
 }
 
@@ -449,7 +449,7 @@ export default {
 .address {
   display: flex;
   align-items: flex-start;
-  margin-top: 0.14rem;
+  margin-top: 0.12rem;
   color: #858585;
   font-size: 0.22rem;
 }
@@ -457,7 +457,7 @@ export default {
 .address-icon {
   position: relative;
   top: -3px;
-  font-size: 0.4rem;
+  font-size: 0.35rem;
   color: #b5b6b7;
   vertical-align: top;
 }

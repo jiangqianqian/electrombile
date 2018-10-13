@@ -83,7 +83,8 @@ const Global = {
   userInfo: userInfo2, // 用户信息
   // activeVehicleIndex: 0, // 首页中被选中的电动车索引号
   vehicleList: vehicleList2, // 电动车列表
-  hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
+  // hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
+  hasGetVehicleList: true, // 当绑定了设备或获取到电动车列表后置为 true
   accessKeyId: '82A8C3B67DE5', // 传给后端的
   // accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
   accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0',
@@ -123,6 +124,48 @@ function getAddress(lng, lat) {
   return addressGroup;
 }
 
+function bindVehicleAxios() {
+  const params = {
+    openId: Global.userInfo.openId
+  };
+  return axios.get(
+    '/equipment/findBindImeiList.htm',
+    params,
+    this,
+    true,
+    false
+  );
+}
+
+function goToPage(res) {
+  Global.hasGetVehicleList = true;
+
+  // 要求没有电动车列表时，返回 []
+  Global.vehicleList = res.map((item) => {
+    const newItem = wgs84tobd09(item.lon, item.lat);
+    item.lng = newItem[0];
+    item.lat = newItem[1];
+    item.address = getAddress(item.lng, item.lat);
+    item.receiveTime = commonJs.dateFormat(new Date(item.receiveTime), 'yyyy-MM-dd hh:mm');
+
+    // TODO: 头像名字先写死
+    item.brandLogo = 'https://img0.bdstatic.com/static/searchdetail/img/logo-2X_b99594a.png';
+    item.brandName = '电动车';
+    return item;
+  });
+
+  console.log(Global.vehicleList, '123123');
+  if (Global.vehicleList.length) {
+    if (to.fullPath === '/') {
+      // 如果绑定了电动车且访问的是根目录，直接跳转上首页
+      return '/home';
+    }
+    return false;
+  }
+  // 没有绑定电动车的情况
+  return '/swiper';
+}
+
 function bindVehicle(to) {
   if (!Global.hasGetVehicleList) {
     // 没有获取电动车列表，表示未确定该用户是否有绑定电动车
@@ -133,7 +176,9 @@ function bindVehicle(to) {
     axios.get(
       '/equipment/findBindImeiList.htm',
       params,
-      this
+      this,
+      true,
+      false
     ).then((res) => {
       if (res) {
         Global.hasGetVehicleList = true;
@@ -235,13 +280,45 @@ router.beforeEach(async (to, from, next) => {
 
   // 判断是否有用户信息
   if (Global.userInfo) {
-    // 已经授权
-    const res = bindVehicle(to);
-    if (res) {
-      // 有值表示返回了特定路径
-      return next(res);
+    // 判断是否注册了
+    if (!Global.userInfo.customerId || !Global.userInfo.customerId.toString().length) {
+      return next('/register');
     }
-    return next();
+
+    if (to.path === '/register' || to.path === '/swiper') {
+      return next();
+    }
+
+    // 去绑定电动车
+    if (!Global.hasGetVehicleList) {
+      bindVehicleAxios().then((res) => {
+        // debugger;
+        if (res) {
+          const path = goToPage(res);
+          if (path) {
+            // 有值表示返回了特定路径
+            return next(res);
+          }
+          return next();
+        }
+        return next('/swiper');
+      });
+    } else {
+      if (to.path === '/swiper') {
+        return next();
+      }
+
+      if (Global.vehicleList.length) {
+        if (to.fullPath === '/') {
+          // 如果绑定了电动车且访问的是根目录，直接跳转上首页
+          return next('/home');
+        }
+        return next();
+      }
+
+      // 没有绑定电动车的情况
+      return next('/swiper');
+    }
   }
 
   // 未授权
@@ -273,20 +350,35 @@ router.beforeEach(async (to, from, next) => {
         return next('/register');
       }
 
-      // 去绑定电动车
-      const res = bindVehicle(to);
-      if (res) {
-        // 有值表示返回了特定路径
-        return next(res);
+      if (to.path === '/register' || to.path === '/swiper') {
+        return next();
       }
-      return next();
+
+      // 去绑定电动车
+      bindVehicleAxios().then((res) => {
+        if (res) {
+          const path = goToPage(res);
+          if (path) {
+            // 有值表示返回了特定路径
+            return next(res);
+          }
+          return next();
+        }
+      });
+      // const res = bindVehicle(to);
+      // if (res) {
+      //   // 有值表示返回了特定路径
+      //   return next(res);
+      // }
+      // return next();
     }
 
-    // 去授权 要加上
+    // 去授权 test时去掉了
     // toAuth();
   } else {
     // 对于已关注公众号的用户，如果用户从公众号的会话或者自定义菜单进入本公众号的网页授权页，即使是scope为snsapi_userinfo，也是静默授权，用户无感知
-    toAuth();
+    // test 时去掉了
+    // toAuth();
 
     // test
     // const timestamp = new Date().getTime();

@@ -100,29 +100,32 @@ export default {
     },
 
     init() {
-      this.$http.get(
-        '/equipment/findFenceDate.htm',
-        [this.currentSelectItem.imei],
-        this,
-        true
-      ).then((res) => {
-        if (res && res.isSetting && !res.isSwitch) {
-          // 以前设置过围栏的情况
-          this.circlePath.center.lng = res.lon;
-          this.circlePath.center.lat = res.lat;
-          this.address = res.location;
-          this.switchChecked = res.isSwitch;
-        } else {
-          this.circlePath.center.lng = this.currentSelectItem.lng;
-          this.circlePath.center.lat = this.currentSelectItem.lat;
+      this.switchChecked = false;
+      this.$http
+        .get(
+          '/equipment/findFenceDate.htm',
+          { imeis: this.currentSelectItem.imei },
+          this,
+          true
+        )
+        .then(res => {
+          if (res && res.isSetting && !res.isSwitch) {
+            // 以前设置过围栏的情况
+            this.circlePath.center.lng = res.lon;
+            this.circlePath.center.lat = res.lat;
+            this.address = res.location;
+            this.switchChecked = res.isSwitch;
+          } else {
+            this.circlePath.center.lng = this.currentSelectItem.lng;
+            this.circlePath.center.lat = this.currentSelectItem.lat;
 
-          // 通过逆址解析获取到地址
-          this.getAddress();
-        }
+            // 通过逆址解析获取到地址
+            this.getAddress();
+          }
 
-        // 地图准备好后设置并绘制中心点
-        this.setAndDrawCenter();
-      });
+          // 地图准备好后设置并绘制中心点
+          this.setAndDrawCenter();
+        });
     },
 
     setAndDrawCenter() {
@@ -153,7 +156,7 @@ export default {
         this.circlePath.center.lat
       );
 
-      myGeo.getLocation(point, (rs) => {
+      myGeo.getLocation(point, rs => {
         const address = rs.addressComponents;
         _this.address =
           address.province +
@@ -225,7 +228,7 @@ export default {
     drawLabel() {
       const labelPoint = new BMap.Point(
         this.circlePath.center.lng +
-        (this.polylineLastPoint.lng - this.circlePath.center.lng) / 2,
+          (this.polylineLastPoint.lng - this.circlePath.center.lng) / 2,
         this.circlePath.center.lat
       );
       const opts = {
@@ -257,16 +260,13 @@ export default {
         isSwitch: this.switchChecked
       };
 
-      this.$http.post(
-        '/equipment/insertFence.htm',
-        params,
-        this,
-        true
-      ).then((res) => {
-        if (res) {
-          Toast.success('设置成功');
-        }
-      });
+      this.$http
+        .post('/equipment/insertFence.htm', params, this, true)
+        .then(res => {
+          if (res) {
+            Toast.success('设置成功');
+          }
+        });
     },
 
     selectItem(item) {
@@ -276,7 +276,7 @@ export default {
 
       // 重新绘制围栏
       this.init();
-    },
+    }
   }
 };
 </script>

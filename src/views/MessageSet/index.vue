@@ -141,7 +141,7 @@ export default {
     }
   },
   created() {},
-  mounted() {
+  activated() {
     // 请求接口获取上次消息设置的值
     const params = {
       openId: this.Global.userInfo.openId

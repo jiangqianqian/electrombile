@@ -320,10 +320,12 @@ export default {
 
       // 点击搜索
       // 判断开始结束时间是否有效
-      const startTime = new Date(this.startDate).getTime();
-      const endTime = new Date(this.endDate).getTime();
+      const startTime = parseInt(new Date(this.startDate).getTime(),10);
+      const endTime = parseInt(new Date(this.endDate).getTime(),10);
+      console.log(startTime,endTime,'12')
       if (startTime > endTime) {
         Toast('开始时间须小于结束时间');
+        return;
       }
 
       // 获取 path, 设置起终点，画线， 根据获取到的点设置最佳视野

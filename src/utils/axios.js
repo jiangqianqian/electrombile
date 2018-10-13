@@ -7,21 +7,17 @@ import {
 // vue 实例
 let vue = null;
 
-// 是否允许显示toast
-let showToast = true;
-
-let loading = false;
-
 // 基础接口 TODO:
 // const BASE_URL = 'http://open.leta.cn/api/lbs-agent-service';
 const BASE_URL = '/leta_service';
 
 axios.defaults.timeout = 10000;
-axios.defaults.headers.common['Accept'] = '*/*';
+// axios.defaults.headers.common['Accept'] = '*/*';
 
 // 请求开始时，开启加载中动画，出错了提示并关闭动画
 axios.interceptors.request.use((config) => {
-  if (vue && loading) {
+  console.log(config, 'config');
+  if (vue && config.customered.showLoading) {
     Toast.loading({
       mask: true,
       message: '加载中...',
@@ -30,7 +26,7 @@ axios.interceptors.request.use((config) => {
   }
   return config;
 }, (error) => {
-  if (vue && showToast) {
+  if (vue && config.customered.showToast) {
     Toast.fail('请求超时');
   }
   return Promise.reject(error);
@@ -39,7 +35,7 @@ axios.interceptors.request.use((config) => {
 // 请求完成时，关闭加载中动画，返回数据或错误信息
 axios.interceptors.response.use((response) => {
   Toast.clear();
-
+  console.log(response, 'response');
   // 一切正常，返回数据或空对象
   if (response.data.code === 0) {
     return response.data.data || {};
@@ -51,7 +47,7 @@ axios.interceptors.response.use((response) => {
     }
   } else if (response.data.message != null && response.data.message.length > 0) {
     // 没有数据，只有提示信息，则弹出提示信息
-    if (vue && showToast) {
+    if (vue && response.config.customered.showToast) {
       Toast.fail(response.data.message);
     }
   }
@@ -90,24 +86,19 @@ export default class api {
       *@param {Boolean} showLoading 默认是 false,表示请求时不给加载中提示
       *@param {Boolean} isShow 默认为 true,表示请求异常给出提示
     */
-    showToast = true;
+
     if (vueContext != null) {
       vue = vueContext;
-    }
-
-    if (isShow === false) {
-      showToast = isShow;
-    }
-
-    // loading 默认为 false
-    if (showLoading) {
-      loading = showLoading;
     }
 
     return axios({
       method: 'get',
       url: `${BASE_URL}${url}`,
       params,
+      customered: {
+        showLoading,
+        showToast: isShow,
+      },
       withCredentials: true, // 表示跨域请求时是否需要使用凭证
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
@@ -118,17 +109,8 @@ export default class api {
   }
 
   static post = (url, params, vueContext, showLoading, isShow) => {
-    showToast = true;
     if (vueContext != null) {
       vue = vueContext;
-    }
-
-    if (isShow === false) {
-      showToast = isShow;
-    }
-
-    if (showLoading) {
-      loading = showLoading;
     }
 
     return axios({
@@ -136,6 +118,10 @@ export default class api {
       // url: `${BASE_URL}${url}`,
       url: `${BASE_URL}${url}`,
       data: params,
+      customered: {
+        showLoading,
+        showToast: isShow
+      },
       withCredentials: true, // 表示跨域请求时是否需要使用凭证
       // 发送请求前处理request的数据
       // transformRequest: [
