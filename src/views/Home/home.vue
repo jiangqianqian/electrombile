@@ -120,7 +120,7 @@ export default {
         lat: 0
       },
       reverse: false,
-      showMessage: true,
+      showMessage: false, // 这期先不做消息推送
       message: '电话来了', // 实时信息
       activeVehicleIndex: 0, // 用于展示切换卡面时保留的电动车索引
       activeIndex: null, // 电动车和当前用户位置切换的 index

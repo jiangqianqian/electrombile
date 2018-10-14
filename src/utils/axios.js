@@ -11,7 +11,7 @@ let vue = null;
 // const BASE_URL = 'http://open.leta.cn/api/lbs-agent-service';
 const BASE_URL = '/leta_service';
 
-axios.defaults.timeout = 10000;
+// axios.defaults.timeout = 10000;
 // axios.defaults.headers.common['Accept'] = '*/*';
 
 // 请求开始时，开启加载中动画，出错了提示并关闭动画
@@ -64,14 +64,15 @@ axios.interceptors.response.use((response) => {
     // 请求已发出，但服务器响应的状态码不在 2xx 范围内，有错误信息则弹出错误信息
     console.log('response-error-data', error.response.data);
     if (error.response.data.message != null && error.response.data.message.length > 0) {
-      if (vue && showToast) {
+      if (vue && response.config.customered.showToast) {
         Toast.fail(error.response.data.message);
       }
     }
   } else {
+    console.log(response, 'response');
     // 什么数据都没有，直接出错了
     console.log('Error', error.message);
-    if (vue && showToast) {
+    if (vue && response.config.customered.showToast) {
       Toast.fail('网络出错了，未请求到数据');
     }
   }

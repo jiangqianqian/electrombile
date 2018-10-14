@@ -17,13 +17,15 @@ module.exports = {
       },
       '/leta_service/*': {
         changeOrigin: true,
-        target: 'http://47.104.101.0:8097',
+        // target: 'http://47.104.101.0:8097',
+        // target: 'http://192.168.2.120:8080',
+        target: 'http://192.168.2.106:8090',
       }
     },
 
     // Various Dev Server settings
     host: '0.0.0.0', // can be overwritten by process.env.HOST
-    port: 8282, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    port: 80, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,

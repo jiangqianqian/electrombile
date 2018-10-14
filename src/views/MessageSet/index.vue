@@ -151,6 +151,8 @@ export default {
       if (res) {
         this.renewalLevel = res.renewalLevel;
         delete res.renewalLevel;
+
+        // 改一下 res 取值
         this.msgParam = res;
 
         this.columns = [
@@ -165,7 +167,13 @@ export default {
   methods: {
     async save() {
       // 保存消息设置
-      const params = Object.assign({ renewalLevel: this.renewalLevel }, this.msgParam);
+      const params = Object.assign(
+        {
+          customerId: this.Global.userInfo.customerId,
+          renewalLevel: this.renewalLevel
+        },
+        this.msgParam
+      );
       const res = await this.$http.post(
         '/messageSetting/add.htm',
         params,

@@ -70,7 +70,7 @@ const userInfo2 = {
   createBy: 1,
   createName: '系统管理员',
   createTime: '2018-10-11 15:33:03',
-  customerId: 9,
+  customerId: 11,
   gender: 0,
   id: 7,
   nickname: '芊～:)',
@@ -83,8 +83,8 @@ const Global = {
   userInfo: userInfo2, // 用户信息
   // activeVehicleIndex: 0, // 首页中被选中的电动车索引号
   vehicleList: vehicleList2, // 电动车列表
-  // hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
-  hasGetVehicleList: true, // 当绑定了设备或获取到电动车列表后置为 true
+  hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
+  // hasGetVehicleList: true, // 当绑定了设备或获取到电动车列表后置为 true
   accessKeyId: '82A8C3B67DE5', // 传给后端的
   // accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
   accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0',
@@ -285,7 +285,7 @@ router.beforeEach(async (to, from, next) => {
       return next('/register');
     }
 
-    if (to.path === '/register' || to.path === '/swiper') {
+    if (to.path === '/register' || to.path === '/swiper' || to.path === '/inputCode') {
       return next();
     }
 
@@ -350,7 +350,7 @@ router.beforeEach(async (to, from, next) => {
         return next('/register');
       }
 
-      if (to.path === '/register' || to.path === '/swiper') {
+      if (to.path === '/register' || to.path === '/swiper' || to.path === '/inputCode') {
         return next();
       }
 

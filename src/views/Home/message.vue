@@ -14,7 +14,7 @@
             <div class="title">{{item.alarmTypeName}}</div>
             <div class="time">{{item.receiveTime}}</div>
           </div>
-          <div class="info">{{alarmText[item.alarmType]}}</div>
+          <div class="info">设备：<span class="terminal-key">{{item.terminalKey}}</span>{{alarmText[item.alarmType]}}</div>
         </div>
         <div class="no-data"
              v-if="isNoData">暂无数据</div>
@@ -51,20 +51,10 @@ export default {
       isNoData: false,
       records: [],
       alarmText: {
-        1: '紧急报警',
-        2: '超速报警',
-        3: '疲劳驾驶',
-        4: '终端低电量',
-        5: '已断电，可能发生电源脱离或没电',
-        6: '震动了一下',
-        7: '超时停车',
-        8: '已超出你设定的安全范围',
-        9: '油量异常',
-        10: '非法点火',
-        11: '距上次停车点发生了偏移',
-        12: '碰撞预警',
-        13: '侧翻预警',
-        14: '非法开门',
+        1: '已断电，可能发生电源脱离或没电',
+        2: '振动了一下',
+        3: '已超出你设定的安全范围',
+        4: '距上次停车点发生了偏移',
       },
     };
   },
@@ -150,5 +140,9 @@ export default {
   font-size: 13px;
   color: #999;
   text-align: center;
+}
+
+.terminal-key {
+  font-weight: bold;
 }
 </style>

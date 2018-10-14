@@ -320,9 +320,8 @@ export default {
 
       // 点击搜索
       // 判断开始结束时间是否有效
-      const startTime = parseInt(new Date(this.startDate).getTime(),10);
-      const endTime = parseInt(new Date(this.endDate).getTime(),10);
-      console.log(startTime,endTime,'12')
+      const startTime = parseInt(new Date(this.startDate).getTime(), 10);
+      const endTime = parseInt(new Date(this.endDate).getTime(), 10);
       if (startTime > endTime) {
         Toast('开始时间须小于结束时间');
         return;

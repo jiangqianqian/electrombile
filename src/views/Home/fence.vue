@@ -109,12 +109,12 @@ export default {
           true
         )
         .then(res => {
-          if (res && res.isSetting && !res.isSwitch) {
+          if (res && res[0].flag) {
             // 以前设置过围栏的情况
-            this.circlePath.center.lng = res.lon;
-            this.circlePath.center.lat = res.lat;
-            this.address = res.location;
-            this.switchChecked = res.isSwitch;
+            this.circlePath.center.lng = res[0].lon;
+            this.circlePath.center.lat = res[0].lat;
+            this.address = res[0].location;
+            this.switchChecked = res[0].flag;
           } else {
             this.circlePath.center.lng = this.currentSelectItem.lng;
             this.circlePath.center.lat = this.currentSelectItem.lat;
@@ -257,11 +257,16 @@ export default {
         lat: this.circlePath.center.lat,
         location: this.address,
         imei: this.currentSelectItem.imei,
-        isSwitch: this.switchChecked
+        flag: this.switchChecked
       };
 
       this.$http
-        .post('/equipment/insertFence.htm', params, this, true)
+        .post(
+          '/equipment/insertFence.htm',
+          { params: JSON.stringify(params) },
+          this,
+          true
+        )
         .then(res => {
           if (res) {
             Toast.success('设置成功');
