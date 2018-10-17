@@ -7,3 +7,14 @@
   color: #fff;
   font-size: 0.3rem;
 }
+
+.van-toast--middle {
+  font-size: 0.28rem;
+}
+
+.van-picker {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 1000;
+}

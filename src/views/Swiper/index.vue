@@ -1,25 +1,20 @@
 <template>
   <div class="swiper-page">
-    <van-swipe class="guide-swipe"
-               ref="swiper"
-               :loop="false"
-               :show-indicators="showIndicator"
-               @touchend.native="setIndicator">
-      <!-- <van-swipe-item v-for="(thumb, index) in thumbs" :key="thumb">
-        <img :src="thumb" >
-        <router-link v-if="index === thumbs.length - 1" to="/map">显示地图</router-link>
-      </van-swipe-item> -->
-      <van-swipe-item class="item item1">
+    <swiper class="guide-swipe"
+            :options="swiperOption"
+            ref="mySwiper">
+      <!-- slides -->
+      <swiper-slide class="item item1">
         <img class="img"
              src="@/assets/images/swipe1.png">
         <div class="text">酷行智动，伴您一路畅行</div>
-      </van-swipe-item>
-      <van-swipe-item class="item item1">
+      </swiper-slide>
+      <swiper-slide class="item item1">
         <img class="img"
              src="@/assets/images/swipe1.png">
         <div class="text">酷行智动，伴您一路畅行2</div>
-      </van-swipe-item>
-      <van-swipe-item class="item item3">
+      </swiper-slide>
+      <swiper-slide class="item item3">
         <img class="img"
              src="@/assets/images/swipe3.png">
         <div class="text">开始绑定我的电动车</div>
@@ -34,26 +29,42 @@
                         size="large">输入编码绑定</van-button>
           </router-link>
         </div>
-      </van-swipe-item>
-    </van-swipe>
+      </swiper-slide>
+      <div class="swiper-pagination"
+           slot="pagination"></div>
+    </swiper>
   </div>
 </template>
 
 <script>
+import 'swiper/dist/css/swiper.css';
+
+import { swiper, swiperSlide } from 'vue-awesome-swiper';
 import { Swipe, SwipeItem, Button, Toast } from 'vant';
+
 import wx from '@/../static/weixin-jssdk';
 
 export default {
-  name: 'swiper',
+  name: 'carrousel',
   components: {
-    [Swipe.name]: Swipe,
-    [SwipeItem.name]: SwipeItem,
+    swiper,
+    swiperSlide,
     [Button.name]: Button
   },
   data() {
     return {
-      showIndicator: true
-    };
+      swiperOption: {
+        notNextTick: true,
+        pagination: {
+          el: '.swiper-pagination'
+        }
+      }
+    }
+  },
+  computed: {
+    // swiper() {
+    //   return this.$refs.mySwiper.swiper
+    // }
   },
   created() {
     this.getConfigItems().then(res => {
@@ -75,27 +86,14 @@ export default {
       console.log(res, '签名失败');
     });
   },
-  mounted() {
-    // if (this.$route.params.swipeToEnd) {
-    //   const $swiper = this.$refs.swiper;
-    //   $swiper.swipeTo($swiper.$children.length - 1);
-    // }
-  },
-  activated() {
-    // Toast(1)
-  },
-  methods: {
-    setIndicator() {
-      const $swiper = this.$refs.swiper;
-      const len = $swiper.$children.length;
-      const active = $swiper.active;
-      if (active === len - 1) {
-        this.showIndicator = false;
-      } else {
-        this.showIndicator = true;
-      }
-    },
 
+  mounted() {
+    // 然后你就可以使用当前上下文内的swiper对象去做你想做的事了
+    // console.log('this is current swiper instance object', this.swiper);
+    // this.swiper.slideTo(3, 1000, false)
+  },
+
+  methods: {
     getConfigItems() {
       // console.log(location.href.split('#')[0], '123');
       // 获取微信权限验证配置信息
@@ -156,9 +154,9 @@ export default {
       }
     }
   }
-};
-</script>
 
+}
+</script>
 <style scoped>
 /* .guide {
   padding-bottom: 50px;
@@ -196,7 +194,7 @@ export default {
 
 .img {
   display: block;
-  margin: 1.4rem auto 0;
+  margin: 1.2rem auto 0;
 }
 
 .item1 {
@@ -228,11 +226,12 @@ export default {
 }
 </style>
 <style>
-.van-swipe__indicator {
+.swiper-pagination-bullet {
   bottom: 0.46rem;
+  height: 6px;
   background-color: #fff;
 }
-.van-swipe__indicator--active {
+.swiper-pagination-bullet-active {
   width: 18px;
   border-radius: 9px;
 }

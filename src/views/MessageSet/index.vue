@@ -122,8 +122,8 @@ export default {
       prevLevel: null,
       columns: [],
       showLevelPicker: false,
-      prevStartTime: null,
-      prevEndTime: null,
+      prevStartTime: '',
+      prevEndTime: '',
       currentTime: { time: null, flag: '' },
       timePickerTitle: '',
       isShowTime: false
@@ -140,7 +140,15 @@ export default {
       ];
     }
   },
-  created() {},
+  created() { },
+  mounted() {
+    this.columns = [
+      {
+        values: levels,
+        defaultIndex: levels.indexOf(this.renewalLevel)
+      }
+    ];
+  },
   activated() {
     // 请求接口获取上次消息设置的值
     const params = {
@@ -148,12 +156,17 @@ export default {
     };
 
     this.$http.get('/messageSetting/get.htm', params, this).then(res => {
-      if (res) {
+      if (res && Object.keys(res).length) {
         this.renewalLevel = res.renewalLevel;
-        delete res.renewalLevel;
 
-        // 改一下 res 取值
-        this.msgParam = res;
+        this.msgParam = {
+          shockAlarm: res.shockAlarm, // 振动
+          outageAlarm: res.outageAlarm, // 断电
+          fenceAlarm: res.fenceAlarm, // 围栏
+          mute: res.mute, // 勿扰
+          startTime: res.startTime,
+          endTime: res.endTime
+        };
 
         this.columns = [
           {
@@ -166,6 +179,18 @@ export default {
   },
   methods: {
     async save() {
+      // 判断开始时间是否大于结束时间
+      const startTimeArray = this.msgParam.startTime.split(':');
+      const endTimeArray = this.msgParam.endTime.split(':');
+      const startTimeHour = parseInt(startTimeArray[0], 10);
+      const startTimeMin = parseInt(startTimeArray[1], 10);
+      const endTimeHour = parseInt(endTimeArray[0], 10);
+      const endTimeMin = parseInt(endTimeArray[1], 10);
+      if (startTimeHour > endTimeHour || (startTimeHour === endTimeHour && startTimeMin > endTimeMin)) {
+        Toast('开始时间须小于结束时间');
+        return;
+      }
+
       // 保存消息设置
       const params = Object.assign(
         {
@@ -216,18 +241,21 @@ export default {
           time: this.msgParam.startTime,
           flag: 'start'
         };
+        this.prevStartTime = this.msgParam.startTime;
         this.timePickerTitle = '开始时间';
       } else {
         this.currentTime = {
           time: this.msgParam.endTime,
           flag: 'end'
         };
+        this.prevEndTime = this.msgParam.endTime;
         this.timePickerTitle = '结束时间';
       }
     },
 
     timePickerCancel() {
       // // 时间选择器点击取消
+      // debugger
       this.isShowTime = false;
       if (this.currentTime.flag === 'start') {
         this.msgParam.startTime = this.prevStartTime;
@@ -269,7 +297,6 @@ export default {
 
 .title {
   font-size: 0.3rem;
-  font-weight: bold;
 }
 
 .set-bar {
@@ -282,6 +309,11 @@ export default {
 .right-arrow {
   font-size: 0.32rem;
   color: #858585;
+}
+
+.right-arrow {
+  position: relative;
+  top: -1px;
 }
 
 .level-info {
@@ -318,5 +350,14 @@ export default {
   padding-right: 0.25rem;
   font-size: 0.24rem;
   color: #858585;
+}
+</style>
+
+<style>
+.van-field__control {
+  font-size: 0.3rem;
+}
+.van-cell__value {
+  display: flex;
 }
 </style>

@@ -68,6 +68,7 @@ export default {
     async onLoad() {
       const params = {
         openId: this.Global.userInfo.openId,
+        // customerId: this.Global.userInfo.customerId,
         curPage: this.curPage,
         limit: this.limit
       };
@@ -144,5 +145,12 @@ export default {
 
 .terminal-key {
   font-weight: bold;
+}
+
+.no-data {
+  position: absolute;
+  top: 48%;
+  width: 100%;
+  text-align: center;
 }
 </style>

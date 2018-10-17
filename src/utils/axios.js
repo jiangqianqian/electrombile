@@ -35,7 +35,7 @@ axios.interceptors.request.use((config) => {
 // 请求完成时，关闭加载中动画，返回数据或错误信息
 axios.interceptors.response.use((response) => {
   Toast.clear();
-  console.log(response, 'response');
+  // console.log(response, 'response');
   // 一切正常，返回数据或空对象
   if (response.data.code === 0) {
     return response.data.data || {};
@@ -69,7 +69,7 @@ axios.interceptors.response.use((response) => {
       }
     }
   } else {
-    console.log(response, 'response');
+    // console.log(response, 'response');
     // 什么数据都没有，直接出错了
     console.log('Error', error.message);
     if (vue && response.config.customered.showToast) {

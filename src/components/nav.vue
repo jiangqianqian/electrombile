@@ -83,10 +83,11 @@ export default {
 .van-nav-bar__text {
   padding: 0 10px;
   color: #333;
+  font-size: 0.32rem;
 }
 
 .van-nav-bar__title {
-  font-size: 14px;
+  font-size: 0.32rem;
 }
 </style>
 

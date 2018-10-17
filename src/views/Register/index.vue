@@ -57,7 +57,6 @@ export default {
         this.$http
           .get('/equipment/verifyCode.htm', { phone: this.phone }, this)
           .then(res => {
-            console.log(res, 'res');
             if (res) {
               Toast('验证码发送成功，请注意查收');
             } else {

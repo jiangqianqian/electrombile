@@ -1,6 +1,7 @@
 <template>
   <div class="mine-box">
     <iframe src="http://www.baidu.com"
+            ref="iframe"
             width="100%"
             height="100%"
             frameborder="0"
@@ -16,16 +17,17 @@ export default {
   components: {
     [Toast.name]: Toast,
   },
-  activated() {
-    Toast.loading({
-      mask: true,
-      message: '加载中...',
-      duration: 0
-    });
+  created() {
+    // Toast.loading({
+    //   mask: true,
+    //   message: '加载中...',
+    //   duration: 0
+    // });
   },
   methods: {
     loaded() {
-      Toast.clear();
+      // 微信浏览器不执行 loaded()
+      // Toast.clear();
     }
   }
 };

@@ -22,7 +22,7 @@
       <baidu-map ref="baiduMap"
                  class="bm-view"
                  :center="center"
-                 :zoom="17"
+                 :zoom="zoom"
                  @ready="mapReady">
 
         <!-- 中心点 -->
@@ -39,8 +39,8 @@
                    :path="path"
                    :icon="icon"
                    :play="play"
-                   :speed="3000"
-                   :autoView="true"
+                   :speed="500"
+                   :autoView=true
                    v-if="isHasRoute">
         </bml-lushu>
 
@@ -136,6 +136,7 @@
 import { Button, Icon, Toast, DatetimePicker } from 'vant';
 import { BmlLushu } from 'vue-baidu-map';
 import commonJs from '@/utils/common';
+import wgs84tobd09 from '@/utils/coordtransform';
 import navBar from '@/components/nav';
 import midware from '@/assets/midware';
 // import path from '@/../static/path';
@@ -162,6 +163,7 @@ export default {
         lng: 0,
         lat: 0
       },
+      zoom: 15,
       showMessage: false, // 为 true 显示暂无消息
       message: '这段时间您没有行车记录哦', // 实时消息
       isShowDate: false, // 显示日期选择器
@@ -197,8 +199,10 @@ export default {
   },
   mounted() {
     // 设置结束时间为当前，开始时间为结束时间的前一天
-    this.endDate = commonJs.dateFormat(new Date(), 'yyyy-MM-dd hh:mm');
-    this.startDate = commonJs.dateFormat(new Date().getTime() - 24 * 60 * 60 * 1000, 'yyyy-MM-dd hh:mm');
+    // this.endDate = commonJs.dateFormat(new Date(), 'yyyy-MM-dd hh:mm');
+    // this.startDate = commonJs.dateFormat(new Date().getTime() - 24 * 60 * 60 * 1000, 'yyyy-MM-dd hh:mm');
+    this.startDate = '2018-10-12 00:00';
+    this.endDate = '2018-10-12 03:00';
   },
   methods: {
     mapReady({ BMap, map }) {
@@ -256,6 +260,8 @@ export default {
       this.resetPlay();
 
       this.isHasRoute = false;
+
+      this.zoom = 15;
     },
 
     selectItem(item) {
@@ -374,6 +380,11 @@ export default {
         strokeWeight: 6
       });
       this.$refs.baiduMap.map.addOverlay(this.polyline);
+
+      // 获取最佳视野
+      const viewPort = this.$refs.baiduMap.map.getViewport(polylinePoints);
+      this.zoom = viewPort.zoom;
+      this.$refs.baiduMap.map.centerAndZoom(viewPort.center, this.zoom);
     }
   }
 };

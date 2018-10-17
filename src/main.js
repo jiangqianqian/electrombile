@@ -2,8 +2,8 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue';
 import BaiduMap from 'vue-baidu-map';
-import sha1 from 'sha1';
-import axiosOriginal from 'axios';
+// import sha1 from 'sha1';
+// import axiosOriginal from 'axios';
 import App from './App';
 import router from './router';
 import axios from './utils/axios';
@@ -24,7 +24,7 @@ Vue.use(BaiduMap, {
 const vehicleList2 = [{
   lat: 22.546,
   lng: 114.025,
-  imei: '1',
+  imei: '868500023772197',
   brandName: '小牛',
   isOnline: true,
   address: '广东省深圳市大冲商务中心',
@@ -32,7 +32,7 @@ const vehicleList2 = [{
 }, {
   lat: 22.545,
   lng: 114.025,
-  imei: '2',
+  imei: '868500023772197',
   brandName: '新日',
   isOnline: false,
   receiveTime: '2018-09-27T12:47:02.7299303',
@@ -83,8 +83,8 @@ const Global = {
   userInfo: userInfo2, // 用户信息
   // activeVehicleIndex: 0, // 首页中被选中的电动车索引号
   vehicleList: vehicleList2, // 电动车列表
-  hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
-  // hasGetVehicleList: true, // 当绑定了设备或获取到电动车列表后置为 true
+  // hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
+  hasGetVehicleList: true, // 当绑定了设备或获取到电动车列表后置为 true
   accessKeyId: '82A8C3B67DE5', // 传给后端的
   // accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
   accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0',
@@ -137,95 +137,51 @@ function bindVehicleAxios() {
   );
 }
 
-function goToPage(res) {
-  Global.hasGetVehicleList = true;
+function goToRegister(to) {
+  let tempStr = '/register';
+  if (to.fullPath === '/register') {
+    tempStr = null;
+  }
+  return tempStr;
+}
 
-  // 要求没有电动车列表时，返回 []
-  Global.vehicleList = res.map((item) => {
-    const newItem = wgs84tobd09(item.lon, item.lat);
-    item.lng = newItem[0];
-    item.lat = newItem[1];
-    item.address = getAddress(item.lng, item.lat);
-    item.receiveTime = commonJs.dateFormat(new Date(item.receiveTime), 'yyyy-MM-dd hh:mm');
+function goToSwiper(to) {
+  let tempStr = '/swiper';
+  if (to.fullPath === '/swiper') {
+    tempStr = null;
+  }
+  return tempStr;
+}
 
-    // TODO: 头像名字先写死
-    item.brandLogo = 'https://img0.bdstatic.com/static/searchdetail/img/logo-2X_b99594a.png';
-    item.brandName = '电动车';
-    return item;
-  });
+function goToPage(res, to) {
+  if (!Global.hasGetVehicleList) {
+    Global.hasGetVehicleList = true;
 
-  console.log(Global.vehicleList, '123123');
+    // 要求没有电动车列表时，返回 []
+    Global.vehicleList = res.map((item) => {
+      const newItem = wgs84tobd09(item.lon, item.lat);
+      item.lng = newItem[0];
+      item.lat = newItem[1];
+      item.address = getAddress(item.lng, item.lat);
+      item.receiveTime = commonJs.dateFormat(new Date(item.receiveTime), 'yyyy-MM-dd hh:mm');
+
+      // TODO: 头像名字先写死
+      item.brandLogo = 'https://img0.bdstatic.com/static/searchdetail/img/logo-2X_b99594a.png';
+      item.brandName = '电动车';
+      return item;
+    });
+  }
+
   if (Global.vehicleList.length) {
-    if (to.fullPath === '/') {
+    if (to.fullPath === '/' || to.fullPath === '/register') {
       // 如果绑定了电动车且访问的是根目录，直接跳转上首页
       return '/home';
     }
-    return false;
+    return null;
   }
+
   // 没有绑定电动车的情况
-  return '/swiper';
-}
-
-function bindVehicle(to) {
-  if (!Global.hasGetVehicleList) {
-    // 没有获取电动车列表，表示未确定该用户是否有绑定电动车
-    const params = {
-      openId: Global.userInfo.openId
-    };
-
-    axios.get(
-      '/equipment/findBindImeiList.htm',
-      params,
-      this,
-      true,
-      false
-    ).then((res) => {
-      if (res) {
-        Global.hasGetVehicleList = true;
-
-        // 要求没有电动车列表时，返回 []
-        Global.vehicleList = res.map((item) => {
-          const newItem = wgs84tobd09(item.lon, item.lat);
-          item.lng = newItem[0];
-          item.lat = newItem[1];
-          item.address = getAddress(item.lng, item.lat);
-          item.receiveTime = commonJs.dateFormat(new Date(item.receiveTime), 'yyyy-MM-dd hh:mm');
-
-          // TODO: 头像名字先写死
-          item.brandLogo = 'https://img0.bdstatic.com/static/searchdetail/img/logo-2X_b99594a.png';
-          item.brandName = '电动车';
-          return item;
-        });
-
-        console.log(Global.vehicleList, '123123');
-        if (Global.vehicleList.length) {
-          if (to.fullPath === '/') {
-            // 如果绑定了电动车且访问的是根目录，直接跳转上首页
-            return '/home';
-          }
-          return false;
-        }
-        // 没有绑定电动车的情况
-        return '/swiper';
-      }
-    });
-  } else {
-    if (to.path === '/swiper') {
-      return false;
-    }
-
-    if (Global.vehicleList.length) {
-      if (to.fullPath === '/') {
-        // 如果绑定了电动车且访问的是根目录，直接跳转上首页
-        return '/home';
-      }
-      return false;
-    }
-
-    // 没有绑定电动车的情况
-    return '/swiper';
-  }
-  return false;
+  return goToSwiper(to);
 }
 
 function getCode(search) {
@@ -261,63 +217,42 @@ router.beforeEach(async (to, from, next) => {
     document.title = to.meta.title;
   }
 
-  // 请求接口判断是否绑定了设备 不要的
-  // if (to.fullPath === '/') {
-  //   const isRegister = false;
-  //   if (!isRegister) {
-  //     if (to.path !== '/register') {
-  //       return next({
-  //         path: '/register'
-  //       });
-  //     }
-  //   } else if (to.path === '/register') {
-  //     return next({
-  //       path: '/'
-  //     });
-  //   }
-  // }
-  // return next();
+  console.log(Global.vehicleList, 'vehicleList');
 
   // 判断是否有用户信息
   if (Global.userInfo) {
     // 判断是否注册了
     if (!Global.userInfo.customerId || !Global.userInfo.customerId.toString().length) {
-      return next('/register');
-    }
-
-    if (to.path === '/register' || to.path === '/swiper' || to.path === '/inputCode') {
+      const registerPath = goToRegister(to);
+      if (registerPath) {
+        return next(registerPath);
+      }
       return next();
     }
 
     // 去绑定电动车
     if (!Global.hasGetVehicleList) {
       bindVehicleAxios().then((res) => {
-        // debugger;
         if (res) {
-          const path = goToPage(res);
+          const path = goToPage(res, to);
           if (path) {
-            // 有值表示返回了特定路径
-            return next(res);
+            return next(path);
           }
           return next();
         }
-        return next('/swiper');
-      });
-    } else {
-      if (to.path === '/swiper') {
-        return next();
-      }
 
-      if (Global.vehicleList.length) {
-        if (to.fullPath === '/') {
-          // 如果绑定了电动车且访问的是根目录，直接跳转上首页
-          return next('/home');
+        const swiperPath = goToSwiper(to);
+        if (swiperPath) {
+          return next(swiperPath);
         }
         return next();
+      });
+    } else {
+      const path = goToPage(null, to);
+      if (path) {
+        return next(path);
       }
-
-      // 没有绑定电动车的情况
-      return next('/swiper');
+      return next();
     }
   }
 
@@ -327,12 +262,6 @@ router.beforeEach(async (to, from, next) => {
   if (code) {
     // 表示这个页面是用户点了授权后跳转到的页面,获取用户信息,后端可首先通过cookie,session等判断,没有信息则通过code获取
     const data = await axios.get(
-      // 授权的接口
-      // '/wechat/findUserInfo', {
-      //   code,
-      //   appid: Global.accessKeyId
-      // },
-
       // 获取用户信息
       '/kxzdLogin', {
         // code,
@@ -347,30 +276,30 @@ router.beforeEach(async (to, from, next) => {
 
       // 判断是否注册了
       if (!data.customerId || !data.customerId.toString().length) {
-        return next('/register');
-      }
-
-      if (to.path === '/register' || to.path === '/swiper' || to.path === '/inputCode') {
+        const registerPath = goToRegister(to);
+        if (registerPath) {
+          return next(registerPath);
+        }
         return next();
       }
 
       // 去绑定电动车
       bindVehicleAxios().then((res) => {
         if (res) {
-          const path = goToPage(res);
+          // 表示存在电动车列表
+          const path = goToPage(res, to);
           if (path) {
-            // 有值表示返回了特定路径
-            return next(res);
+            return next(path);
           }
           return next();
         }
+
+        const swiperPath = goToSwiper(to);
+        if (swiperPath) {
+          return next(swiperPath);
+        }
+        return next();
       });
-      // const res = bindVehicle(to);
-      // if (res) {
-      //   // 有值表示返回了特定路径
-      //   return next(res);
-      // }
-      // return next();
     }
 
     // 去授权 test时去掉了
@@ -379,28 +308,6 @@ router.beforeEach(async (to, from, next) => {
     // 对于已关注公众号的用户，如果用户从公众号的会话或者自定义菜单进入本公众号的网页授权页，即使是scope为snsapi_userinfo，也是静默授权，用户无感知
     // test 时去掉了
     // toAuth();
-
-    // test
-    // const timestamp = new Date().getTime();
-    // const tokenParams = {
-    //   accessKeyId: Global.accessKeyId,
-    //   timestamp,
-    //   sign: sha1(`accessKeyId=${Global.accessKeyId}&accessKeySecret=${Global.accessKeySecret}&timestamp=${timestamp}`)
-    // };
-    // const data = await axios.get(
-    //   // 授权的接口
-    //   // '/wechat/accessToken',
-    //   '/wechat/accessToken.htm',
-    //   tokenParams,
-    //   this
-    // );
-    // if (data) {
-    //   Global.userInfo = {
-    //     openId: '3334444'
-    //   };
-    //   axiosOriginal.defaults.headers.common.token = data.token;
-    //   return next('/register');
-    // }
   }
 });
 
