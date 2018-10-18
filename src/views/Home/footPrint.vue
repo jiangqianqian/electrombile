@@ -338,6 +338,10 @@ export default {
       if (startTime > endTime) {
         Toast('开始时间须小于结束时间');
         return;
+      } else if ((endTime - startTime) > 10 * 24 * 60 * 60) {
+        // 只能查 10 天内的数据
+        Toast('只能查询间隔10天内数据');
+        return;
       }
 
       // 获取 path, 设置起终点，画线， 根据获取到的点设置最佳视野

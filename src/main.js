@@ -75,6 +75,7 @@ const userInfo2 = {
   id: 7,
   nickname: '芊～:)',
   openId: '8432098437892',
+  // openId: '3334444',
   phone: null,
   statuss: 1
 };
@@ -111,17 +112,23 @@ function getAddress(lng, lat) {
 
   const point = new BMap.Point(lng, lat);
 
-  let addressGroup;
-  myGeo.getLocation(point, rs => {
-    const address = rs.addressComponents;
-    addressGroup =
-      address.province +
-      address.city +
-      address.district +
-      address.street +
-      address.streetNumber;
+  return new Promise((resolve, reject) => {
+    myGeo.getLocation(point, rs => {
+      const address = rs.addressComponents;
+      const addressGroup =
+        address.province +
+        address.city +
+        address.district +
+        address.street +
+        address.streetNumber;
+      if (addressGroup.length) {
+        resolve(addressGroup);
+      } else {
+        reject('暂无地址信息');
+      }
+
+    });
   });
-  return addressGroup;
 }
 
 function bindVehicleAxios() {
@@ -162,7 +169,11 @@ function goToPage(res, to) {
       const newItem = wgs84tobd09(item.lon, item.lat);
       item.lng = newItem[0];
       item.lat = newItem[1];
-      item.address = getAddress(item.lng, item.lat);
+      getAddress(item.lng, item.lat).then((address) => {
+        item.address = address;
+      }, (error) => {
+        item.address = error;
+      });
       item.receiveTime = commonJs.dateFormat(new Date(item.receiveTime), 'yyyy-MM-dd hh:mm');
 
       // TODO: 头像名字先写死

@@ -1,5 +1,7 @@
 <template>
   <div id="app">
+    <!-- hack 给 main.js 里的 getAddress 中使用 map -->
+    <!-- <baidu-map></baidu-map> -->
     <keep-alive>
       <router-view/>
     </keep-alive>
