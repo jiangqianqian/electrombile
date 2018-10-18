@@ -36,11 +36,11 @@
 
         <bml-lushu ref="lushu"
                    @stop="resetPlay"
-                   :path="path"
+                   :path="trackPath"
                    :icon="icon"
                    :play="play"
                    :speed="500"
-                   :autoView=true
+                   :autoView="false"
                    v-if="isHasRoute">
         </bml-lushu>
 
@@ -173,7 +173,10 @@ export default {
       endDate: '2018-09-11 10:20',
       isHasRoute: false, // 是否点击搜索并查到了路线
       play: false,
-      path: null, // 路书轨迹
+      path: null, // 请求接口返回的轨迹
+      trackPath: [], // 路书轨迹
+      polylinePoints: [], // 存放各条线路获取的驾驶路线点
+      polyline: [],
       text: '开始',
       icon: {
         // 路书移动物 icon
@@ -255,13 +258,21 @@ export default {
     resetState() {
       // 切换了电动车后重置状态
       // 清除覆盖物
-      this.polyline && this.$refs.baiduMap.map.removeOverlay(this.polyline);
+      // this.polyline && this.$refs.baiduMap.map.removeOverlay(this.polyline);
+
+      this.polyline.forEach((item) => {
+        this.$refs.baiduMap.map.removeOverlay(item);
+      });
+
+      this.polyline.length = 0;
 
       this.resetPlay();
 
       this.isHasRoute = false;
 
       this.zoom = 15;
+
+      this.showMessage = false;
     },
 
     selectItem(item) {
@@ -318,11 +329,7 @@ export default {
 
     search() {
       // 重置播放状态为起始
-      this.resetPlay();
-
-      this.isHasRoute = false;
-
-      this.polyline && this.$refs.baiduMap.map.removeOverlay(this.polyline);
+      this.resetState();
 
       // 点击搜索
       // 判断开始结束时间是否有效
@@ -356,12 +363,11 @@ export default {
             const newItem = wgs84tobd09(item.lon, item.lat);
             item.lng = newItem[0];
             item.lat = newItem[1];
+            delete item.lon;
             return item;
           });
 
           this.drawPolyline();
-
-          this.isHasRoute = true;
         } else {
           // 如果没有数据，实时消息打开并显示暂无数据
           this.showMessage = true;
@@ -369,22 +375,90 @@ export default {
       });
     },
 
+    // drawPolyline() {
+    //   const polylinePoints = this.path.map((item) => {
+    //     return new BMap.Point(item.lng, item.lat);
+    //   });
+
+    //   this.polyline = new BMap.Polyline(polylinePoints, {
+    //     strokeColor: '#47bafe',
+    //     strokeOpacity: 1,
+    //     strokeWeight: 6
+    //   });
+    //   this.$refs.baiduMap.map.addOverlay(this.polyline);
+
+    //   // 获取最佳视野
+    //   const viewPort = this.$refs.baiduMap.map.getViewport(polylinePoints);
+    //   this.zoom = viewPort.zoom;
+    //   this.$refs.baiduMap.map.centerAndZoom(viewPort.center, this.zoom);
+    // },
+
     drawPolyline() {
-      const polylinePoints = this.path.map((item) => {
-        return new BMap.Point(item.lng, item.lat);
+      this.path.forEach((item, i) => {
+        // 处于开始时间点和结束时间点内的所有历史轨迹点信息
+        const endPoint = new BMap.Point(item.lng, item.lat);
+        if (i) {
+          const startPoint = new BMap.Point(this.path[i - 1].lng, this.path[i - 1].lat);
+          this.showPath(startPoint, endPoint, i);
+        }
+      });
+    },
+
+    showPath(startPoint, endPoint, i) {
+      // debugger
+      const map = this.$refs.baiduMap.map;
+      const index = i;
+      const getTrackDrivingInstance = this.getTrackDrivingInstance(startPoint, endPoint);
+
+      const trackDriving = getTrackDrivingInstance.trackDriving;
+
+      trackDriving.search(startPoint, endPoint);
+      trackDriving.setSearchCompleteCallback((rs) => {
+        const pts = trackDriving.getResults().getPlan(0).getRoute(0).getPath();
+        const polyline = new BMap.Polyline(pts, {
+          strokeColor: '#47bafe',
+          strokeOpacity: 1,
+          strokeWeight: 6
+        });
+        map.addOverlay(polyline);
+
+        this.polyline.push(polyline);
+
+        // 获取路书组成的点
+        this.polylinePoints[index] = pts;
+
+        if (getTrackDrivingInstance.endFlag) {
+          this.polylinePoints.forEach((item, y) => {
+            this.trackPath = [...this.trackPath, ...this.polylinePoints[y]];
+          });
+
+          this.isHasRoute = true;
+
+          // 获取最佳视野
+          const viewPort = map.getViewport(this.trackPath);
+          this.zoom = viewPort.zoom;
+          map.centerAndZoom(viewPort.center, this.zoom);
+          console.log(this.trackPath, 'this.trackPath');
+        }
+      });
+    },
+
+    getTrackDrivingInstance(startPoint, endPoint) {
+      let endFlag = false;
+      const map = this.$refs.baiduMap.map;
+      const trackDriving = new BMap.DrivingRoute(map, {
+        renderOptions: { map, autoViewport: false },
+        // policy: BMAP_DRIVING_POLICY_LEAST_DISTANCE,
+        onMarkersSet: (routes) => {
+          map.removeOverlay(routes[0].marker); // 删除起点
+          map.removeOverlay(routes[1].marker); // 删除终点
+        }
       });
 
-      this.polyline = new BMap.Polyline(polylinePoints, {
-        strokeColor: '#47bafe',
-        strokeOpacity: 1,
-        strokeWeight: 6
-      });
-      this.$refs.baiduMap.map.addOverlay(this.polyline);
-
-      // 获取最佳视野
-      const viewPort = this.$refs.baiduMap.map.getViewport(polylinePoints);
-      this.zoom = viewPort.zoom;
-      this.$refs.baiduMap.map.centerAndZoom(viewPort.center, this.zoom);
+      if (endPoint.lng === this.path[this.path.length - 1].lng && endPoint.lat === this.path[this.path.length - 1].lat) {
+        endFlag = true;
+      }
+      return { trackDriving, endFlag };
     }
   }
 };

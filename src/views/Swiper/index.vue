@@ -59,7 +59,7 @@ export default {
           el: '.swiper-pagination'
         }
       }
-    }
+    };
   },
   computed: {
     // swiper() {
@@ -155,7 +155,7 @@ export default {
     }
   }
 
-}
+};
 </script>
 <style scoped>
 /* .guide {
