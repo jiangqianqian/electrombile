@@ -243,7 +243,7 @@ export default {
         // }, () => {
         //   item.address = '暂无地址信息';
         // });
-        if (item.address && !item.address.length) {
+        if (!item.address) {
           try {
             item.address = await commonJs.getAddress(item.lng, item.lat);
           } catch (e) {

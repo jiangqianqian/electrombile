@@ -54,6 +54,7 @@
 import { Button, Icon, Toast, Switch } from 'vant';
 import navBar from '@/components/nav';
 import midware from '@/assets/midware';
+import commonJs from '@/utils/common';
 
 export default {
   name: 'fence',
@@ -97,7 +98,7 @@ export default {
     mapReady({ BMap, map }) {
       // 请求接口确定是否已设置围栏
       this.getVehicleAddress();
-      this.init();
+      // this.init();
     },
 
     init() {
@@ -147,13 +148,17 @@ export default {
 
     getVehicleAddress() {
       // 生成地图后获取电动车地址信息
-      this.Global.vehicleList.map(async (item) => {
-        if (item.address && !item.address.length) {
+      this.Global.vehicleList.map(async (item, index) => {
+        if (!item.address) {
           try {
             item.address = await commonJs.getAddress(item.lng, item.lat);
           } catch (e) {
             item.address = '暂无地址信息';
           }
+        }
+
+        if (index >= (this.Global.vehicleList.length - 1)) {
+          this.init();
         }
         return item;
       });
@@ -243,7 +248,7 @@ export default {
     drawLabel() {
       const labelPoint = new BMap.Point(
         this.circlePath.center.lng +
-          (this.polylineLastPoint.lng - this.circlePath.center.lng) / 2,
+        (this.polylineLastPoint.lng - this.circlePath.center.lng) / 2,
         this.circlePath.center.lat
       );
       const opts = {
@@ -292,6 +297,11 @@ export default {
     selectItem(item) {
       // 隐藏下拉框
       this.selectFlag = false;
+
+      if (item.imei === this.currentSelectItem.imei) {
+        return;
+      }
+
       this.currentSelectItem = item;
 
       // 重新绘制围栏
