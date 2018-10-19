@@ -74,8 +74,8 @@ const userInfo2 = {
   gender: 0,
   id: 7,
   nickname: '芊～:)',
-  openId: '8432098437892',
-  // openId: '3334444',
+  // openId: '8432098437892',
+  openId: '3334444',
   phone: null,
   statuss: 1
 };
@@ -83,9 +83,10 @@ const userInfo2 = {
 const Global = {
   userInfo: userInfo2, // 用户信息
   // activeVehicleIndex: 0, // 首页中被选中的电动车索引号
-  vehicleList: vehicleList2, // 电动车列表
-  // hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
-  hasGetVehicleList: true, // 当绑定了设备或获取到电动车列表后置为 true
+  // vehicleList: vehicleList2, // 电动车列表
+  vehicleList: [], // 电动车列表
+  hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
+  // hasGetVehicleList: true, // 当绑定了设备或获取到电动车列表后置为 true
   accessKeyId: '82A8C3B67DE5', // 传给后端的
   // accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
   accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0',
@@ -105,31 +106,26 @@ Vue.config.productionTip = false;
 
 Vue.prototype.$http = axios;
 
-function getAddress(lng, lat) {
-  // 创建地址解析器实例
-  const myGeo = new BMap.Geocoder();
-  // 将地址解析结果显示在地图上，并调整地图视野
+// function getAddress(lng, lat) {
+//   // 创建地址解析器实例
+//   const myGeo = new BMap.Geocoder();
+//   // 将地址解析结果显示在地图上，并调整地图视野
 
-  const point = new BMap.Point(lng, lat);
+//   const point = new BMap.Point(lng, lat);
 
-  return new Promise((resolve, reject) => {
-    myGeo.getLocation(point, rs => {
-      const address = rs.addressComponents;
-      const addressGroup =
-        address.province +
-        address.city +
-        address.district +
-        address.street +
-        address.streetNumber;
-      if (addressGroup.length) {
-        resolve(addressGroup);
-      } else {
-        reject('暂无地址信息');
-      }
-
-    });
-  });
-}
+//   return new Promise((resolve, reject) => {
+//     myGeo.getLocation(point, rs => {
+//       const address = rs.addressComponents;
+//       const addressGroup =
+//         address.province +
+//         address.city +
+//         address.district +
+//         address.street +
+//         address.streetNumber;
+//       resolve(addressGroup);
+//     });
+//   });
+// }
 
 function bindVehicleAxios() {
   const params = {
@@ -169,11 +165,17 @@ function goToPage(res, to) {
       const newItem = wgs84tobd09(item.lon, item.lat);
       item.lng = newItem[0];
       item.lat = newItem[1];
-      getAddress(item.lng, item.lat).then((address) => {
-        item.address = address;
-      }, (error) => {
-        item.address = error;
-      });
+      // getAddress(item.lng, item.lat).then((address) => {
+      //   item.address = address;
+      // }, () => {
+      //   item.address = '暂无地址信息';
+      // });
+      // try {
+      //   item.address = await getAddress(item.lng, item.lat);
+      // } catch (e) {
+      //   item.address = '暂无地址信息';
+      // }
+
       item.receiveTime = commonJs.dateFormat(new Date(item.receiveTime), 'yyyy-MM-dd hh:mm');
 
       // TODO: 头像名字先写死

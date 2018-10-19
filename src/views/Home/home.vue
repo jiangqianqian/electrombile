@@ -102,6 +102,7 @@
 <script>
 import { Button, Icon, Toast } from 'vant';
 import midware from '@/assets/midware';
+import commonJs from '@/utils/common';
 import MotoOverlay from './motoOverlay';
 
 export default {
@@ -176,6 +177,7 @@ export default {
   methods: {
     mapReady({ BMap, map }) {
       this.setCenter();
+      this.getVehicleAddress();
     },
 
     change(index) {
@@ -207,7 +209,7 @@ export default {
       const _this = this;
       const geolocation = new BMap.Geolocation();
       geolocation.getCurrentPosition(
-        function (r) {
+        async function (r) {
           // 画当前位置
           if (this.getStatus() == BMAP_STATUS_SUCCESS) {
             Toast.clear();
@@ -215,8 +217,14 @@ export default {
               lng: r.point.lng,
               lat: r.point.lat
             };
-            _this.getAddress();
+            // _this.getAddress();
+            try {
+              _this.userInfo.address = await commonJs.getAddress(r.point.lng, r.point.lat);
+            } catch (e) {
+              _this.userInfo.address = '暂无地址信息';
+            }
           } else {
+            _this.userInfo.address = '暂无地址信息';
             Toast.fail('获取定位失败!');
           }
         },
@@ -227,25 +235,44 @@ export default {
       Toast.clear();
     },
 
-    getAddress() {
-      const _this = this;
-
-      // 创建地址解析器实例
-      const myGeo = new BMap.Geocoder();
-      // 将地址解析结果显示在地图上，并调整地图视野
-
-      const point = new BMap.Point(this.center.lng, this.center.lat);
-
-      myGeo.getLocation(point, rs => {
-        const address = rs.addressComponents;
-        _this.userInfo.address =
-          address.province +
-          address.city +
-          address.district +
-          address.street +
-          address.streetNumber;
+    getVehicleAddress() {
+      // 生成地图后获取电动车地址信息
+      this.Global.vehicleList.map(async (item) => {
+        // commonJs.getAddress(item.lng, item.lat).then((address) => {
+        //   item.address = address;
+        // }, () => {
+        //   item.address = '暂无地址信息';
+        // });
+        if (item.address && !item.address.length) {
+          try {
+            item.address = await commonJs.getAddress(item.lng, item.lat);
+          } catch (e) {
+            item.address = '暂无地址信息';
+          }
+        }
+        return item;
       });
     },
+
+    // getAddress() {
+    //   const _this = this;
+
+    //   // 创建地址解析器实例
+    //   const myGeo = new BMap.Geocoder();
+    //   // 将地址解析结果显示在地图上，并调整地图视野
+
+    //   const point = new BMap.Point(this.center.lng, this.center.lat);
+
+    //   myGeo.getLocation(point, rs => {
+    //     const address = rs.addressComponents;
+    //     _this.userInfo.address =
+    //       address.province +
+    //       address.city +
+    //       address.district +
+    //       address.street +
+    //       address.streetNumber;
+    //   });
+    // },
 
     drawCenter({ el, BMap, map, overlay }) {
       console.log(this.center.lng, this.center.lat, '34324');

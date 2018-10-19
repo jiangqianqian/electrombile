@@ -96,6 +96,7 @@ export default {
   methods: {
     mapReady({ BMap, map }) {
       // 请求接口确定是否已设置围栏
+      this.getVehicleAddress();
       this.init();
     },
 
@@ -119,8 +120,8 @@ export default {
             this.circlePath.center.lng = this.currentSelectItem.lng;
             this.circlePath.center.lat = this.currentSelectItem.lat;
 
-            // 通过逆址解析获取到地址
-            this.getAddress();
+            // this.getAddress();
+            this.address = this.currentSelectItem.address;
           }
 
           // 地图准备好后设置并绘制中心点
@@ -144,28 +145,42 @@ export default {
       this.drawLabel();
     },
 
-    getAddress() {
-      const _this = this;
-
-      // 创建地址解析器实例
-      const myGeo = new BMap.Geocoder();
-      // 将地址解析结果显示在地图上，并调整地图视野
-
-      const point = new BMap.Point(
-        this.circlePath.center.lng,
-        this.circlePath.center.lat
-      );
-
-      myGeo.getLocation(point, rs => {
-        const address = rs.addressComponents;
-        _this.address =
-          address.province +
-          address.city +
-          address.district +
-          address.street +
-          address.streetNumber;
+    getVehicleAddress() {
+      // 生成地图后获取电动车地址信息
+      this.Global.vehicleList.map(async (item) => {
+        if (item.address && !item.address.length) {
+          try {
+            item.address = await commonJs.getAddress(item.lng, item.lat);
+          } catch (e) {
+            item.address = '暂无地址信息';
+          }
+        }
+        return item;
       });
     },
+
+    // getAddress() {
+    //   const _this = this;
+
+    //   // 创建地址解析器实例
+    //   const myGeo = new BMap.Geocoder();
+    //   // 将地址解析结果显示在地图上，并调整地图视野
+
+    //   const point = new BMap.Point(
+    //     this.circlePath.center.lng,
+    //     this.circlePath.center.lat
+    //   );
+
+    //   myGeo.getLocation(point, rs => {
+    //     const address = rs.addressComponents;
+    //     _this.address =
+    //       address.province +
+    //       address.city +
+    //       address.district +
+    //       address.street +
+    //       address.streetNumber;
+    //   });
+    // },
 
     drawCenter({ el, BMap, map, overlay }) {
       const pixel = map.pointToOverlayPixel(

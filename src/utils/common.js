@@ -84,6 +84,27 @@ const commonJs = {
       return fmt;
     }
     return '';
+  },
+
+  getAddress(lng, lat) {
+    // 创建地址解析器实例
+    const myGeo = new BMap.Geocoder();
+    // 将地址解析结果显示在地图上，并调整地图视野
+
+    const point = new BMap.Point(lng, lat);
+
+    return new Promise((resolve, reject) => {
+      myGeo.getLocation(point, rs => {
+        const address = rs.addressComponents;
+        const addressGroup =
+          address.province +
+          address.city +
+          address.district +
+          address.street +
+          address.streetNumber;
+        resolve(addressGroup);
+      });
+    });
   }
 };
 
