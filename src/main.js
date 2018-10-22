@@ -163,7 +163,6 @@ router.beforeEach((to, from, next) => {
       getUserInfo(location.search);
     }
   }
-
   if (to.fullPath === '/equipment/home') {
     // 去获取电动车列表,并处理电动车
     if (!Global.vehicleList.length) {
@@ -186,6 +185,8 @@ router.beforeEach((to, from, next) => {
 
         return next('/equipment/swiper');
       });
+    } else {
+      return next();
     }
   } else {
     return next();
