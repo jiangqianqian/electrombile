@@ -43,7 +43,7 @@ axios.interceptors.response.use((response) => {
   } else if (response.data.code === 401 || response.data.code === 403 || response.data.code === 404) {
     // 返回了其他状态码
     if (vue) {
-      vue.$router.replace('/register');
+      vue.$router.replace('/equipment/register');
     }
   } else if (response.data.message != null && response.data.message.length > 0) {
     // 没有数据，只有提示信息，则弹出提示信息
@@ -58,7 +58,7 @@ axios.interceptors.response.use((response) => {
     if (error.response.data.code === 401 || error.response.data.code === 403 || error.response.data.code === 404) {
       // 未登录
       if (vue) {
-        vue.$router.replace('/register');
+        vue.$router.replace('/equipment/register');
       }
     }
     // 请求已发出，但服务器响应的状态码不在 2xx 范围内，有错误信息则弹出错误信息

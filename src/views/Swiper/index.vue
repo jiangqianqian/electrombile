@@ -23,7 +23,7 @@
                       type="primary"
                       size="large"
                       @click.native="scanCode">开始绑定</van-button>
-          <router-link to='/inputCode'>
+          <router-link to='/equipment/inputCode'>
             <van-button class="bind-btn"
                         type="primary"
                         size="large">输入编码绑定</van-button>
@@ -150,7 +150,7 @@ export default {
 
       if (res) {
         // 跳到绑定成功界面
-        this.$router.push('/success');
+        this.$router.push('/equipment/success');
       }
     }
   }

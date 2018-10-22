@@ -55,7 +55,7 @@ export default {
 
       if (res) {
         // 跳到绑定成功界面
-        this.$router.push('/success');
+        this.$router.push('/equipment/success');
       }
 
       // 请求接口 TODO: post

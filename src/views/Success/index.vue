@@ -4,7 +4,7 @@
          src="@/assets/images/ok-green.png" />
     <p class="text">设备绑定成功</p>
     <div class="btn-wrap">
-      <router-link to='/home'>
+      <router-link to='/equipment/home'>
         <van-button size="large"
                     type="primary">开始使用</van-button>
       </router-link>

@@ -2,31 +2,31 @@
   <div>
     <van-tabbar class="bottom-bar"
                 v-model="active">
-      <van-tabbar-item to="/home">
+      <van-tabbar-item to="/equipment/home">
         <van-icon slot="icon"
                   slot-scope="props"
                   :name="active === 0 ? 'shouye-xuanzhong' : 'shouye-moren'" />
         <span>首页</span>
       </van-tabbar-item>
-      <van-tabbar-item to="/home/footPrint">
+      <van-tabbar-item to="/equipment/home/footPrint">
         <van-icon slot="icon"
                   slot-scope="props"
                   :name="active === 1 ? 'guiji-xuanzhong' : 'guiji-moren'" />
         <span>轨迹</span>
       </van-tabbar-item>
-      <van-tabbar-item to="/home/fence">
+      <van-tabbar-item to="/equipment/home/fence">
         <van-icon slot="icon"
                   slot-scope="props"
                   :name="active === 2 ? 'weilan-xuanzhong' : 'weilan-moren'" />
         <span>围栏</span>
       </van-tabbar-item>
-      <van-tabbar-item to="/home/message">
+      <van-tabbar-item to="/equipment/home/message">
         <van-icon slot="icon"
                   slot-scope="props"
                   :name="active === 3 ? 'xiaoxi-xuanzhong' : 'xiaoxi-moren'" />
         <span>消息</span>
       </van-tabbar-item>
-      <van-tabbar-item to="/home/mine">
+      <van-tabbar-item to="/equipment/home/mine">
         <van-icon slot="icon"
                   slot-scope="props"
                   :name="active === 4 ? 'wode-xuanzhong' : 'wode-moren'" />

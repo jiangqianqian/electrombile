@@ -63,7 +63,7 @@ export default {
   },
   methods: {
     goSetMsg() {
-      this.$router.push('/messageSet');
+      this.$router.push('/equipment/messageSet');
     },
     async onLoad() {
       const params = {

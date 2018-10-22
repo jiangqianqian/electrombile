@@ -16,6 +16,11 @@ module.exports = {
         target: 'http://192.168.0.51',
       },
 
+      'leta_service/wechat/kxzdMenuKxzd.htm': {
+        changeOrigin: true,
+        target: 'http://letaservice.leta.cn',
+      },
+
       '/leta_service/*': {
         changeOrigin: true,
         target: 'http://47.104.101.0:8097',
