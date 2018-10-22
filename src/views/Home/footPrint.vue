@@ -202,10 +202,10 @@ export default {
   },
   mounted() {
     // 设置结束时间为当前，开始时间为结束时间的前一天
-    // this.endDate = commonJs.dateFormat(new Date(), 'yyyy-MM-dd hh:mm');
-    // this.startDate = commonJs.dateFormat(new Date().getTime() - 24 * 60 * 60 * 1000, 'yyyy-MM-dd hh:mm');
-    this.startDate = '2018-10-12 00:00';
-    this.endDate = '2018-10-12 03:00';
+    this.endDate = commonJs.dateFormat(new Date(), 'yyyy-MM-dd hh:mm');
+    this.startDate = commonJs.dateFormat(new Date().getTime() - 24 * 60 * 60 * 1000, 'yyyy-MM-dd hh:mm');
+    // this.startDate = '2018-10-12 00:00';
+    // this.endDate = '2018-10-12 03:00';
   },
   methods: {
     mapReady({ BMap, map }) {
@@ -266,6 +266,12 @@ export default {
 
       this.polyline.length = 0;
 
+      this.polylinePoints.length = 0;
+
+      this.trackPath.length = 0;
+
+      this.path = null;
+
       this.resetPlay();
 
       this.isHasRoute = false;
@@ -276,10 +282,14 @@ export default {
     },
 
     selectItem(item) {
-      this.resetState();
-
       // 隐藏下拉框
       this.selectFlag = false;
+
+      if (this.currentSelectItem.imei === item.imei) {
+        return;
+      }
+
+      this.resetState();
       this.currentSelectItem = item;
       this.setCenter();
     },
@@ -338,7 +348,7 @@ export default {
       if (startTime > endTime) {
         Toast('开始时间须小于结束时间');
         return;
-      } else if ((endTime - startTime) > 10 * 24 * 60 * 60) {
+      } else if ((endTime - startTime) > 10 * 24 * 60 * 60 * 1000) {
         // 只能查 10 天内的数据
         Toast('只能查询间隔10天内数据');
         return;
@@ -360,7 +370,8 @@ export default {
         '/equipment/carTrajectory.htm',
         params,
         this,
-        true
+        true,
+        false
       ).then((res) => {
         if (res && res.length) {
           this.path = res.map((item) => {

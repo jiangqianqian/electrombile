@@ -15,12 +15,22 @@ module.exports = {
         changeOrigin: true,
         target: 'http://192.168.0.51',
       },
+
       '/leta_service/*': {
         changeOrigin: true,
         target: 'http://47.104.101.0:8097',
         // target: 'http://192.168.2.120:8080',
         // target: 'http://192.168.2.106:8090',
-      }
+      },
+      // '/leta_service/equipment/findBindImeiList.htm': {
+      //   changeOrigin: true,
+      //   target: 'http://47.104.101.0:8097',
+      //   // target: 'http://192.168.2.120:8080',
+      //   // target: 'http://192.168.2.106:8090',
+      // }
+
+
+
     },
 
     // Various Dev Server settings

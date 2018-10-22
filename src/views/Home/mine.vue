@@ -1,6 +1,6 @@
 <template>
   <div class="mine-box">
-    <iframe src="http://www.baidu.com"
+    <iframe src="http://letaservice.leta.cn/#/myInfo"
             ref="iframe"
             width="100%"
             height="100%"

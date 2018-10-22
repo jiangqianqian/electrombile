@@ -79,7 +79,7 @@ axios.interceptors.response.use((response) => {
 });
 
 export default class api {
-  static get = (url, params, vueContext, showLoading, isShow) => {
+  static get = (url, params, vueContext, showLoading = false, isShow = true) => {
     /*
       *@param {String} url 路径
       *@param {Obj} params 传参
@@ -109,7 +109,7 @@ export default class api {
     });
   }
 
-  static post = (url, params, vueContext, showLoading, isShow) => {
+  static post = (url, params, vueContext, showLoading = false, isShow = true) => {
     if (vueContext != null) {
       vue = vueContext;
     }

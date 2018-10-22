@@ -111,7 +111,7 @@ export default {
           true
         )
         .then(res => {
-          if (res && res[0].flag) {
+          if (res && res.length && res[0].flag) {
             // 以前设置过围栏的情况
             this.circlePath.center.lng = res[0].lon;
             this.circlePath.center.lat = res[0].lat;
@@ -282,7 +282,7 @@ export default {
 
       this.$http
         .post(
-          '/equipment/insertFence.htm',
+          '/equipment/insertOrUpdateFence.htm',
           { params: JSON.stringify(params) },
           this,
           true

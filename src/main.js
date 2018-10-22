@@ -81,7 +81,8 @@ const userInfo2 = {
 };
 
 const Global = {
-  userInfo: userInfo2, // 用户信息
+  // userInfo: userInfo2, // 用户信息
+  userInfo: null, // 用户信息
   // activeVehicleIndex: 0, // 首页中被选中的电动车索引号
   // vehicleList: vehicleList2, // 电动车列表
   vehicleList: [], // 电动车列表
@@ -91,7 +92,8 @@ const Global = {
   // accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
   accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0',
   appsecret: 'bbfbdc8e70a3ee1e6ec35d017f22b455',
-  appid: 'wx0ddfdcab9f6d8b1c'
+  appid: 'wx0ddfdcab9f6d8b1c',
+  targetUrl: null
 };
 
 Vue.prototype.Global = Global;
@@ -150,7 +152,7 @@ function goToRegister(to) {
 
 function goToSwiper(to) {
   let tempStr = '/swiper';
-  if (to.fullPath === '/swiper') {
+  if (to.fullPath === '/swiper' || to.fullPath === '/inputCode') {
     tempStr = null;
   }
   return tempStr;
@@ -197,40 +199,54 @@ function goToPage(res, to) {
   return goToSwiper(to);
 }
 
-function getCode(search) {
-  if (!search) {
-    return false;
-  }
+// function getCode(search) {
+//   if (!search) {
+//     return false;
+//   }
 
-  const array = search.split('&');
-  for (const val of array) {
-    if (val.includes('code')) {
-      // 例: code=123
-      return val.substring(5);
-    }
-    return false;
-  }
+//   const array = search.split('&');
+//   for (const val of array) {
+//     if (val.includes('code')) {
+//       // 例: code=123
+//       return val.substring(5);
+//     }
+//     return false;
+//   }
 
-  return false;
-}
+//   return false;
+// }
 
-function toAuth() {
-  // 进入授权页面
-  // 这个 redirectUrl用当前页路径或者 tof.fullPath(将要进入的路径)
-  let redirectUrl = window.location.href;
-  // let redirectUrl = 'http://vehicle.leta.cn/leta/index.html:8282';
-  redirectUrl = encodeURIComponent(redirectUrl);
-  console.log(redirectUrl);
-  window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${Global.appid}&redirect_uri=${redirectUrl}&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect`;
-}
+// function toAuth() {
+//   // 进入授权页面
+//   // 这个 redirectUrl用当前页路径或者 tof.fullPath(将要进入的路径)
+//   let redirectUrl = window.location.href;
+//   // let redirectUrl = 'http://vehicle.leta.cn/leta/index.html:8282';
+//   redirectUrl = encodeURIComponent(redirectUrl);
+//   console.log(redirectUrl);
+//   window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${Global.appid}&redirect_uri=${redirectUrl}&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect`;
+// }
 
 router.beforeEach(async (to, from, next) => {
+  // debugger
   /* 路由发生变化修改页面title */
   if (to.meta.title) {
     document.title = to.meta.title;
   }
 
   console.log(Global.vehicleList, 'vehicleList');
+
+  // 从其他系统跳入
+  const posStr = 'targetUrl=';
+  const locationSearch = location.search;
+  if (locationSearch && (locationSearch.indexOf(posStr) !== -1)) {
+    const targetUrlArray = locationSearch.substring(1).split('&');
+    for (let i = 0, len = targetUrlArray.length; i < len; i = +1) {
+      if (targetUrlArray[i].indexOf(posStr) !== -1) {
+        Global.targetUrl = targetUrlArray[i].replace(posStr, '');
+        break;
+      }
+    }
+  }
 
   // 判断是否有用户信息
   if (Global.userInfo) {
@@ -243,8 +259,13 @@ router.beforeEach(async (to, from, next) => {
       return next();
     }
 
+    // 如果是从外面跳入，设备添加成功后返回原来路径
+    if (Global.targetUrl && from.fullPath === '/success') {
+      window.location.href = decodeURIComponent(Global.targetUrl);
+    }
+
     // 去绑定电动车
-    if (!Global.hasGetVehicleList) {
+    if (!Global.hasGetVehicleList || from.fullPath === '/success') {
       bindVehicleAxios().then((res) => {
         if (res) {
           const path = goToPage(res, to);
@@ -270,58 +291,64 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 未授权
-  const code = getCode(window.location.search); // 截取url上的code ,可能没有,则返回 false;
-  // const code = '071xshzx0ZDYFh134Wzx0qrjzx0xshz2'; // test
-  if (code) {
-    // 表示这个页面是用户点了授权后跳转到的页面,获取用户信息,后端可首先通过cookie,session等判断,没有信息则通过code获取
-    const data = await axios.get(
-      // 获取用户信息
-      '/kxzdLogin', {
-        // code,
-        // appid: Global.appid,
-        // secret: Global.accessKeySecret
-      },
-      this
-    );
+  // const code = getCode(window.location.search); // 截取url上的code ,可能没有,则返回 false;
+  // // const code = '071xshzx0ZDYFh134Wzx0qrjzx0xshz2'; // test
+  // if (code) {
+  // 表示这个页面是用户点了授权后跳转到的页面,获取用户信息,后端可首先通过cookie,session等判断,没有信息则通过code获取
+  const data = await axios.get(
+    // 获取用户信息
+    '/wechat/kxzdMenuKxzd.htm', {
+      // code,
+      // appid: Global.appid,
+      // secret: Global.accessKeySecret
+    },
+    this
+  );
 
-    if (data) {
-      Global.userInfo = data;
+  if (data) {
+    Global.userInfo = data;
 
-      // 判断是否注册了
-      if (!data.customerId || !data.customerId.toString().length) {
-        const registerPath = goToRegister(to);
-        if (registerPath) {
-          return next(registerPath);
+    // 判断是否注册了
+    if (!data.customerId || !data.customerId.toString().length) {
+      const registerPath = goToRegister(to);
+      if (registerPath) {
+        return next(registerPath);
+      }
+      return next();
+    }
+
+    // 去绑定电动车
+    bindVehicleAxios().then((res) => {
+      if (res) {
+        // 表示存在电动车列表
+        const path = goToPage(res, to);
+        if (path) {
+          return next(path);
         }
         return next();
       }
 
-      // 去绑定电动车
-      bindVehicleAxios().then((res) => {
-        if (res) {
-          // 表示存在电动车列表
-          const path = goToPage(res, to);
-          if (path) {
-            return next(path);
-          }
-          return next();
-        }
-
-        const swiperPath = goToSwiper(to);
-        if (swiperPath) {
-          return next(swiperPath);
-        }
-        return next();
-      });
-    }
-
-    // 去授权 test时去掉了
-    // toAuth();
-  } else {
-    // 对于已关注公众号的用户，如果用户从公众号的会话或者自定义菜单进入本公众号的网页授权页，即使是scope为snsapi_userinfo，也是静默授权，用户无感知
-    // test 时去掉了
-    // toAuth();
+      const swiperPath = goToSwiper(to);
+      if (swiperPath) {
+        return next(swiperPath);
+      }
+      return next();
+    });
   }
+
+  const registerPath = goToRegister(to);
+  if (registerPath) {
+    return next(registerPath);
+  }
+  return next();
+
+  // 去授权 test时去掉了
+  //   toAuth();
+  // } else {
+  //   // 对于已关注公众号的用户，如果用户从公众号的会话或者自定义菜单进入本公众号的网页授权页，即使是scope为snsapi_userinfo，也是静默授权，用户无感知
+  //   // test 时去掉了
+  //   toAuth();
+  // }
 });
 
 /* eslint-disable no-new */
