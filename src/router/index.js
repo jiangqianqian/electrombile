@@ -18,7 +18,7 @@ Vue.use(Router);
 
 export default new Router({
   routes: [{
-    path: '/equipment/register',
+    path: '/register',
     name: 'register',
     component: viewImport('Register/index'),
     meta: {
@@ -26,7 +26,7 @@ export default new Router({
     }
   },
   {
-    path: '/equipment/home',
+    path: '/home',
     name: 'home',
     component: viewImport('Home/index'),
     meta: {
@@ -80,7 +80,7 @@ export default new Router({
     ]
   },
   {
-    path: '/equipment/messageSet',
+    path: '/messageSet',
     name: 'messageSet',
     component: viewImport('MessageSet/index'),
     meta: {
@@ -88,7 +88,7 @@ export default new Router({
     }
   },
   {
-    path: '/equipment/swiper',
+    path: '/swiper',
     name: 'swiper',
     component: viewImport('Swiper/index'),
     meta: {
@@ -96,7 +96,7 @@ export default new Router({
     }
   },
   {
-    path: '/equipment/inputCode',
+    path: '/einputCode',
     name: 'inputCode',
     component: viewImport('InputCode/index'),
     meta: {
@@ -104,7 +104,7 @@ export default new Router({
     }
   },
   {
-    path: '/equipment/success',
+    path: '/success',
     name: 'success',
     component: viewImport('Success/index'),
     meta: {

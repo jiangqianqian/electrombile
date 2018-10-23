@@ -152,18 +152,18 @@ router.beforeEach((to, from, next) => {
   }
 
   // 如果是从外面跳入，设备添加成功后返回原来路径
-  if (Global.targetUrl && from.fullPath === '/equipment/success') {
+  if (Global.targetUrl && from.fullPath === '/success') {
     window.location.href = decodeURIComponent(Global.targetUrl);
   }
 
   // 后端判断是否跳到注册，绑定或首页
   if (!Object.keys(Global.userInfo).length) {
-    if (to.fullPath === '/equipment/register' || to.fullPath === '/equipment/home' || to.fullPath === '/equipment/swiper') {
+    if (to.fullPath === '/register' || to.fullPath === '/home' || to.fullPath === '/swiper') {
       // 拿到用户信息 (后端通过 url 参数带过来)
       getUserInfo(location.search);
     }
   }
-  if (to.fullPath === '/equipment/home') {
+  if (to.fullPath === '/home') {
     // 去获取电动车列表,并处理电动车
     if (!Global.vehicleList.length) {
       bindVehicleAxios().then((res) => {
@@ -183,7 +183,7 @@ router.beforeEach((to, from, next) => {
           return next();
         }
 
-        return next('/equipment/swiper');
+        return next('/swiper');
       });
     } else {
       return next();

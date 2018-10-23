@@ -126,7 +126,7 @@ export default {
           .then(res => {
             // 跳转到轮播页面
             if (res) {
-              this.$router.push('/equipment/swiper');
+              this.$router.push('/swiper');
             }
           });
       }
