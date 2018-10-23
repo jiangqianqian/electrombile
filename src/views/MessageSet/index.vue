@@ -351,13 +351,11 @@ export default {
   font-size: 0.24rem;
   color: #858585;
 }
-</style>
 
-<style>
-.van-field__control {
+.time-wrap >>> .van-field__control {
   font-size: 0.3rem;
 }
-.van-cell__value {
+.time-wrap >>> .van-cell__value {
   display: flex;
 }
 </style>

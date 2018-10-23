@@ -1,5 +1,6 @@
 <template>
-  <van-nav-bar @click-left="onClickLeft"
+  <van-nav-bar class="van-nav-bar"
+               @click-left="onClickLeft"
                @click-right="onClickRight">
     <template class="van-nav-bar__left"
               slot="left">
@@ -55,7 +56,7 @@ export default {
     return {};
   },
   computed: {},
-  mounted() {},
+  mounted() { },
   methods: {
     onClickLeft() {
       this.$emit('clickLeft');
@@ -68,25 +69,24 @@ export default {
 </script>
 
 <style scoped>
-.left-arrow,
-.right-icon {
+.van-nav-bar .van-icon.left-arrow,
+.van-nav-bar .van-icon.right-icon {
   top: -3px;
   font-size: 0.44rem;
   color: #333;
 }
-</style>
-<style>
-.van-nav-bar__left {
+
+.van-nav-bar >>> .van-nav-bar__left {
   left: 0.1rem;
 }
 
-.van-nav-bar__text {
+.van-nav-bar >>> .van-nav-bar__text {
   padding: 0 10px;
   color: #333;
   font-size: 0.32rem;
 }
 
-.van-nav-bar__title {
+.van-nav-bar >>> .van-nav-bar__title {
   font-size: 0.32rem;
 }
 </style>

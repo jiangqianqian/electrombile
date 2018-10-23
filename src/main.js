@@ -142,13 +142,15 @@ function goToPage(res) {
 }
 
 function getSearch(search) {
-  const searchArray = decodeURIComponent(search).split('&');
-  const userInfo = {};
-  searchArray.forEach((item) => {
-    const itemArray = item.split('=');
-    userInfo[itemArray[0]] = itemArray[1];
-  });
-  Global.userInfo = userInfo;
+  if (search) {
+    const searchArray = decodeURIComponent(search).split('&');
+    const userInfo = {};
+    searchArray.forEach((item) => {
+      const itemArray = item.split('=');
+      userInfo[itemArray[0]] = itemArray[1];
+    });
+    Global.userInfo = userInfo;
+  }
 }
 
 function getUserInfo() {
@@ -160,7 +162,7 @@ function getUserInfo() {
 
   // TODO:
   return axios.get(
-    '/equipment/getUserInfo.htm',
+    '/customer/getPersonByCustomIdAndOpenid.htm',
     params,
     this,
     true
@@ -212,44 +214,46 @@ router.beforeEach(async (to, from, next) => {
       if (to.fullPath === '/home') {
         // 去获取电动车列表,并处理电动车
         if (!Global.vehicleList.length) {
-          // const res = await bindVehicleAxios();
-          // const path = goToPage(res);
-          // if (path) {
-          //   return next(path);
-          // }
-          // return next();
-          bindVehicleAxios().then((res) => {
-            const path = goToPage(res);
-            if (path) {
-              return next(path);
-            }
-            return next();
-          });
-        } else {
+          const res = await bindVehicleAxios();
+          const path = goToPage(res);
+          if (path) {
+            return next(path);
+          }
           return next();
+          // bindVehicleAxios().then((res) => {
+          //   const path = goToPage(res);
+          //   if (path) {
+          //     return next(path);
+          //   }
+          //   return next();
+          // });
         }
-      } else {
         return next();
       }
-    } else {
-      return next('/register');
+      return next();
     }
+    // return next('/register');
+    return next();
   } else if (to.fullPath === '/home') {
     // 去获取电动车列表,并处理电动车
     if (!Global.vehicleList.length) {
-      bindVehicleAxios().then((res) => {
-        const path = goToPage(res);
-        if (path) {
-          return next(path);
-        }
-        return next();
-      });
-    } else {
+      // bindVehicleAxios().then((res) => {
+      //   const path = goToPage(res);
+      //   if (path) {
+      //     return next(path);
+      //   }
+      //   return next();
+      // });
+      const res = await bindVehicleAxios();
+      const path = goToPage(res);
+      if (path) {
+        return next(path);
+      }
       return next();
     }
-  } else {
     return next();
   }
+  return next();
 });
 
 /* eslint-disable no-new */

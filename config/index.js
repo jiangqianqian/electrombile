@@ -16,10 +16,20 @@ module.exports = {
         target: 'http://192.168.0.51',
       },
 
-      'leta_service/wechat/kxzdMenuKxzd.htm': {
+      '/leta_service/wechat/kxzdMenuKxzd.htm': {
         changeOrigin: true,
-        target: 'http://letaservice.leta.cn',
+        target: 'http://47.104.101.0',
       },
+      '/leta_service/customer/getPersonByCustomIdAndOpenid.htm': {
+        changeOrigin: true,
+        target: 'http://47.104.101.0',
+      },
+
+      '/leta_service/equipment/customRegister.htm': {
+        changeOrigin: true,
+        target: 'http://47.104.101.0',
+      },
+
 
       '/leta_service/*': {
         changeOrigin: true,

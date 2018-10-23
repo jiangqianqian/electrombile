@@ -92,9 +92,8 @@ export default {
   padding-right: 0;
   font-size: 0.32rem;
 }
-</style>
-<style>
-.van-cell:not(:last-child)::after {
+
+.bind-page >>> .van-cell:not(:last-child)::after {
   left: 0;
 }
 </style>

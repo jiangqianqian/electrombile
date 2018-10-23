@@ -96,7 +96,7 @@ export default new Router({
     }
   },
   {
-    path: '/einputCode',
+    path: '/inputCode',
     name: 'inputCode',
     component: viewImport('InputCode/index'),
     meta: {

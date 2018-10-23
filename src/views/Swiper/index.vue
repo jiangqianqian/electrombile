@@ -224,14 +224,14 @@ export default {
 .bind-btn {
   margin-top: 0.28rem;
 }
-</style>
-<style>
-.swiper-pagination-bullet {
+
+.swiper-page >>> .swiper-pagination-bullet {
   bottom: 0.46rem;
   height: 6px;
   background-color: #fff;
 }
-.swiper-pagination-bullet-active {
+
+.swiper-page >>> .swiper-pagination-bullet-active {
   width: 18px;
   border-radius: 9px;
 }

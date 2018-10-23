@@ -34,10 +34,10 @@
       </van-tabbar-item>
     </van-tabbar>
     <keep-alive>
-      <router-view v-if="$route.meta.keepAlive"/>
+      <router-view v-if="$route.meta.keepAlive" />
     </keep-alive>
     <!-- 轨迹不使用 keepAlive -->
-    <router-view v-if="!$route.meta.keepAlive"/>
+    <router-view v-if="!$route.meta.keepAlive" />
   </div>
 </template>
 
@@ -69,23 +69,21 @@ export default {
 </script>
 
 <style scoped>
-</style>
-<style>
-[class*='van-hairline']::after {
+.bottom-bar >>> [class*='van-hairline']::after {
   border-color: #d0d0d0;
 }
 
-.van-tabbar-item--active {
+.bottom-bar >>> .van-tabbar-item--active {
   color: #47bafe;
 }
 
-.van-tabbar-item__icon {
+.bottom-bar >>> .van-tabbar-item__icon {
   font-size: 22px;
   margin-bottom: 6px;
 }
 
-.van-icon-xiaoxi-moren,
-.van-icon-xiaoxi-xuanzhong {
+.bottom-bar >>> .van-icon-xiaoxi-moren,
+.bottom-bar >>> .van-icon-xiaoxi-xuanzhong {
   position: relative;
   top: 3px;
   display: block;
@@ -93,7 +91,7 @@ export default {
   font-size: 18px;
 }
 
-.content {
+.bottom-bar >>> .content {
   width: 100%;
   height: 300px;
   position: relative;

@@ -88,6 +88,7 @@ export default {
       if (!this.phone.length) {
         Toast({
           message: '请输入手机号',
+          duration: 0,
           position: 'top'
         });
         return false;
@@ -165,15 +166,14 @@ export default {
   margin-left: 0.3rem;
   margin-right: 0.3rem;
 }
-</style>
-<style>
-.register-page .van-cell__left-icon {
+
+.register-page >>> .van-cell__left-icon {
   margin-right: 0.12rem;
   font-size: 0.48rem;
   color: #47bafe;
 }
 
-.register-page .van-icon-xiaoxi-moren {
+.register-page >>> .van-icon-xiaoxi-moren {
   position: relative;
   left: 2px;
   /* top: 0.14rem; */
@@ -181,21 +181,27 @@ export default {
   font-size: 0.36rem;
 }
 
-.register-page .van-cell {
+.register-page >>> .van-cell {
   padding: 0.2rem 0.35rem;
   font-size: 0.3rem;
 }
 
-.register-page .van-cell::last-child::after {
+.register-page >>> .van-cell::last-child::after {
   border: none;
 }
 
-.register-page .van-field__control {
+.register-page >>> .van-field__control {
   height: 0.6rem;
 }
 
+.register-page >>> .van-field__body {
+  flex: 1;
+}
+</style>
+
+<style>
 .van-toast--top {
-  top: 3.2rem;
+  top: 2.9rem;
   font-size: 0.28rem;
 }
 </style>
