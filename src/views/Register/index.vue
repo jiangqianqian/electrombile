@@ -108,24 +108,19 @@ export default {
     register() {
       if (this.checkPhone() && this.checkSms()) {
         const params = {
-          agencyCode: this.Global.userInfo.agencyCode || '', // 先写死
-          agencyId: this.Global.userInfo.agencyId || '',
-          agencyName: this.Global.userInfo.agencyName || '',
-          appId: this.Global.userInfo.appId || '',
-          appName: this.Global.userInfo.appName || '',
-          avatar: this.Global.userInfo.avatar || '',
-          gender: this.Global.userInfo.gender || 0,
-          nickname: this.Global.userInfo.nickname || '',
-          openId: this.Global.userInfo.openId,
+          accessKeyId: this.Global.userInfo.accessKeyId,
           phone: this.phone,
-          verificationCode: this.sms
+          verifyCode: this.sms,
+          openId: this.Global.userInfo.openId,
         };
         // 提交注册
         this.$http
-          .post('/equipment/registerSuccess.htm', params, this)
+          .post('/equipment/customRegister.htm', params, this)
           .then(res => {
             // 跳转到轮播页面
             if (res) {
+              this.Global.getTotalUserInfoFlag = true;
+              this.Global.userInfo = res;
               this.$router.push('/swiper');
             }
           });

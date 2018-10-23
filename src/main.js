@@ -81,12 +81,13 @@ const userInfo2 = {
 const Global = {
   // userInfo: userInfo2, // 用户信息
   userInfo: {}, // 用户信息
+  getTotalUserInfoFlag: false, // 判断是否获取到完整的用户信息
   // activeVehicleIndex: 0, // 首页中被选中的电动车索引号
   // vehicleList: vehicleList2, // 电动车列表
   vehicleList: [], // 电动车列表
   // hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
   // hasGetVehicleList: true, // 当绑定了设备或获取到电动车列表后置为 true
-  accessKeyId: '82A8C3B67DE5', // 传给后端的
+  // accessKeyId: '82A8C3B67DE5', // 传给后端的
   // accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
   accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0',
   appsecret: 'bbfbdc8e70a3ee1e6ec35d017f22b455',
@@ -119,8 +120,29 @@ function bindVehicleAxios() {
   );
 }
 
-function getUserInfo(search) {
-  const searchArray = decodeURIComponent(search).substring(1).split('&');
+function goToPage(res) {
+  let path = '/swiper';
+  if (res) {
+    Global.vehicleList = res.map((item) => {
+      const newItem = wgs84tobd09(item.lon, item.lat);
+      item.lng = newItem[0];
+      item.lat = newItem[1];
+
+      item.receiveTime = commonJs.dateFormat(new Date(item.receiveTime), 'yyyy-MM-dd hh:mm');
+
+      // TODO: 头像名字先写死
+      item.brandLogo = 'https://img0.bdstatic.com/static/searchdetail/img/logo-2X_b99594a.png';
+      item.brandName = '电动车';
+      return item;
+    });
+    path = null;
+  }
+
+  return path;
+}
+
+function getSearch(search) {
+  const searchArray = decodeURIComponent(search).split('&');
   const userInfo = {};
   searchArray.forEach((item) => {
     const itemArray = item.split('=');
@@ -129,8 +151,24 @@ function getUserInfo(search) {
   Global.userInfo = userInfo;
 }
 
+function getUserInfo() {
+  // 获取完整用户信息
+  const params = {
+    customerId: Global.userInfo.customerId,
+    openId: Global.userInfo.openId
+  };
 
-router.beforeEach((to, from, next) => {
+  // TODO:
+  return axios.get(
+    '/equipment/getUserInfo.htm',
+    params,
+    this,
+    true
+  );
+}
+
+
+router.beforeEach(async (to, from, next) => {
   /* 路由发生变化修改页面title */
   if (to.meta.title) {
     document.title = to.meta.title;
@@ -157,33 +195,54 @@ router.beforeEach((to, from, next) => {
   }
 
   // 后端判断是否跳到注册，绑定或首页
-  if (!Object.keys(Global.userInfo).length) {
-    if (to.fullPath === '/register' || to.fullPath === '/home' || to.fullPath === '/swiper') {
-      // 拿到用户信息 (后端通过 url 参数带过来)
-      getUserInfo(location.search);
+  if (to.fullPath === '/register' || to.fullPath === '/home' || to.fullPath === '/swiper') {
+    // Global.userInfo.accessKeyId 没有值，表示是从后端跳入的页面
+    if (!Global.userInfo.accessKeyId) {
+      getSearch(location.href.split('?')[1]);
     }
   }
-  if (to.fullPath === '/home') {
+
+  // 判断是否拿到了用户完整信息
+  if (to.fullPath !== '/register' && !Global.getTotalUserInfoFlag) {
+    const data = await getUserInfo();
+    if (data) {
+      Global.userInfo = res;
+      Global.getTotalUserInfoFlag = true;
+
+      if (to.fullPath === '/home') {
+        // 去获取电动车列表,并处理电动车
+        if (!Global.vehicleList.length) {
+          // const res = await bindVehicleAxios();
+          // const path = goToPage(res);
+          // if (path) {
+          //   return next(path);
+          // }
+          // return next();
+          bindVehicleAxios().then((res) => {
+            const path = goToPage(res);
+            if (path) {
+              return next(path);
+            }
+            return next();
+          });
+        } else {
+          return next();
+        }
+      } else {
+        return next();
+      }
+    } else {
+      return next('/register');
+    }
+  } else if (to.fullPath === '/home') {
     // 去获取电动车列表,并处理电动车
     if (!Global.vehicleList.length) {
       bindVehicleAxios().then((res) => {
-        if (res) {
-          Global.vehicleList = res.map((item) => {
-            const newItem = wgs84tobd09(item.lon, item.lat);
-            item.lng = newItem[0];
-            item.lat = newItem[1];
-
-            item.receiveTime = commonJs.dateFormat(new Date(item.receiveTime), 'yyyy-MM-dd hh:mm');
-
-            // TODO: 头像名字先写死
-            item.brandLogo = 'https://img0.bdstatic.com/static/searchdetail/img/logo-2X_b99594a.png';
-            item.brandName = '电动车';
-            return item;
-          });
-          return next();
+        const path = goToPage(res);
+        if (path) {
+          return next(path);
         }
-
-        return next('/swiper');
+        return next();
       });
     } else {
       return next();
