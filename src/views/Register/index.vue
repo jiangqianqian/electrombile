@@ -88,7 +88,6 @@ export default {
       if (!this.phone.length) {
         Toast({
           message: '请输入手机号',
-          duration: 0,
           position: 'top'
         });
         return false;
