@@ -212,6 +212,11 @@ router.beforeEach(async (to, from, next) => {
     const data = await getUserInfo();
     if (data) {
       Global.userInfo = data;
+
+      // 前端统一用大写，后端有些大写，有些小写
+      Global.userInfo.openId = data.openid;
+      delete Global.userInfo.openid;
+
       Global.getTotalUserInfoFlag = true;
 
       if (to.path === '/home') {
