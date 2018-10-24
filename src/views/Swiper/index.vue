@@ -100,7 +100,7 @@ export default {
       return this.$http.get(
         '/wechat/signature.htm',
         {
-          accessKeyId: this.Global.userInfo.accessKeyId,
+          accessKeyId: this.Global.accessKeyId,
           url: location.href.split('#')[0]
         },
         this

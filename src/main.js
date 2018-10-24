@@ -72,8 +72,8 @@ const userInfo2 = {
   gender: 0,
   id: 7,
   nickname: '芊～:)',
-  // openId: '8432098437892',
-  openId: '3334444',
+  openId: '8432098437892',
+  // openId: '3334444',
   phone: null,
   statuss: 1
 };
@@ -87,7 +87,7 @@ const Global = {
   vehicleList: [], // 电动车列表
   // hasGetVehicleList: false, // 当绑定了设备或获取到电动车列表后置为 true
   // hasGetVehicleList: true, // 当绑定了设备或获取到电动车列表后置为 true
-  // accessKeyId: '82A8C3B67DE5', // 传给后端的
+  accessKeyId: '82A8C3B67DE5', // 传给后端的
   // accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0ZjU0MjViZmU='
   accessKeySecret: 'NGNlNjNjYzkyOGRlNDZhODk5YjA4OTM0',
   appsecret: 'bbfbdc8e70a3ee1e6ec35d017f22b455',
@@ -147,6 +147,9 @@ function getSearch(search) {
     const userInfo = {};
     searchArray.forEach((item) => {
       const itemArray = item.split('=');
+      if (itemArray[0] === 'openid') {
+        itemArray[0] = 'openId';
+      }
       userInfo[itemArray[0]] = itemArray[1];
     });
     Global.userInfo = userInfo;
@@ -157,7 +160,7 @@ function getUserInfo() {
   // 获取完整用户信息
   const params = {
     customerId: Global.userInfo.customerId,
-    openId: Global.userInfo.openId
+    openid: Global.userInfo.openId
   };
 
   // TODO:
@@ -178,7 +181,7 @@ router.beforeEach(async (to, from, next) => {
 
   console.log(Global.vehicleList, 'vehicleList');
 
-  // 从其他系统跳入
+  // 从其他系统跳入 http://letaservice.leta.cn/equipment/?targetUrl=%27123%27#/swiper?customerId=11&openid=8432098437892
   const posStr = 'targetUrl=';
   const locationSearch = location.search;
   if (locationSearch && (locationSearch.indexOf(posStr) !== -1)) {
@@ -192,26 +195,26 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 如果是从外面跳入，设备添加成功后返回原来路径
-  if (Global.targetUrl && from.fullPath === '/success') {
+  if (Global.targetUrl && from.path === '/success') {
     window.location.href = decodeURIComponent(Global.targetUrl);
   }
 
   // 后端判断是否跳到注册，绑定或首页
-  if (to.fullPath === '/register' || to.fullPath === '/home' || to.fullPath === '/swiper') {
-    // Global.userInfo.accessKeyId 没有值，表示是从后端跳入的页面
-    if (!Global.userInfo.accessKeyId) {
+  if (to.path === '/register' || to.path === '/home' || to.path === '/swiper') {
+    // Global.userInfo.openId 没有值，表示是从后端跳入的页面
+    if (!Global.userInfo.openId) {
       getSearch(location.href.split('?')[1]);
     }
   }
 
   // 判断是否拿到了用户完整信息
-  if (to.fullPath !== '/register' && !Global.getTotalUserInfoFlag) {
+  if (to.path !== '/register' && !Global.getTotalUserInfoFlag) {
     const data = await getUserInfo();
     if (data) {
-      Global.userInfo = res;
+      Global.userInfo = data;
       Global.getTotalUserInfoFlag = true;
 
-      if (to.fullPath === '/home') {
+      if (to.path === '/home') {
         // 去获取电动车列表,并处理电动车
         if (!Global.vehicleList.length) {
           const res = await bindVehicleAxios();
@@ -234,7 +237,7 @@ router.beforeEach(async (to, from, next) => {
     }
     // return next('/register');
     return next();
-  } else if (to.fullPath === '/home') {
+  } else if (to.path === '/home') {
     // 去获取电动车列表,并处理电动车
     if (!Global.vehicleList.length) {
       // bindVehicleAxios().then((res) => {

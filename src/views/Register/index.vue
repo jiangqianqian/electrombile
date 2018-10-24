@@ -108,10 +108,10 @@ export default {
     register() {
       if (this.checkPhone() && this.checkSms()) {
         const params = {
-          accessKeyId: this.Global.userInfo.accessKeyId,
+          accessKeyId: this.Global.accessKeyId,
           phone: this.phone,
           verifyCode: this.sms,
-          openId: this.Global.userInfo.openId,
+          openid: this.Global.userInfo.openId,
         };
         // 提交注册
         this.$http
