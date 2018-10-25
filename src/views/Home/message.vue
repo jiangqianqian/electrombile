@@ -66,6 +66,13 @@ export default {
       this.$router.push('/messageSet');
     },
     async onLoad() {
+      if (!this.Global.vehicleList.length) {
+        this.isNoData = true;
+        this.loading = false;
+        this.finished = true;
+        return;
+      }
+
       const params = {
         openId: this.Global.userInfo.openId,
         // customerId: this.Global.userInfo.customerId,

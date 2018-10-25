@@ -67,7 +67,7 @@
         </div>
       </div>
 
-      <div class="info back">
+      <div class="info back" v-if="markerList.length">
         <div>
           <img class="figure"
                :src="markerList[activeVehicleIndex].brandLogo" />
@@ -95,6 +95,7 @@
                     name="zuobiao1" /> 寻车
         </a>
       </div>
+      <div class="info back" v-else></div>
     </div>
   </div>
 </template>

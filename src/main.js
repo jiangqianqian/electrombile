@@ -120,8 +120,7 @@ function bindVehicleAxios() {
   );
 }
 
-function goToPage(res) {
-  let path = '/swiper';
+function formatVehicleList(res) {
   if (res) {
     Global.vehicleList = res.map((item) => {
       const newItem = wgs84tobd09(item.lon, item.lat);
@@ -135,7 +134,6 @@ function goToPage(res) {
       item.brandName = '电动车';
       return item;
     });
-    path = null;
   }
 
   return path;
@@ -150,7 +148,12 @@ function getSearch(search) {
       if (itemArray[0] === 'openid') {
         itemArray[0] = 'openId';
       }
-      userInfo[itemArray[0]] = itemArray[1];
+      if (itemArray[0] === 'targetUrl') {
+        // 从其他系统跳入 http://letaservice.leta.cn/equipment/#/swiper?customerId=11&openid=8432098437892&targetUrl=%27123%27
+        Global.targetUrl = itemArray[1];
+      } else {
+        userInfo[itemArray[0]] = itemArray[1];
+      }
     });
     Global.userInfo = userInfo;
   }
@@ -181,18 +184,17 @@ router.beforeEach(async (to, from, next) => {
 
   console.log(Global.vehicleList, 'vehicleList');
 
-  // 从其他系统跳入 http://letaservice.leta.cn/equipment/?targetUrl=%27123%27#/swiper?customerId=11&openid=8432098437892
-  const posStr = 'targetUrl=';
-  const locationSearch = location.search;
-  if (locationSearch && (locationSearch.indexOf(posStr) !== -1)) {
-    const targetUrlArray = locationSearch.substring(1).split('&');
-    for (let i = 0, len = targetUrlArray.length; i < len; i = +1) {
-      if (targetUrlArray[i].indexOf(posStr) !== -1) {
-        Global.targetUrl = targetUrlArray[i].replace(posStr, '');
-        break;
-      }
-    }
-  }
+  // const posStr = 'targetUrl=';
+  // const locationSearch = location.search;
+  // if (locationSearch && (locationSearch.indexOf(posStr) !== -1)) {
+  //   const targetUrlArray = locationSearch.substring(1).split('&');
+  //   for (let i = 0, len = targetUrlArray.length; i < len; i = +1) {
+  //     if (targetUrlArray[i].indexOf(posStr) !== -1) {
+  //       Global.targetUrl = targetUrlArray[i].replace(posStr, '');
+  //       break;
+  //     }
+  //   }
+  // }
 
   // 如果是从外面跳入，设备添加成功后返回原来路径
   if (Global.targetUrl && from.path === '/success') {
@@ -223,10 +225,7 @@ router.beforeEach(async (to, from, next) => {
         // 去获取电动车列表,并处理电动车
         if (!Global.vehicleList.length) {
           const res = await bindVehicleAxios();
-          const path = goToPage(res);
-          if (path) {
-            return next(path);
-          }
+          formatVehicleList(res);
           return next();
           // bindVehicleAxios().then((res) => {
           //   const path = goToPage(res);
@@ -240,7 +239,6 @@ router.beforeEach(async (to, from, next) => {
       }
       return next();
     }
-    // return next('/register');
     return next();
   } else if (to.path === '/home') {
     // 去获取电动车列表,并处理电动车
@@ -253,10 +251,7 @@ router.beforeEach(async (to, from, next) => {
       //   return next();
       // });
       const res = await bindVehicleAxios();
-      const path = goToPage(res);
-      if (path) {
-        return next(path);
-      }
+      formatVehicleList(res);
       return next();
     }
     return next();

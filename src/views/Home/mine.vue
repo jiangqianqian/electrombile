@@ -1,6 +1,6 @@
 <template>
   <div class="mine-box">
-    <iframe src="http://letaservice.leta.cn/#/myInfo"
+    <iframe src="http://letaservice.leta.cn/leta-wx/#/myInfo"
             ref="iframe"
             width="100%"
             height="100%"

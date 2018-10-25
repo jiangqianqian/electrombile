@@ -1,6 +1,6 @@
 <template>
   <div>
-    <navBar>
+    <navBar v-if="vehicleList.length">
       <template slot="titleBox">
         <div class="title-box"
              @click="selectFlag = true">
@@ -18,7 +18,7 @@
       </template>
     </navBar>
 
-    <div class="bm-view-wrap">
+    <div :class="{'bm-view-wrap': true, 'top-gap' : vehicleList.length > 0}">
       <baidu-map ref="baiduMap"
                  class="bm-view"
                  :center="circlePath.center"
@@ -34,7 +34,7 @@
         </bm-overlay>
       </baidu-map>
 
-      <div class="card">
+      <div class="card" v-if="vehicleList.length">
         <div class="info-main">
           <span class="title">{{cardTitle}}</span>
 
@@ -97,8 +97,11 @@ export default {
   methods: {
     mapReady({ BMap, map }) {
       // 请求接口确定是否已设置围栏
-      this.getVehicleAddress();
-      // this.init();
+      if (this.vehicleList.length) {
+        this.getVehicleAddress();
+      } else {
+        this.setCurPosition();
+      }
     },
 
     init() {
@@ -128,6 +131,30 @@ export default {
           // 地图准备好后设置并绘制中心点
           this.setAndDrawCenter();
         });
+    },
+
+    setCurPosition() {
+      // 当前用户所在位置
+      const _this = this;
+      const geolocation = new BMap.Geolocation();
+      geolocation.getCurrentPosition(
+        function (r) {
+          // 画当前位置
+          if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+            Toast.clear();
+            _this.circlePath.center = {
+              lng: r.point.lng,
+              lat: r.point.lat
+            };
+          } else {
+            Toast.fail('获取定位失败!');
+          }
+        },
+        {
+          enableHighAccuracy: true
+        }
+      );
+      Toast.clear();
     },
 
     setAndDrawCenter() {
@@ -314,11 +341,15 @@ export default {
 <style scoped>
 .bm-view-wrap {
   position: absolute;
-  top: 46px;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 50px;
   overflow: hidden;
+}
+
+.top-gap {
+  top: 46px;
 }
 
 .card {

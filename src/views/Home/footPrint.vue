@@ -1,6 +1,6 @@
 <template>
   <div>
-    <navBar>
+    <navBar v-if="vehicleList.length">
       <template slot="titleBox">
         <div class="title-box"
              @click="selectFlag = true">
@@ -17,7 +17,7 @@
         </ul>
       </template>
     </navBar>
-    <div class="bm-view-wrap"
+    <div :class="{'bm-view-wrap': true, 'top-gap' : vehicleList.length > 0}"
          @touchend="selectFlag = false">
       <baidu-map ref="baiduMap"
                  class="bm-view"
@@ -212,12 +212,41 @@ export default {
       this.setCenter();
     },
 
+    setCurPosition() {
+      // 当前用户所在位置
+      const _this = this;
+      const geolocation = new BMap.Geolocation();
+      geolocation.getCurrentPosition(
+        function (r) {
+          // 画当前位置
+          if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+            Toast.clear();
+            _this.center = {
+              lng: r.point.lng,
+              lat: r.point.lat
+            };
+          } else {
+            Toast.fail('获取定位失败!');
+          }
+        },
+        {
+          enableHighAccuracy: true
+        }
+      );
+      Toast.clear();
+    },
+
     setCenter() {
       // 设置当前选中的电动车坐标为中心点
-      this.center = {
-        lng: this.currentSelectItem.lng,
-        lat: this.currentSelectItem.lat
-      };
+      if (this.vehicleList.length) {
+        this.center = {
+          lng: this.currentSelectItem.lng,
+          lat: this.currentSelectItem.lat
+        };
+      } else {
+        // 获取当前位置为中心点
+        this.setCurPosition();
+      }
     },
 
     resetPlay() {
@@ -338,6 +367,11 @@ export default {
     // },
 
     search() {
+      if (!this.vehicleList.length) {
+        Toast('暂无设备绑定信息');
+        return;
+      }
+
       // 重置播放状态为起始
       this.resetState();
 
@@ -482,11 +516,15 @@ export default {
 <style scoped>
 .bm-view-wrap {
   position: absolute;
-  top: 46px;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 50px;
   overflow: hidden;
+}
+
+.top-gap {
+  top: 46px;
 }
 
 .icon-control-wrap {
