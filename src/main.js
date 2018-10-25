@@ -135,13 +135,11 @@ function formatVehicleList(res) {
       return item;
     });
   }
-
-  return path;
 }
 
 function getSearch(search) {
   if (search) {
-    const searchArray = decodeURIComponent(search).split('&');
+    const searchArray = search.split('&');
     const userInfo = {};
     searchArray.forEach((item) => {
       const itemArray = item.split('=');
@@ -150,9 +148,9 @@ function getSearch(search) {
       }
       if (itemArray[0] === 'targetUrl') {
         // 从其他系统跳入 http://letaservice.leta.cn/equipment/#/swiper?customerId=11&openid=8432098437892&targetUrl=%27123%27
-        Global.targetUrl = itemArray[1];
+        Global.targetUrl = decodeURIComponent(itemArray[1]);
       } else {
-        userInfo[itemArray[0]] = itemArray[1];
+        userInfo[itemArray[0]] = decodeURIComponent(itemArray[1]);
       }
     });
     Global.userInfo = userInfo;
