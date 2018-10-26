@@ -187,14 +187,14 @@ export default {
 }
 
 .text {
-  margin-top: 0.84rem;
+  margin-top: 0.7rem;
   font-size: 0.38rem;
   text-align: center;
 }
 
 .img {
   display: block;
-  margin: 1.2rem auto 0;
+  margin: 1rem auto 0;
 }
 
 .item1 {
@@ -218,7 +218,11 @@ export default {
 }
 
 .bind-btn-wrap {
-  margin: 1rem 1rem 0;
+  position: absolute;
+  left: 50%;
+  margin-left: -40%;
+  width: 80%;
+  bottom: 1.2rem;
 }
 
 .bind-btn {
