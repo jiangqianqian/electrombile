@@ -19,7 +19,7 @@ export default {
   },
   data() {
     return {
-      src: `http://letaservice.leta.cn/leta-wx/#/myInfo?openid=${this.Global.userInfo.openId}&customerid=${this.Global.userInfo.customerId}`
+      src: `http://letaservice.leta.cn/leta-wx/#/myInfo?openid=${this.Global.userInfo.openId}&customerId=${this.Global.userInfo.customerId}`
     };
   },
   created() {
