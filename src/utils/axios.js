@@ -16,7 +16,6 @@ const BASE_URL = '/leta_service';
 
 // 请求开始时，开启加载中动画，出错了提示并关闭动画
 axios.interceptors.request.use((config) => {
-  console.log(config, 'config');
   if (vue && config.customered.showLoading) {
     Toast.loading({
       mask: true,
@@ -35,9 +34,13 @@ axios.interceptors.request.use((config) => {
 // 请求完成时，关闭加载中动画，返回数据或错误信息
 axios.interceptors.response.use((response) => {
   Toast.clear();
-  // console.log(response, 'response');
   // 一切正常，返回数据或空对象
   if (response.data.code === 0) {
+    // 注册页需要拿到 rectUrl
+    if (response.data.rectUrl) {
+      return response.data;
+    }
+
     return response.data.data || {};
     // TODO:
   } else if (response.data.code === 401 || response.data.code === 403 || response.data.code === 404) {

@@ -118,10 +118,19 @@ export default {
           .post('/equipment/customRegister.htm', params, this)
           .then(res => {
             // 跳转到轮播页面
-            if (res) {
+            if (res && res.data) {
               this.Global.getTotalUserInfoFlag = true;
-              this.Global.userInfo = res;
-              this.$router.push('/swiper');
+              this.Global.userInfo = res.data;
+              this.Global.userInfo.openId = res.data.openid;
+              delete this.Global.userInfo.openid;
+
+              let rectUrl = '/swiper';
+              if (res.rectUrl === 'index') {
+                rectUrl = '/home';
+              } else if (res.rectUrl === 'login') {
+                rectUrl = '/register';
+              }
+              this.$router.push(rectUrl);
             }
           });
       }

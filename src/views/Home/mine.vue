@@ -1,6 +1,6 @@
 <template>
   <div class="mine-box">
-    <iframe src="http://letaservice.leta.cn/leta-wx/#/myInfo"
+    <iframe :src="src"
             ref="iframe"
             width="100%"
             height="100%"
@@ -16,6 +16,11 @@ export default {
   name: 'mine',
   components: {
     [Toast.name]: Toast,
+  },
+  data() {
+    return {
+      src: `http://letaservice.leta.cn/leta-wx/#/myInfo?openid=${this.Global.userInfo.openId}&customerid=${this.Global.userInfo.customerId}`
+    };
   },
   created() {
     // Toast.loading({

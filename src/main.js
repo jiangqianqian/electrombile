@@ -143,11 +143,16 @@ function getSearch(search) {
     const userInfo = {};
     searchArray.forEach((item) => {
       const itemArray = item.split('=');
+
+      // 带 id 的统一改成驼峰形式，后端工程不统一，真是醉了
       if (itemArray[0] === 'openid') {
         itemArray[0] = 'openId';
+      } else if (itemArray[0] === 'customerid') {
+        itemArray[0] = 'customerId';
       }
+
       if (itemArray[0] === 'targetUrl') {
-        // 从其他系统跳入 http://letaservice.leta.cn/equipment/#/swiper?customerId=11&openid=8432098437892&targetUrl=%27123%27
+        // 从其他系统跳入 http://letaservice.leta.cn/equipment/#/swiper?customerid=11&openid=8432098437892&targetUrl=%27123%27
         Global.targetUrl = decodeURIComponent(itemArray[1]);
       } else {
         userInfo[itemArray[0]] = decodeURIComponent(itemArray[1]);
@@ -211,7 +216,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.path !== '/register' && !Global.getTotalUserInfoFlag) {
     const data = await getUserInfo();
     if (data) {
-      Global.userInfo = data;
+      Global.userInfo = Object.assign(Global.userInfo, data);
 
       // 前端统一用大写，后端有些大写，有些小写
       Global.userInfo.openId = data.openid;
