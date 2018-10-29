@@ -1,5 +1,5 @@
 <template>
-  <div class="swiper-page">
+  <div :class="{'swiper-page': true, 'swiper-page-redirect' : targetUrl}">
     <swiper class="guide-swipe"
             :options="swiperOption"
             ref="mySwiper">
@@ -58,7 +58,8 @@ export default {
         pagination: {
           el: '.swiper-pagination'
         }
-      }
+      },
+      targetUrl: this.Global.targetUrl
     };
   },
   computed: {
@@ -187,14 +188,14 @@ export default {
 }
 
 .text {
-  margin-top: 0.7rem;
+  margin-top: 0.84rem;
   font-size: 0.38rem;
   text-align: center;
 }
 
 .img {
   display: block;
-  margin: 1rem auto 0;
+  margin: 1.2rem auto 0;
 }
 
 .item1 {
@@ -218,11 +219,7 @@ export default {
 }
 
 .bind-btn-wrap {
-  position: absolute;
-  left: 50%;
-  margin-left: -40%;
-  width: 80%;
-  bottom: 1.2rem;
+  margin: 1rem 1rem 0;
 }
 
 .bind-btn {
@@ -238,5 +235,14 @@ export default {
 .swiper-page >>> .swiper-pagination-bullet-active {
   width: 18px;
   border-radius: 9px;
+}
+
+.swiper-page-redirect .img,
+.swiper-page-redirect .text {
+  margin-top: 0.5rem;
+}
+
+.swiper-page-redirect .item3 .img {
+  width: 80%;
 }
 </style>
